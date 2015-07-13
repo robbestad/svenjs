@@ -1,0 +1,12 @@
+h3 {margin: 0; font-size: 1em; text-decoration: underline}
+
+#row {width: 19em; margin: 0 auto}
+
+#app {width: 45%; float: left; border-right: 1px solid grey; }
+#app small {color: #afafaf}
+#ui, button {margin-top: 1em}
+#ui ul {margin-top: 0.3em;}
+#ui li {cursor: pointer}
+#ui li:hover {text-decoration: line-through}
+
+#time-travel {width: 40%; float: left; padding-left: 1em;}
