@@ -1,28 +1,25 @@
-var state = {items: ['dog', 'cat']};
+var state = {items: []};
 var time = {history: [], pos: -1};
+// on did mount
+Svenjs.updateUI(false, render(state), time);
 
 // app events
 function handleClick(idx) {
   "use strict";
-  state.items.splice(idx, 1);
-  Svenjs.updateUI(false,render(state),time);
+  state.items.push(getNextString());
+  Svenjs.updateUI(false, render(state), time);
 }
 
 function getNextString() {
+  "use strict";
   var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
   return words[Math.floor(Math.random() * words.length)];
 }
 
-function updateTimeUI() {
-  if(null !== document.querySelector('#time-pos')) document.querySelector('#time-pos').innerHTML =
-    ('Position ' + (time.pos + 1) + ' of ' + time.history.length);
-  if(null !== document.querySelector('#next'))
-    document.querySelector('#next').disabled = time.pos >= time.history.length - 1;
+function rerender(state){
+  "use strict";
+  Svenjs.render(render(state));
 }
-
-// on did mount
-updateTimeUI();
-Svenjs.updateUI(false,render(state),time);
 
 function render(state) {
   "use strict";
@@ -45,8 +42,9 @@ function render(state) {
   var buttonText = document.createTextNode("Add Word");
   button.id="add";
   button.onclick = function () {
+    "use strict";
     state.items.push(getNextString());
-    Svenjs.updateUI(false,render(state),time);
+    Svenjs.setState(state, time, rerender);
   };
   button.appendChild(buttonText);
   app.appendChild(button);
@@ -61,17 +59,16 @@ function render(state) {
   app.appendChild(wordSpan);
 
   var ul = document.createElement("ul");
-  state.items.forEach(function(item){
+  state.items.forEach(function(item, idx){
     var li = document.createElement("li");
     var textContent = document.createTextNode(item);
     li.appendChild(textContent);
     li.onclick = function () {
-      handleClick(item);
+      handleClick(idx);
     };
     ul.appendChild(li);
   });
   app.appendChild(ul);
-
 
   var timeTravelDiv = document.createElement("div");
   timeTravelDiv.id="time-travel";
@@ -87,11 +84,11 @@ function render(state) {
   button.id="back";
   button.disabled = time.pos <= 0;
   button.onclick = function () {
+    "use strict";
     time.pos--;
-    updateTimeUI();
     // Load historic state
     state = Svenjs.deepCopy(time.history[time.pos]);
-    Svenjs.updateUI(true, render(state),time);
+    Svenjs.updateUI(true, render(state), time);
   };
   button.appendChild(buttonText);
   timeTravelDiv.appendChild(button);
@@ -104,17 +101,16 @@ function render(state) {
     "use strict";
     // Move history pointer
     time.pos++;
-    updateTimeUI();
     // Load historic state
     state = Svenjs.deepCopy(time.history[time.pos]);
     Svenjs.updateUI(true, render(state), time);
   };
   button.appendChild(buttonText);
   timeTravelDiv.appendChild(button);
-  
   var ttP = document.createElement("p");
   ttP.id = "time-pos";
-  ttP.textContent=('Position ' + (time.pos + 1) + ' of ' + time.history.length);
+  ttP.textContent=('Position ' + (0 === (time.pos +1) ? 1 : (time.pos +1)) + ' of ' +
+    (0 === time.history.length ? 1 : time.history.length));
   timeTravelDiv.appendChild(ttP);
 
   return docFragment;

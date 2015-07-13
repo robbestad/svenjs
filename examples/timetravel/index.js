@@ -45,8 +45,6 @@ document.querySelector('#next').onclick = function () {
 };
 function render(state) {
   "use strict";
-
-
   var span = '<span id="count">Words: ' + state.items.length + '</span>';
   var lis = state.items.map(function (item, idx) {
     return '<li onclick=handleClick(' + idx + ')>' + item + '</li>';
