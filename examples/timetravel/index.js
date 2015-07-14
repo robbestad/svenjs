@@ -13,6 +13,7 @@ document.querySelector('#add').onclick = function () {
   Svenjs.updateUI(false, render(state), time);
   updateTimeUI();
 };
+
 function getNextString() {
   var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
   return words[Math.floor(Math.random() * words.length)];

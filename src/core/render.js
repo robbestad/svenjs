@@ -1,4 +1,4 @@
-const render = exports.render = (html, selector="#ui")=> {
+exports.render = (html, selector="#ui")=> {
   document.querySelector(selector).innerHTML = "";
   if (typeof html === "string") {
     document.querySelector(selector).appendChild(

@@ -1,8 +1,10 @@
-const updateUI = exports.updateUI = (loading, html, time)=> {
-  if (!loading) Svenjs.saveState(time);
+import {saveState} from './save-state';
+exports.updateUI = (loading, html, time)=> {
+  if (!loading) saveState(time);
   if (JSON.stringify(document.querySelector('#ui').innerHTML) === JSON.stringify(html)) {
     return;
   }
+
   document.querySelector('#ui').innerHTML = "";
   if (typeof html === "string") {
     document.querySelector('#ui').appendChild(
