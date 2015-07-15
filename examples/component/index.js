@@ -15,7 +15,6 @@ var timeTravel = Svenjs.createComponent({
     return words[Math.floor(Math.random() * words.length)];
   },
  
- 
   render: function (state,time) {
     "use strict";
     state = state || this.state;
