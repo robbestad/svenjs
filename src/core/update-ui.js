@@ -1,5 +1,4 @@
-const updateUI = exports.updateUI = (loading, html, time)=> {
-  if (!loading) Svenjs.saveState(time);
+exports.updateUI = (html, time)=> {
   if (JSON.stringify(document.querySelector('#ui').innerHTML) === JSON.stringify(html)) {
     return;
   }

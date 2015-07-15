@@ -1,12 +1,8 @@
-const setState = exports.setState = (state, time, callback)=> {
-  Svenjs.saveState(time);
-  if (JSON.stringify(document.querySelector('#ui').innerstate) === JSON.stringify(state)) {
-    return;
-  }
-// delete alternate future history
-  time.history.splice(time.pos);
-// push state to history
-  time.history.push(Svenjs.deepCopy(state));
+import {deepCopy} from '../utils/deep-copy';
+import {updateUI} from './update-ui';
+import {saveState} from './save-state';
 
-  callback(state);
+exports.setState = (state, time, callback)=> {
+    saveState(time,state);
+	updateUI(callback.render(state), time);
 };
