@@ -1,13 +1,14 @@
-exports.updateUI = (html, time)=> {
-  if (JSON.stringify(document.querySelector('#ui').innerHTML) === JSON.stringify(html)) {
+exports.updateUI = (html, time, spec)=> {
+  let rootNode = spec._svenjs.rootNode;
+  if (JSON.stringify(rootNode.innerHTML) === JSON.stringify(html)) {
     return;
   }
-  document.querySelector('#ui').innerHTML = "";
+  rootNode.innerHTML = "";
   if (typeof html === "string") {
-    document.querySelector('#ui').appendChild(
+    rootNode.appendChild(
       document.createRange().createContextualFragment(html)
     );
   } else {
-    document.querySelector('#ui').appendChild(html);
+    rootNode.appendChild(html);
   }
 };
