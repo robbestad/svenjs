@@ -94,6 +94,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.updateUI = function (spec, html, time) {
 	  var rootNode = spec._svenjs.rootNode;
+	  console.log(rootNode);
 	  time = time || spec.time;
 	  html = html || spec.render(spec.state);
 	  if (JSON.stringify(rootNode.innerHTML) === JSON.stringify(html)) {

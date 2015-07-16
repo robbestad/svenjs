@@ -4,6 +4,8 @@ h3 {margin: 0; font-size: 1em; text-decoration: underline}
 
 #app {width: 45%; float: left; border-right: 1px solid grey; }
 #app small {color: #afafaf;display: block; padding: 4px;}
+#myapp {width: 100%; float: left; border-right: 1px solid grey; }
+#myapp small {color: #afafaf;display: block; padding: 4px;}
 #ui, button {margin-top: 1em;display: block; padding: 4px}
 #ui ul {margin-top: 0.3em;display: block; }
 #ui li {cursor: pointer}
