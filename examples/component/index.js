@@ -1,12 +1,12 @@
 const Svenjs = require('../../dist/sven.js');
-const App = require("./app");
-const App2 = require("./app2");
+const First = require("./app");
+const Second = require("./app2");
 const rootNode = document.getElementById('ui');
 Svenjs.render(
-  App,
+  First,
   rootNode
 );
 Svenjs.render(
-  App2,
+  Second,
   document.getElementById('myapp')
 );
