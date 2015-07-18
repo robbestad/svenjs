@@ -8,6 +8,7 @@ exports.timeTravel = (spec,position)=> {
   let state = spec.state;
   time.pos+=position;
   state = deepCopy(time.history[time.pos]);
+  spec.state=state;
   updateUI(spec,spec.render(state), time);
   lifeCycle(spec);
 };

@@ -8,7 +8,6 @@ var timeTravel = Svenjs.createComponent({
   componentDidUpdate(){
     "use strict";
   },
-  
   handleClick: function (idx) {
     "use strict";
     this.state.items.splice(idx, 1);
@@ -20,12 +19,14 @@ var timeTravel = Svenjs.createComponent({
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
-  
- 
-  render: function (state,time) {
+   
+  render: function () {
     "use strict";
-    state = state || this.state;
-    time = time || this.time;
+//    state = state || this.state;
+ //   time = time || this.time;
+
+    var state=this.state;
+    var time = this.time;
     var docFragment = document.createDocumentFragment();
     var rowDiv = document.createElement("div");
     rowDiv.id = "row";
