@@ -1,12 +1,12 @@
 const Svenjs = require('../../dist/sven.js');
 var timeTravel = Svenjs.createComponent({
+  displayName:"First app",
   initialState:{items: [], message:''},
   componentDidMount(){
     "use strict";
   },
   componentDidUpdate(){
     "use strict";
-    console.log('did update');
   },
   
   handleClick: function (idx) {
@@ -42,7 +42,8 @@ var timeTravel = Svenjs.createComponent({
     button.onclick = ()=> {
       "use strict";
       state.items.push(this.getNextString());
-      Svenjs.setState(state, this);
+      //Svenjs.setState(state, this);
+      Svenjs.setState(state).bind(this);
     };
     button.appendChild(buttonText);
     app.appendChild(button);

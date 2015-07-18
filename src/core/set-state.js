@@ -5,7 +5,7 @@ import {lifeCycle} from './life-cycle';
 
 exports.setState = (state, spec, autobind="not set")=> {
 	console.log('set-state');
-	console.log(this);
+	console.log(state);
 	console.log(autobind);
     saveState(spec.time,state);
 	updateUI(spec, spec.render(state));
