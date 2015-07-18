@@ -13,13 +13,14 @@ var timeTravel = Svenjs.createComponent({
     "use strict";
     this.state.items.splice(idx, 1);
     this.state.message = "Spliced!";
-    Svenjs.setState(this.state, this);
+    this.setState(this.state);
   },
-  getNextString: function () {
+  getNextString() {
     "use strict";
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
+  
  
   render: function (state,time) {
     "use strict";
@@ -42,8 +43,7 @@ var timeTravel = Svenjs.createComponent({
     button.onclick = ()=> {
       "use strict";
       state.items.push(this.getNextString());
-      //Svenjs.setState(state, this);
-      Svenjs.setState(state).bind(this);
+      this.setState(state);
     };
     button.appendChild(buttonText);
     app.appendChild(button);

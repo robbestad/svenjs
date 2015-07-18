@@ -1,23 +1,17 @@
-function bindAutoBindMethods(component) {
-  for (var autoBindKey in component.__reactAutoBindMap) {
-    if (component.__reactAutoBindMap.hasOwnProperty(autoBindKey)) {
-      var method = component.__reactAutoBindMap[autoBindKey];
-      component[autoBindKey] = bindAutoBindMethod(
-        component,
-        ReactErrorUtils.guard(
-          method,
-          component.constructor.displayName + '.' + autoBindKey
-        )
-      );
-    }
-  }
-}
+import {binder} from './binder';
+import {setState} from './set-state';
 
 exports.createComponent = (spec)=> {
     console.log(spec.displayName);
+    spec._svenjs={rootNode:{}};
+	if(!spec.isBound){
+		spec.isBound=true;
 
-	spec._svenjs={rootNode:{}};
+		spec.setState=function(state){
+		    return setState(state,this);
+		 };
 
+	}
 	if(!spec.isMounted){
 		spec.time={history: [], pos: -1}
 		spec.isMounted=true;
