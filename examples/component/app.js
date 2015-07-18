@@ -13,7 +13,7 @@ var timeTravel = Svenjs.createComponent({
     "use strict";
     this.state.items.splice(idx, 1);
     this.state.message = "Spliced!";
-    Svenjs.setState(this.state, this.time, this);
+    Svenjs.setState(this.state, this);
   },
   getNextString: function () {
     "use strict";
@@ -41,9 +41,8 @@ var timeTravel = Svenjs.createComponent({
     button.id = "add";
     button.onclick = ()=> {
       "use strict";
-      
       state.items.push(this.getNextString());
-      Svenjs.setState(state, time, this);
+      Svenjs.setState(state, this);
     };
     button.appendChild(buttonText);
     app.appendChild(button);
