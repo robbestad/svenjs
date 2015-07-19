@@ -1,12 +1,19 @@
 const Svenjs = require('../../dist/sven.js');
+import MyStore from './store';
 var timeTravel = Svenjs.createComponent({
   displayName:"First app",
   initialState:{items: [], message:''},
   componentDidMount(){
     "use strict";
+    MyStore.listenTo(this.onEmit);
   },
+
   componentDidUpdate(){
     "use strict";
+  },
+  onEmit(data){
+    console.log("data from store received!")
+    console.log(data);
   },
   handleClick: function (idx) {
     "use strict";
@@ -22,9 +29,6 @@ var timeTravel = Svenjs.createComponent({
    
   render: function () {
     "use strict";
-//    state = state || this.state;
- //   time = time || this.time;
-
     var state=this.state;
     var time = this.time;
     var docFragment = document.createDocumentFragment();

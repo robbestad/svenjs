@@ -14,5 +14,7 @@ A pure functional reactive web framework
 
  - Built in hot loader
 
+ - Built in store implementation
+ 
 
 
