@@ -55,7 +55,7 @@ var timeTravel = Svenjs.createComponent({
     app.appendChild(button);
     var smallSpan = document.createElement("small");
     smallSpan.textContent = '(click word to delete)';
-    setInterval(()=>{smallSpan.textContent=Math.random()*50},50)
+    //setInterval(()=>{smallSpan.textContent=Math.random()*50},50)
     app.appendChild(smallSpan);
     var wordSpan = document.createElement("span");
     wordSpan.id = 'count';
