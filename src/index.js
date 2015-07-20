@@ -1,19 +1,23 @@
-import { version } from './core/version';
-import { updateUI } from './core/update-ui';
-import { saveState } from './core/save-state';
-import { timeTravel } from './core/time-travel';
-import { setState } from './core/set-state';
-import { createComponent } from './core/create-component';
-import { lifeCycle } from './core/life-cycle';
-import { render } from './core/render';
-import { deepCopy } from './utils/deep-copy';
+import { version } from './component/version';
+import { updateUI } from './component/update-ui';
+import { saveState } from './component/save-state';
+import { timeTravel } from './component/time-travel';
+import { setState } from './component/set-state';
+import { createComponent } from './component/create-component';
+import { lifeCycle } from './component/life-cycle';
+import { render } from './component/render';
+import { createStore } from './store/create-store';
+import { deepCopy } from './lib/deep-copy';
+import { jsx } from './lib/jsx';
 
 export {
   version,
   updateUI,
   setState,
+  createStore,
   createComponent,
   render,
+  jsx,
   lifeCycle,
   timeTravel,
   saveState,

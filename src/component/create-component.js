@@ -1,4 +1,3 @@
-import {binder} from './binder';
 import {setState} from './set-state';
 
 exports.createComponent = (spec)=> {
@@ -18,7 +17,9 @@ exports.createComponent = (spec)=> {
 		if(undefined !== spec.initialState){
 			spec.state = spec.initialState;
 		}
-		spec.componentDidMount.apply(spec);
+		if("function" === typeof spec.componentDidMount){
+			spec.componentDidMount.apply(spec);
+		}
 
 	}
 	return spec;
