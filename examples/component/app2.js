@@ -32,9 +32,14 @@ var timeTravel = Svenjs.createComponent({
   render(...input){
     var name = "Bob";
     let myFunc = () =>{console.log('test')}
-    console.log(this)
     //return(<div>Hello! Your name is {name}</div>);
-    return (<div>Hello!  <button onClick={myFunc}>click me</button>Your name is {name}</div>);
+
+    return (<div>
+              <div>Hello 
+                      World!</div> 
+               <button onClick={myFunc}>Click me</button>
+               <div>Your name is {name}</div>
+            </div>);
   },
  
 
