@@ -1,6 +1,7 @@
-const Svenjs = require('../../dist/sven');
+//const Svenjs = require('../../dist/sven');
+const Svenjs = require('../../src/index');
 import MyStore from './store';
-import App2 from './app2';
+//import App2 from './app2';
 
 var timeTravel = Svenjs.createComponent({
   displayName:"First app",
@@ -13,7 +14,6 @@ var timeTravel = Svenjs.createComponent({
   componentDidUpdate(){
     "use strict";
   },
-
   onEmit(data){
     console.log("data from store received!")
     console.log(data);
@@ -29,11 +29,14 @@ var timeTravel = Svenjs.createComponent({
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
-  render(){
+  render(...input){
     var name = "Bob";
     let myFunc = () =>{console.log('test')}
-    return (<div>Hello! <App2/> <button onClick={myFunc}>click me</button>Your name is {name}</div>);
+    console.log(this)
+    //return(<div>Hello! Your name is {name}</div>);
+    return (<div>Hello!  <button onClick={myFunc}>click me</button>Your name is {name}</div>);
   },
+ 
 
   _render: function () {
     "use strict";
