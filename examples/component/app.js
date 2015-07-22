@@ -29,9 +29,16 @@ var timeTravel = Svenjs.createComponent({
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
-  render(...input){
-    var name = "Bob";
-    let myFunc = () =>{console.log('test')}
+  render(){
+    var state=this.state;
+    var time = this.time;
+
+    var name = this.state.message;
+    let myFunc = () =>{console.log('hope this works...');
+      state.items.push(this.getNextString());
+      state.message="BOB!";
+      this.setState(state);
+    }
     //return(<div>Hello! Your name is {name}</div>);
 
     return (<div>
