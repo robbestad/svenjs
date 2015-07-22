@@ -1,5 +1,7 @@
-const Svenjs = require('../../dist/sven.js');
+const Svenjs = require('../../dist/sven');
 import MyStore from './store';
+import App2 from './app2';
+
 var timeTravel = Svenjs.createComponent({
   displayName:"First app",
   initialState:{items: [], message:''},
@@ -11,6 +13,7 @@ var timeTravel = Svenjs.createComponent({
   componentDidUpdate(){
     "use strict";
   },
+
   onEmit(data){
     console.log("data from store received!")
     console.log(data);
@@ -26,8 +29,13 @@ var timeTravel = Svenjs.createComponent({
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
-   
-  render: function () {
+  render(){
+    var name = "Bob";
+    let myFunc = () =>{console.log('test')}
+    return (<div>Hello! <App2/> <button onClick={myFunc}>click me</button>Your name is {name}</div>);
+  },
+
+  _render: function () {
     "use strict";
     var state=this.state;
     var time = this.time;
@@ -105,6 +113,18 @@ var timeTravel = Svenjs.createComponent({
     ttP.textContent =
       ('Position ' + (time.pos + 1) + ' of ' + time.history.length);
     timeTravelDiv.appendChild(ttP);
+
+/*
+var anotherDiv = document.createElement("div");
+    anotherDiv.id = "second";
+    docFragment.appendChild(anotherDiv);
+    document.getElementById('myapp').appendChild(docFragment)
+    Svenjs.render(
+      App2,
+      docFragment.getElementById("second")
+    );
+    */
+
     return docFragment;
   }
 });

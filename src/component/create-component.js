@@ -1,7 +1,7 @@
 import {setState} from './set-state';
 
 exports.createComponent = (spec)=> {
-    console.log(spec.displayName);
+	//if("string" === typeof spec) return;
     spec._svenjs={rootNode:{}};
 	if(!spec.isBound){
 		spec.isBound=true;

@@ -10,6 +10,7 @@ module.exports = Svenjs.createStore({
 	     self.emit(data);
 	    })
 	    .catch(console.log.bind(console));
+	
 	    
 	    //.catch((reason) =>{
         //	console.log('oh no, this happened:'+reason);

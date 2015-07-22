@@ -1,7 +1,9 @@
+import {jsx} from './jsx';
 exports.updateUI = (spec,html,time)=> {
   let rootNode = spec._svenjs.rootNode;
   time = time || spec.time;
   html = html || spec.render(spec.state)
+//  console.log(jsx(html));
   if (JSON.stringify(rootNode.innerHTML) === JSON.stringify(html)) {
     return;
   }
@@ -13,4 +15,5 @@ exports.updateUI = (spec,html,time)=> {
   } else {
     rootNode.appendChild(html);
   }
+  
 };

@@ -8,7 +8,7 @@ import { lifeCycle } from './component/life-cycle';
 import { render } from './component/render';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
-import { jsx } from './lib/jsx';
+import { jsx } from './component/jsx';
 
 export {
   version,
