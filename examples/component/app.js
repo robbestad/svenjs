@@ -45,13 +45,36 @@ var timeTravel = Svenjs.createComponent({
     let goBack=()=>{
       Svenjs.timeTravel(this,-1);
     };
+  /*
+      return (<div>
+                <div>{this.state.message || "Sample App"}!</div> 
+                 <button onClick={myFunc}>Click me</button>
+                 <div>Your name is {name}</div>
+                 <button onClick={this.goBack.bind(this)}>Go back</button>
+              </div>);
+    var span = '<span id="count">Words: ' + state.items.length + '</span>';
+    var lis = state.items.map(function (item, idx) {
+      return '<li onclick=handleClick(' + idx + ')>' + item + '</li>';
+    });
+    return span + '<ul>' + lis.join('') + '</ul>';
+  */
+    let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
+    let backDisabled = time.pos <= 0 ? "disabled" : "false";
 
-    return (<div>
-              <div>{this.state.message || "Sample App"}!</div> 
-               <button onClick={myFunc}>Click me</button>
-               <div>Your name is {name}</div>
-               <button onClick={this.goBack.bind(this)}>Go back</button>
-            </div>);
+    return (<div id="row">
+            <div id="app">
+                <h3>{this.state.message || "Sample App"}</h3>
+                <button id="add" onClick={myFunc}>Add word</button>
+                <div id="ui"></div>
+                <small>(click word to delete)</small>
+            </div>
+            <div id="time-travel">
+                <h3>Time travel</h3>
+                <button id="back" disabled={backDisabled} onClick={this.goBack.bind(this)}>Back</button>
+                <button id="next">Next</button>
+                <p id="time-pos"></p>
+            </div>
+        </div>);
   },
  
 
