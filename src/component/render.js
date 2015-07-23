@@ -1,10 +1,8 @@
 import {updateUI} from './update-ui';
-import {setSpec} from './jsx';
 
 exports.render = (spec, rootNode)=> {
   spec._svenjs.rootNode=rootNode;
   updateUI(spec);
-
 };
 
 /*

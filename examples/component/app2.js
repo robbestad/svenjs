@@ -27,6 +27,9 @@ var timeTravel = Svenjs.createComponent({
   goBack(){
       Svenjs.timeTravel(this,-1);
   },
+  goForward(){
+      Svenjs.timeTravel(this,1);
+  },
   getNextString() {
     "use strict";
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
@@ -42,9 +45,6 @@ var timeTravel = Svenjs.createComponent({
       state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
       this.setState(state);
     }
-    let goBack=()=>{
-      Svenjs.timeTravel(this,-1);
-    };
   /*
       return (<div>
                 <div>{this.state.message || "Sample App"}!</div> 
@@ -61,19 +61,20 @@ var timeTravel = Svenjs.createComponent({
     let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
     let backDisabled = time.pos <= 0 ? "disabled" : "false";
 
-    return (<div id="row">
-            <div id="app">
-                <h3>{this.state.message || "Sample App"}</h3>
-                <button id="add" onClick={myFunc}>Add word</button>
-                <div id="ui"></div>
-                <small>(click word to delete)</small>
-            </div>
-            <div id="time-travel">
-                <h3>Time travel</h3>
-                <button id="back" disabled={backDisabled} onClick={this.goBack.bind(this)}>Back</button>
-                <button id="next">Next</button>
-                <p id="time-pos"></p>
-            </div>
+    return (<div>
+      <div id="row"></div>
+              <div id="app">
+                  <h3>{this.state.message || "Sample App"}</h3>
+                  <button id="add" onClick={myFunc}>Add word</button>
+                  <div id="ui"></div>
+                  <small>(click word to delete)</small>
+              </div>
+              <div id="time-travel">
+                  <h3>Time travel</h3>
+                  <button id="back" disabled={backDisabled} onClick={this.goBack.bind(this)}>Back</button>
+                  <button id="next" disabled={nextDisabled} onClick={this.goForward.bind(this)}>Next</button>
+                  <p id="time-pos"></p>
+              </div>
         </div>);
   },
  

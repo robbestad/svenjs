@@ -1,4 +1,3 @@
-let _spec;
 exports.updateUI = (spec,html,time)=> {
  /*
   console.log('updateUI');

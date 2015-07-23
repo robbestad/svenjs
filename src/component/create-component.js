@@ -1,5 +1,4 @@
 import {setState} from './set-state';
-import {jsx} from './jsx';
 
 exports.createComponent = (spec, rootNode) => {
     spec._svenjs={rootNode:{}};
