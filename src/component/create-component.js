@@ -10,10 +10,9 @@ exports.createComponent = (spec, rootNode) => {
 		spec.setState=function(state){
 		    return setState(state,this);
 		 };
-
 	}
+
 	if(!spec.isMounted){
-		//console.log('mounting');
 		spec.time={history: [], pos: -1}
 		spec.isMounted=true;
 		if(undefined !== spec.initialState){
@@ -21,6 +20,7 @@ exports.createComponent = (spec, rootNode) => {
 		}
 
 	}
+
 	if(spec.isMounted){
 		if("function" === typeof spec.componentDidMount){
 			spec.componentDidMount.apply(spec);

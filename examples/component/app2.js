@@ -1,7 +1,7 @@
 //const Svenjs = require('../../dist/sven');
 const Svenjs = require('../../src/index');
 import MyStore from './store';
-//import App2 from './app2';
+import App2 from './app2';
 
 var timeTravel = Svenjs.createComponent({
   displayName:"First app",
@@ -24,6 +24,9 @@ var timeTravel = Svenjs.createComponent({
     this.state.message = "Spliced!";
     this.setState(this.state);
   },
+  goBack(){
+      Svenjs.timeTravel(this,-1);
+  },
   getNextString() {
     "use strict";
     var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
@@ -32,20 +35,22 @@ var timeTravel = Svenjs.createComponent({
   render(){
     var state=this.state;
     var time = this.time;
+    var self = this;
 
-    var name = this.state.message;
-    let myFunc = () =>{console.log('hope this works...');
+    let myFunc = () =>{
       state.items.push(this.getNextString());
-      state.message="BOB!";
+      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
       this.setState(state);
     }
-    //return(<div>Hello! Your name is {name}</div>);
+    let goBack=()=>{
+      Svenjs.timeTravel(this,-1);
+    };
 
     return (<div>
-              <div>Hello 
-                      World!</div> 
+              <div>{this.state.message || "Sample App"}!</div> 
                <button onClick={myFunc}>Click me</button>
                <div>Your name is {name}</div>
+               <button onClick={this.goBack.bind(this)}>Go back</button>
             </div>);
   },
  

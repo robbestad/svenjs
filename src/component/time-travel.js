@@ -3,6 +3,7 @@ import {updateUI} from './update-ui';
 import {lifeCycle} from './life-cycle';
 
 exports.timeTravel = (spec,position)=> {
+  document.getElementById('ui').innerHTML = "";
   let time = spec.time;
   let state = spec.state;
   time.pos+=position;
