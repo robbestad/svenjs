@@ -7,4 +7,6 @@ exports.setState = (state, spec)=> {
     spec.render(state);
 //	updateUI(spec, spec.render(state));
 	lifeCycle(spec);
+	//spec.render.apply(spec);
+
 };

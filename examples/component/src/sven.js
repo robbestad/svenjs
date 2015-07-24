@@ -177,10 +177,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _lifeCycle = __webpack_require__(1);
 
 	exports.setState = function (state, spec) {
-	    _saveState.saveState(spec.time, state);
-	    spec.render(state);
-	    //	updateUI(spec, spec.render(state));
-	    _lifeCycle.lifeCycle(spec);
+	  _saveState.saveState(spec.time, state);
+	  spec.render(state);
+	  //	updateUI(spec, spec.render(state));
+	  _lifeCycle.lifeCycle(spec);
+	  //spec.render.apply(spec);
 	};
 
 /***/ },
@@ -218,25 +219,30 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	var appendChild = function appendChild(child, parent) {
 		return parent.appendChild(child);
 	};
 
 	var setAttrs = function setAttrs(tag, node) {
-		//	console.log(tag.children[0]);
-		if (tag.hasOwnProperty('children') && typeof tag.children[0] == 'string') {
-			var innerText = document.createTextNode(tag.children[0]);
-			node.appendChild(innerText);
+		if (tag.hasOwnProperty("children")) {
+			tag.children.forEach(function (childTag) {
+				if (typeof childTag == "string" || typeof childTag == "number") {
+					if (typeof childTag == "number") {
+						console.log(childTag);
+					}
+					node.appendChild(document.createTextNode(childTag));
+				}
+			});
 		}
-		if (tag.hasOwnProperty('children')) {}
-		if (tag.hasOwnProperty('attrs')) {
 
-			if (tag.attrs.hasOwnProperty('id')) {
+		if (tag.hasOwnProperty("attrs")) {
+
+			if (tag.attrs.hasOwnProperty("id")) {
 				node.id = tag.attrs.id;
 			}
-			if (tag.attrs.hasOwnProperty('onClick')) {
+			if (tag.attrs.hasOwnProperty("onClick")) {
 				node.onclick = tag.attrs.onClick;
 			}
 		}
@@ -244,18 +250,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var addChildren = function addChildren(tags, parent) {
-		if (typeof tags.children != 'object') {
+		if (typeof tags.children != "object") {
 			return false;
 		}
-		/*
-	 	var parent = document.createElement(tags.tag);
-	 	setAttrs(tags,parent);
-	 	appendChild(parent,root);
-	 */
+
 		tags.children.forEach(function (tag) {
 			var child = document.createElement(tag.tag);
 			appendChild(setAttrs(tag, child), parent);
-			if (tag.children != null && typeof tag.children == 'object') {
+			if (tag.children != null && typeof tag.children == "object") {
 				var childrenTags = tag.children;
 				childrenTags.forEach(function (childTag) {
 					var childnode = document.createElement(childTag.tag);
@@ -278,7 +280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// Root node  
 		var root = document.createElement(tags.tag);
-		if (tags.attrs.hasOwnProperty('id')) {
+		if (tags.attrs.hasOwnProperty("id")) {
 			root.id = tags.attrs.id;
 		}
 
@@ -293,32 +295,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Append to window
 		node.appendChild(docFragment);
 	};
-
-	/*
-
-	    	if(null != tags.children[0] && typeof tags.children[0] == "string"){
-	    		let innerText=document.createTextNode(tags.children[0]);
-				div.appendChild(innerText);
-	    	}
-
-			if(tags.attrs.hasOwnProperty('id')){
-				div.id = "row";	
-			}
-			if(tags.attrs.hasOwnProperty('onClick')){
-				div.onclick = tags.attrs.onClick;	
-			}
-
-			//appendChild(div,root);
-
-			if(tag.children != null && typeof tag.children == "object"){
-	    		const childrenTags=tag.children;
-		    	childrenTags.forEach((childTag)=>{
-		    		addChildren(childTag,div);
-		    	})
-	    	}
-			*/
-
-	//console.log(tag.children);
 
 /***/ },
 /* 8 */

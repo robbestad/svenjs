@@ -255,6 +255,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					spec.render(state);
 					//	updateUI(spec, spec.render(state));
 					_lifeCycle.lifeCycle(spec);
+					//spec.render.apply(spec);
 				};
 
 				/***/
@@ -301,12 +302,17 @@ return /******/ (function(modules) { // webpackBootstrap
 				};
 
 				var setAttrs = function setAttrs(tag, node) {
-					//	console.log(tag.children[0]);
-					if (tag.hasOwnProperty('children') && typeof tag.children[0] == 'string') {
-						var innerText = document.createTextNode(tag.children[0]);
-						node.appendChild(innerText);
+					if (tag.hasOwnProperty('children')) {
+						tag.children.forEach(function (childTag) {
+							if (typeof childTag == 'string' || typeof childTag == 'number') {
+								if (typeof childTag == 'number') {
+									console.log(childTag);
+								}
+								node.appendChild(document.createTextNode(childTag));
+							}
+						});
 					}
-					if (tag.hasOwnProperty('children')) {}
+
 					if (tag.hasOwnProperty('attrs')) {
 
 						if (tag.attrs.hasOwnProperty('id')) {
@@ -323,11 +329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					if (typeof tags.children != 'object') {
 						return false;
 					}
-					/*
-	    	var parent = document.createElement(tags.tag);
-	    	setAttrs(tags,parent);
-	    	appendChild(parent,root);
-	    */
+
 					tags.children.forEach(function (tag) {
 						var child = document.createElement(tag.tag);
 						appendChild(setAttrs(tag, child), parent);
@@ -369,28 +371,6 @@ return /******/ (function(modules) { // webpackBootstrap
 					// Append to window
 					node.appendChild(docFragment);
 				};
-
-				/*
-	   	    	if(null != tags.children[0] && typeof tags.children[0] == "string"){
-	       		let innerText=document.createTextNode(tags.children[0]);
-	   			div.appendChild(innerText);
-	       	}
-	   			if(tags.attrs.hasOwnProperty('id')){
-	   			div.id = "row";	
-	   		}
-	   		if(tags.attrs.hasOwnProperty('onClick')){
-	   			div.onclick = tags.attrs.onClick;	
-	   		}
-	   			//appendChild(div,root);
-	   			if(tag.children != null && typeof tag.children == "object"){
-	       		const childrenTags=tag.children;
-	   	    	childrenTags.forEach((childTag)=>{
-	   	    		addChildren(childTag,div);
-	   	    	})
-	       	}
-	   		*/
-
-				//console.log(tag.children);
 
 				/***/
 			},
@@ -496,7 +476,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    displayName: 'First app',
 	    initialState: {
 	        items: [],
-	        message: ''
+	        message: '',
+	        clicks: 10
 	    },
 	    componentDidMount: function componentDidMount() {
 	        'use strict';
@@ -533,96 +514,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    render: function render() {
 	        'use strict';
 
+	        var _this = this;
+
+	        console.log(this.state.clicks);
 	        var state = this.state;
 	        var time = this.time;
 	        var backDisabled = true;
 	        var nextDisabled = true;
 
-	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: [state.message || 'Svenjs App'] }, { tag: 'button', attrs: { onClick: this.handleClick.bind(this) }, children: ['Add word'] }, { tag: 'div', attrs: { id: 'ui' } }, { tag: 'small', attrs: {}, children: ['(click word to delete)'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Time travel'] }, { tag: 'button', attrs: { disabled: backDisabled, onClick: this.goBack.bind(this) }, children: ['Back'] }, { tag: 'button', attrs: { disabled: nextDisabled, onClick: this.goForward.bind(this) }, children: ['Next'] }, { tag: 'p', attrs: { id: 'time-pos' } }] }] };
-	    },
-
-	    __render: function __render() {
-	        'use strict';
-
-	        var _this = this;
-
-	        var state = this.state;
-	        var time = this.time;
-
-	        var docFragment = document.createDocumentFragment();
-	        var rowDiv = document.createElement('div');
-	        rowDiv.id = 'row';
-	        docFragment.appendChild(rowDiv);
-	        var app = document.createElement('div');
-	        app.id = 'app';
-	        rowDiv.appendChild(app);
-	        var h3 = document.createElement('h3');
-	        var h3Text = document.createTextNode(this.state.message || 'Sample App');
-	        h3.appendChild(h3Text);
-	        app.appendChild(h3);
-	        var button = document.createElement('button');
-	        var buttonText = document.createTextNode('Add Word');
-	        button.id = 'add';
-	        button.onclick = function () {
-	            'use strict';
-	            state.items.push(_this.getNextString());
-	            _this.setState(state);
-	        };
-	        button.appendChild(buttonText);
-	        app.appendChild(button);
-	        var smallSpan = document.createElement('small');
-	        smallSpan.textContent = '(click word to delete)';
-	        //setInterval(()=>{smallSpan.textContent=Math.random()*50},50)
-	        app.appendChild(smallSpan);
-	        var wordSpan = document.createElement('span');
-	        wordSpan.id = 'count';
-	        wordSpan.textContent = 'Words: ' + state.items.length;
-	        app.appendChild(wordSpan);
-	        var ul = document.createElement('ul');
-	        state.items.forEach(function (item, idx) {
-	            var li = document.createElement('li');
-	            var textContent = document.createTextNode(item);
-	            li.appendChild(textContent);
-	            li.onclick = function () {
-	                _this.handleClick(idx);
-	            };
-	            ul.appendChild(li);
-	        });
-	        app.appendChild(ul);
-	        var timeTravelDiv = document.createElement('div');
-	        timeTravelDiv.id = 'time-travel';
-	        rowDiv.appendChild(timeTravelDiv);
-	        var ttH3 = document.createElement('h3');
-	        var ttH3Text = document.createTextNode('Time Travel');
-	        ttH3.appendChild(ttH3Text);
-	        timeTravelDiv.appendChild(ttH3);
-	        button = document.createElement('button');
-	        buttonText = document.createTextNode('Back');
-	        button.id = 'back';
-	        button.disabled = time.pos <= 0;
-	        button.onclick = function () {
-	            'use strict';
-	            Svenjs.timeTravel(_this, -1);
+	        var svenFunc = function svenFunc() {
+	            _this.setState({ clicks: _this.state.clicks++ });
 	        };
 
-	        button.appendChild(buttonText);
-	        timeTravelDiv.appendChild(button);
-	        button = document.createElement('button');
-	        buttonText = document.createTextNode('Next');
-	        button.id = 'next';
-	        button.disabled = time.pos >= time.history.length - 1;
-	        button.onclick = function () {
-	            'use strict';
-	            Svenjs.timeTravel(_this, 1);
-	        };
-	        button.appendChild(buttonText);
-	        timeTravelDiv.appendChild(button);
-	        var ttP = document.createElement('p');
-	        ttP.id = 'time-pos';
-	        ttP.textContent = 'Position ' + (time.pos + 1) + ' of ' + time.history.length;
-	        timeTravelDiv.appendChild(ttP);
-	        return docFragment;
+	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: ['The Click App'] }, { tag: 'button', attrs: { onClick: svenFunc }, children: ['Why not click me?'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Click stats'] }, { tag: 'p', attrs: {}, children: ['You have clicked on the button ', this.state.clicks || 0, ' times'] }] }] };
 	    }
+
 	});
 	module.exports = timeTravel;
 
