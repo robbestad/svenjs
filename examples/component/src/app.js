@@ -1,4 +1,4 @@
-const Svenjs = require('../../dist/sven.js');
+const Svenjs = require('./sven.js');
 import MyStore from './store';
 var timeTravel = Svenjs.createComponent({
   displayName:"First app",

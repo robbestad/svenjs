@@ -1,4 +1,4 @@
-const Svenjs = require('../../dist/sven.js');
+const Svenjs = require('./sven.js');
 import {getJSON} from './get-json';
 let _data="_content+emitted_";
 
