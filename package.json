@@ -3,7 +3,7 @@
   "version": "0.0.1-alpha",
   "description": "Pure functional reactive web framework",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/babel-tape-runner tests/*"
   },
   "repository": {
     "type": "git",
@@ -18,15 +18,15 @@
     "babel-core": "^5.6.18",
     "babel-eslint": "^3.1.23",
     "babel-loader": "^5.3.1",
+    "babel-tape-runner": "^1.1.0",
     "clone": "^1.0.2",
     "eslint": "^0.24.1",
-    "jsdom": "~5.4.3",
-    "mocha": "^2.2.5",
-    "mocha-jsdom": "~0.4.0",
-    "node-libs-browser": "^0.5.2",
+    "glob": "~4.2.2",
     "object-assign": "^3.0.0",
     "rimraf": "^2.3.4",
     "root-require": "^0.3.1",
+    "tape": "~2.14.0",
+    "uglify-js": "^2.4.23",
     "webpack": "^1.9.6",
     "webpack-dev-server": "^1.8.2"
   },

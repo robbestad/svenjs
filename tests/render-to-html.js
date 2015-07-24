@@ -10,7 +10,7 @@ var document = jsdom.jsdom();
 var window = jsdom.jsdom();
 var nodeCache = [], cellCache = {};
 
-var div= ({tag: "div", attrs: {id:"row"}, children: [
+var tags= ({tag: "div", attrs: {id:"row"}, children: [
     {tag: "div", attrs: {id:"app"}, children: [
         {tag: "h3", attrs: {}, children: ["Sample App"]},
         {tag: "button", attrs: {id:"add", onClick:myFunc}, children: ["Add word"]},
@@ -25,7 +25,7 @@ var div= ({tag: "div", attrs: {id:"row"}, children: [
     ]}
 ]});
 
-const tags = spec.render();
+//const tags = spec.render();
 console.log(tags.tag);
 var docFragment = document.createDocumentFragment();
 
@@ -33,24 +33,35 @@ var div = document.createElement(tags.tag);
 if(tags.attrs.hasOwnProperty('id')){
     div.id = "row";	
 }
-const addChildren=(tags, parentNode)=>{
+const appendChild=(child,parent)=>{
+	return parent.appendChild(child);
+}
+const addChildren=(tags, parent)=>{
+    if(typeof tags.children == "object"){
     tags.children.forEach((tag)=>{
-    	console.log(tag);
-
-    	if(tag.children != null){
+    	if(tag.children != null && typeof tag.children == "object"){
     		const childrenTags=tag.children;
 	    	childrenTags.forEach((childTag)=>{
-	    		addChildren(childTag);
+	    		addChildren(childTag,parent);
 	    	})
     	}
+		var div = document.createElement(tags.tag);
+		if(tags.attrs.hasOwnProperty('id')){
+			div.id = "row";	
+		}
+		if(tags.attrs.hasOwnProperty('onClick')){
+			div.onclick = tags.attrs.onClick;	
+		}
+		appendChild(div,parent);
     })
-
+	}
+	return div;
 }
 
 
 test('render html', function (t) {
-addChildren(tags, div);
-	
+    docFragment.appendChild(addChildren(tags, div));
+console.log(docFragment);
 //parse(div);
 t.end();
 });

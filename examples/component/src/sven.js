@@ -217,51 +217,68 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 
 	exports.render = function (spec, rootNode) {
-	   spec._svenjs.rootNode = rootNode;
+		spec._svenjs.rootNode = rootNode;
 
-	   var tags = spec.render();
-	   console.log(tags.tag);
-	   var docFragment = document.createDocumentFragment();
+		var tags = spec.render();
 
-	   var div = document.createElement(tags.tag);
-	   if (tags.attrs.hasOwnProperty("id")) {
-	      div.id = "row";
-	   }
-	   var addChildren = function addChildren(tags, parentNode) {
-	      tags.children.forEach(function (tag) {
-	         console.log(tag);
+		var docFragment = document.createDocumentFragment();
 
-	         if (tag.children != null) {
-	            var childrenTags = tag.children;
-	            childrenTags.forEach(function (childTag) {
-	               addChildren(childTag);
-	            });
-	         }
-	      });
-	   };
-	   addChildren(tags, div);
+		var div = document.createElement(tags.tag);
+		if (tags.attrs.hasOwnProperty("id")) {
+			div.id = "row";
+		}
+		var appendChild = function appendChild(child, parent) {
+			return parent.appendChild(child);
+		};
+		var addChildren = function addChildren(tags, parent) {
+			if (typeof tags.children == "object") {
+				tags.children.forEach(function (tag) {
+					if (tag.children != null && typeof tag.children == "object") {
+						var childrenTags = tag.children;
+						childrenTags.forEach(function (childTag) {
+							addChildren(childTag, parent);
+						});
+					}
 
-	   docFragment.appendChild(div);
+					var div = document.createElement(tags.tag);
+					if (null != tags.children[0]) {
+						console.log(tags.children[0]);
+						var innerText = document.createTextNode(tags.children[0]);
+						div.appendChild(innerText);
+					}
+					if (tags.attrs.hasOwnProperty("id")) {
+						div.id = "row";
+					}
+					if (tags.attrs.hasOwnProperty("onClick")) {
+						div.onclick = tags.attrs.onClick;
+					}
+					appendChild(div, parent);
+				});
+			}
+			return div;
+		};
 
-	   /*
-	      var rowDiv = document.createElement("div");
-	      rowDiv.id = "row";
-	      docFragment.appendChild(rowDiv);
-	      var app = document.createElement("div");
-	      app.id = "app";
-	      rowDiv.appendChild(app);
-	      var h3 = document.createElement("h3");
-	      var h3Text = document.createTextNode(spec.state.message || "Sample App");
-	      h3.appendChild(h3Text);
-	      app.appendChild(h3);
-	      var button = document.createElement("button");
-	      var buttonText = document.createTextNode("Add Word");
-	      button.id = "add";
-	      */
+		docFragment.appendChild(addChildren(tags, div));
 
-	   rootNode.appendChild(docFragment);
+		/*
+	    var rowDiv = document.createElement("div");
+	    rowDiv.id = "row";
+	    docFragment.appendChild(rowDiv);
+	    var app = document.createElement("div");
+	    app.id = "app";
+	    rowDiv.appendChild(app);
+	    var h3 = document.createElement("h3");
+	    var h3Text = document.createTextNode(spec.state.message || "Sample App");
+	    h3.appendChild(h3Text);
+	    app.appendChild(h3);
+	    var button = document.createElement("button");
+	    var buttonText = document.createTextNode("Add Word");
+	    button.id = "add";
+	    */
 
-	   //updateUI(spec);
+		rootNode.appendChild(docFragment);
+
+		//updateUI(spec);
 	};
 
 /***/ },
