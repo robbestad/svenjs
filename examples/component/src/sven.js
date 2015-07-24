@@ -225,11 +225,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var setAttrs = function setAttrs(tag, node) {
-		//console.log(tag);
-		if (null != tag.children[0] && typeof tag.children[0] == 'string') {
+		//	console.log(tag.children[0]);
+		if (tag.hasOwnProperty('children') && typeof tag.children[0] == 'string') {
 			var innerText = document.createTextNode(tag.children[0]);
 			node.appendChild(innerText);
 		}
+		if (tag.hasOwnProperty('children')) {}
 		if (tag.hasOwnProperty('attrs')) {
 
 			if (tag.attrs.hasOwnProperty('id')) {
@@ -242,30 +243,30 @@ return /******/ (function(modules) { // webpackBootstrap
 		return node;
 	};
 
-	var addChildren = function addChildren(tags, root) {
+	var addChildren = function addChildren(tags, parent) {
 		if (typeof tags.children != 'object') {
 			return false;
 		}
-
-		var parent = document.createElement(tags.tag);
-		setAttrs(tags, parent);
-		appendChild(parent, root);
-
+		/*
+	 	var parent = document.createElement(tags.tag);
+	 	setAttrs(tags,parent);
+	 	appendChild(parent,root);
+	 */
 		tags.children.forEach(function (tag) {
 			var child = document.createElement(tag.tag);
 			appendChild(setAttrs(tag, child), parent);
 			if (tag.children != null && typeof tag.children == 'object') {
 				var childrenTags = tag.children;
 				childrenTags.forEach(function (childTag) {
-					//console.log(childTag);
 					var childnode = document.createElement(childTag.tag);
-					setAttrs(childnode, child);
+					setAttrs(childTag, childnode);
+					//setAttrs(childnode,child);
 					appendChild(childnode, child);
 				});
 			}
 		});
 
-		return root;
+		return parent;
 	};
 
 	exports.render = function (spec, node) {
@@ -280,13 +281,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (tags.attrs.hasOwnProperty('id')) {
 			root.id = tags.attrs.id;
 		}
+
 		//docFragment.appendChild(root);
 
 		// Build children
 		var childrenTree = addChildren(tags, root);
 		console.log(childrenTree);
 		// Append to root node
-		docFragment.appendChild(root);
+		root.appendChild(childrenTree);
 
 		// Append to window
 		node.appendChild(docFragment);
@@ -315,6 +317,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		    	})
 	    	}
 			*/
+
+	//console.log(tag.children);
 
 /***/ },
 /* 8 */

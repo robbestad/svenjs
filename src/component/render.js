@@ -3,10 +3,13 @@ const appendChild=(child,parent)=>{
 }
 
 const setAttrs = (tag,node)=>{
-	//console.log(tag);
-	if(null != tag.children[0] && typeof tag.children[0] == "string"){
+//	console.log(tag.children[0]);
+	if(tag.hasOwnProperty('children') && typeof tag.children[0] == "string"){
 		let innerText=document.createTextNode(tag.children[0]);
 		node.appendChild(innerText);
+	}
+	if(tag.hasOwnProperty('children')){
+		//console.log(tag.children);
 	}
 	if(tag.hasOwnProperty('attrs')){
 
@@ -20,31 +23,31 @@ const setAttrs = (tag,node)=>{
 	return node;
 }
 
-const addChildren=(tags, root)=>{
+const addChildren=(tags, parent)=>{
     if(typeof tags.children != "object"){
     	return false;
     } 
-
+/*
 	var parent = document.createElement(tags.tag);
 	setAttrs(tags,parent);
 	appendChild(parent,root);
-
+*/
     tags.children.forEach((tag)=>{
-			var child = document.createElement(tag.tag);
-			appendChild(setAttrs(tag,child),parent)
-			if(tag.children != null && typeof tag.children == "object"){
-	    		const childrenTags=tag.children;
-		    	childrenTags.forEach((childTag)=>{
-		    		//console.log(childTag);
-		    		var childnode = document.createElement(childTag.tag);
-					setAttrs(childnode,child);
-					appendChild(childnode,child);
-		    	})
-    	}
+		var child = document.createElement(tag.tag);
+		appendChild(setAttrs(tag,child),parent)
+		if(tag.children != null && typeof tag.children == "object"){
+    		const childrenTags=tag.children;
+	    	childrenTags.forEach((childTag)=>{
+	    		var childnode = document.createElement(childTag.tag);
+				setAttrs(childTag,childnode);
+				//setAttrs(childnode,child);
+				appendChild(childnode,child);
+	    	})
+		}
 		
     })
 
-	return root;
+	return parent;
 }
 
 exports.render = (spec, node) => {
@@ -59,13 +62,15 @@ exports.render = (spec, node) => {
 	if(tags.attrs.hasOwnProperty('id')){
 	    root.id = tags.attrs.id;	
 	}
+
+
     //docFragment.appendChild(root);
 
 	// Build children
 	let childrenTree = addChildren(tags, root);
 	console.log(childrenTree);
 	// Append to root node
-    docFragment.appendChild(root);
+    root.appendChild(childrenTree);
 
 	// Append to window
     node.appendChild(docFragment);
