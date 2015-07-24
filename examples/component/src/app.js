@@ -17,10 +17,10 @@ var timeTravel = Svenjs.createComponent({
     console.log(data);
   },
   handleClick: function (idx) {
-    "use strict";
-    this.state.items.splice(idx, 1);
-    this.state.message = "Spliced!";
-    this.setState(this.state);
+      console.log('clicking myFunc');
+      state.items.push(this.getNextString());
+      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
+      this.setState(state);
   },
   goBack(){
       Svenjs.timeTravel(this,-1);
@@ -38,26 +38,20 @@ var timeTravel = Svenjs.createComponent({
     var time = this.time;
     var self = this;
 
-    let myFunc = () =>{
-      state.items.push(this.getNextString());
-      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
-      this.setState(state);
-    }
-
     let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
     let backDisabled = time.pos <= 0 ? "disabled" : "false";
 
     return ({tag: "div", attrs: {id:"row"}, children: [
         {tag: "div", attrs: {id:"app"}, children: [
-            {tag: "h3", attrs: {}, children: [this.state.message || "Sample App"]},
-            {tag: "button", attrs: {id:"add", onClick:myFunc}, children: ["Add word"]},
+            {tag: "h3", attrs: {}, children: [this.state.message || "Svenjs App"]},
+            {tag: "button", attrs: {onClick:this.handleClick}, children: ["Add word"]},
             {tag: "div", attrs: {id:"ui"}},
             {tag: "small", attrs: {}, children: ["(click word to delete)"]}
         ]},
         {tag: "div", attrs: {id:"time-travel"}, children: [
             {tag: "h3", attrs: {}, children: ["Time travel"]},
-            {tag: "button", attrs: {id:"back", disabled:backDisabled, onClick:this.goBack.bind(this)}, children: ["Back"]},
-            {tag: "button", attrs: {id:"next", disabled:nextDisabled, onClick:this.goForward.bind(this)}, children: ["Next"]},
+            {tag: "button", attrs: {disabled:backDisabled, onClick:this.goBack.bind(this)}, children: ["Back"]},
+            {tag: "button", attrs: {disabled:nextDisabled, onClick:this.goForward.bind(this)}, children: ["Next"]},
             {tag: "p", attrs: {id:"time-pos"}}
         ]}
     ]})

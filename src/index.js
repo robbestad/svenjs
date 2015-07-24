@@ -8,20 +8,19 @@ import { lifeCycle } from './component/life-cycle';
 import { render } from './component/render';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
-import { jsx } from './component/jsx';
-import { createElement } from './component/create-element';
 
-export {
+const Svenjs= {
   version,
   updateUI,
   setState,
   createStore,
-  createElement,
   createComponent,
   render,
-  jsx,
   lifeCycle,
   timeTravel,
   saveState,
   deepCopy
 };
+
+if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;
+else if (typeof define === "function" && define.amd) define(function() { return Svenjs });
