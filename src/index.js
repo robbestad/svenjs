@@ -9,7 +9,7 @@ import { render } from './component/render';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
 
-export {
+const Svenjs= {
   version,
   updateUI,
   setState,
@@ -21,3 +21,6 @@ export {
   saveState,
   deepCopy
 };
+
+if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;
+else if (typeof define === "function" && define.amd) define(function() { return Svenjs });

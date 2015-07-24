@@ -1,36 +1,73 @@
 const Svenjs = require('./sven.js');
 import MyStore from './store';
 var timeTravel = Svenjs.createComponent({
-  displayName:"First app",
-  initialState:{items: [], message:''},
-  componentDidMount(){
-    "use strict";
-    MyStore.listenTo(this.onEmit);
-  },
+    displayName: "First app",
+    initialState: {
+        items: [],
+        message: ''
+    },
+    componentDidMount() {
+        "use strict";
+        MyStore.listenTo(this.onEmit);
+    },
 
-  componentDidUpdate(){
+    componentDidUpdate() {
+        "use strict";
+    },
+    onEmit(data) {
+        console.log("data from store received!")
+        console.log(data);
+    },
+    handleClick: function(idx) {
+        console.log('handleClick');
+        var state = this.state;
+        var time = this.time;
+        var self = this;
+        state.items.push(this.getNextString());
+        state.message = "BOB" + (1 + Math.floor(Math.random() * 100)) + "!";
+        this.setState(state);
+    },
+    goBack() {
+        Svenjs.timeTravel(this, -1);
+    },
+    goForward() {
+        Svenjs.timeTravel(this, 1);
+    },
+    getNextString() {
+        "use strict";
+        var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
+        return words[Math.floor(Math.random() * words.length)];
+    },
+    render(){
+      "use strict";
+
+      var state=this.state;
+      var time = this.time;
+      let backDisabled=true;
+      let nextDisabled=true;
+
+     return ({tag: "div", attrs: {id:"row"}, children: [
+         {tag: "div", attrs: {id:"app"}, children: [
+             {tag: "h3", attrs: {}, children: [state.message || "Svenjs App"]},
+             {tag: "button", attrs: {onClick:this.handleClick.bind(this)}, children: ["Add word"]},
+             {tag: "div", attrs: {id:"ui"}},
+             {tag: "small", attrs: {}, children: ["(click word to delete)"]}
+         ]},
+         {tag: "div", attrs: {id:"time-travel"}, children: [
+             {tag: "h3", attrs: {}, children: ["Time travel"]},
+             {tag: "button", attrs: {disabled:backDisabled, onClick:this.goBack.bind(this)}, children: ["Back"]},
+             {tag: "button", attrs: {disabled:nextDisabled, onClick:this.goForward.bind(this)}, children: ["Next"]},
+             {tag: "p", attrs: {id:"time-pos"}}
+         ]}
+     ]})
+    },
+
+  __render: function () {
     "use strict";
-  },
-  onEmit(data){
-    console.log("data from store received!")
-    console.log(data);
-  },
-  handleClick: function (idx) {
-    "use strict";
-    this.state.items.splice(idx, 1);
-    this.state.message = "Spliced!";
-    this.setState(this.state);
-  },
-  getNextString() {
-    "use strict";
-    var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
-    return words[Math.floor(Math.random() * words.length)];
-  },
-   
-  render: function () {
-    "use strict";
+
     var state=this.state;
     var time = this.time;
+
     var docFragment = document.createDocumentFragment();
     var rowDiv = document.createElement("div");
     rowDiv.id = "row";

@@ -54,13 +54,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	exports.__esModule = true;
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {'use strict';
 
 	var _componentVersion = __webpack_require__(9);
 
-	var _componentUpdateUi = __webpack_require__(1);
+	var _componentUpdateUi = __webpack_require__(2);
 
 	var _componentSaveState = __webpack_require__(4);
 
@@ -70,7 +68,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _componentCreateComponent = __webpack_require__(6);
 
-	var _componentLifeCycle = __webpack_require__(2);
+	var _componentLifeCycle = __webpack_require__(1);
 
 	var _componentRender = __webpack_require__(7);
 
@@ -78,19 +76,38 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _libDeepCopy = __webpack_require__(3);
 
-	exports.version = _componentVersion.version;
-	exports.updateUI = _componentUpdateUi.updateUI;
-	exports.setState = _componentSetState.setState;
-	exports.createStore = _storeCreateStore.createStore;
-	exports.createComponent = _componentCreateComponent.createComponent;
-	exports.render = _componentRender.render;
-	exports.lifeCycle = _componentLifeCycle.lifeCycle;
-	exports.timeTravel = _componentTimeTravel.timeTravel;
-	exports.saveState = _componentSaveState.saveState;
-	exports.deepCopy = _libDeepCopy.deepCopy;
+	var Svenjs = {
+	  version: _componentVersion.version,
+	  updateUI: _componentUpdateUi.updateUI,
+	  setState: _componentSetState.setState,
+	  createStore: _storeCreateStore.createStore,
+	  createComponent: _componentCreateComponent.createComponent,
+	  render: _componentRender.render,
+	  lifeCycle: _componentLifeCycle.lifeCycle,
+	  timeTravel: _componentTimeTravel.timeTravel,
+	  saveState: _componentSaveState.saveState,
+	  deepCopy: _libDeepCopy.deepCopy
+	};
+
+	if (typeof module === 'object' && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	  return Svenjs;
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module)))
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.lifeCycle = function (spec) {
+		if (spec.isMounted) {
+			spec.componentDidUpdate.apply(spec);
+		}
+	};
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -108,18 +125,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else {
 	    rootNode.appendChild(html);
 	  }
-	};
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	exports.lifeCycle = function (spec) {
-		if (spec.isMounted) {
-			spec.componentDidUpdate.apply(spec);
-		}
 	};
 
 /***/ },
@@ -162,11 +167,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _updateUi = __webpack_require__(1);
+	var _updateUi = __webpack_require__(2);
 
 	var _saveState = __webpack_require__(4);
 
-	var _lifeCycle = __webpack_require__(2);
+	var _lifeCycle = __webpack_require__(1);
 
 	exports.setState = function (state, spec) {
 					_saveState.saveState(spec.time, state);
@@ -207,15 +212,56 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
-
-	var _updateUi = __webpack_require__(1);
+	"use strict";
 
 	exports.render = function (spec, rootNode) {
-	  spec._svenjs.rootNode = rootNode;
-	  _updateUi.updateUI(spec);
+	   spec._svenjs.rootNode = rootNode;
+
+	   var tags = spec.render();
+	   console.log(tags.tag);
+	   var docFragment = document.createDocumentFragment();
+
+	   var div = document.createElement(tags.tag);
+	   if (tags.attrs.hasOwnProperty("id")) {
+	      div.id = "row";
+	   }
+	   var addChildren = function addChildren(tags, parentNode) {
+	      tags.children.forEach(function (tag) {
+	         console.log(tag);
+
+	         if (tag.children != null) {
+	            var childrenTags = tag.children;
+	            childrenTags.forEach(function (childTag) {
+	               addChildren(childTag);
+	            });
+	         }
+	      });
+	   };
+	   addChildren(tags, div);
+
+	   docFragment.appendChild(div);
+
+	   /*
+	      var rowDiv = document.createElement("div");
+	      rowDiv.id = "row";
+	      docFragment.appendChild(rowDiv);
+	      var app = document.createElement("div");
+	      app.id = "app";
+	      rowDiv.appendChild(app);
+	      var h3 = document.createElement("h3");
+	      var h3Text = document.createTextNode(spec.state.message || "Sample App");
+	      h3.appendChild(h3Text);
+	      app.appendChild(h3);
+	      var button = document.createElement("button");
+	      var buttonText = document.createTextNode("Add Word");
+	      button.id = "add";
+	      */
+
+	   rootNode.appendChild(docFragment);
+
+	   //updateUI(spec);
 	};
 
 /***/ },
@@ -226,9 +272,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _libDeepCopy = __webpack_require__(3);
 
-	var _updateUi = __webpack_require__(1);
+	var _updateUi = __webpack_require__(2);
 
-	var _lifeCycle = __webpack_require__(2);
+	var _lifeCycle = __webpack_require__(1);
 
 	exports.timeTravel = function (spec, position) {
 	  var time = spec.time;
@@ -274,6 +320,22 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		return spec;
 	};
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = function(module) {
+		if(!module.webpackPolyfill) {
+			module.deprecate = function() {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	}
+
 
 /***/ }
 /******/ ])
