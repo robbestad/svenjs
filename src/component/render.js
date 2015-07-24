@@ -1,64 +1,97 @@
-exports.render = (spec, rootNode) => {
-    spec._svenjs.rootNode = rootNode;
+const appendChild=(child,parent)=>{
+	return parent.appendChild(child);
+}
+
+const setAttrs = (tag,node)=>{
+	//console.log(tag);
+	if(null != tag.children[0] && typeof tag.children[0] == "string"){
+		let innerText=document.createTextNode(tag.children[0]);
+		node.appendChild(innerText);
+	}
+	if(tag.hasOwnProperty('attrs')){
+
+		if(tag.attrs.hasOwnProperty('id')){
+			node.id = "row";	
+		}
+		if(tag.attrs.hasOwnProperty('onClick')){
+			node.onclick = tag.attrs.onClick;	
+		}
+	}
+	return node;
+}
+
+const addChildren=(tags, root)=>{
+    if(typeof tags.children != "object"){
+    	return false;
+    } 
+
+	var parent = document.createElement(tags.tag);
+	setAttrs(tags,parent);
+	appendChild(parent,root);
+
+    tags.children.forEach((tag)=>{
+			var child = document.createElement(tag.tag);
+			appendChild(setAttrs(tag,child),parent)
+			if(tag.children != null && typeof tag.children == "object"){
+	    		const childrenTags=tag.children;
+		    	childrenTags.forEach((childTag)=>{
+		    		//console.log(childTag);
+		    		var childnode = document.createElement(childTag.tag);
+					setAttrs(childnode,child);
+					appendChild(childnode,child);
+		    	})
+    	}
+		
+    })
+
+	return root;
+}
+
+exports.render = (spec, node) => {
+    spec._svenjs.rootNode = node;
 
     const tags = spec.render();
     
     var docFragment = document.createDocumentFragment();
 
-	var div = document.createElement(tags.tag);
+	// Root node    
+	var root = document.createElement(tags.tag);
 	if(tags.attrs.hasOwnProperty('id')){
-	    div.id = "row";	
+	    root.id = tags.attrs.id;	
 	}
-	const appendChild=(child,parent)=>{
-		return parent.appendChild(child);
-	}
-	const addChildren=(tags, parent)=>{
-	    if(typeof tags.children == "object"){
-	    tags.children.forEach((tag)=>{
-	    	if(tag.children != null && typeof tag.children == "object"){
-	    		const childrenTags=tag.children;
-		    	childrenTags.forEach((childTag)=>{
-		    		addChildren(childTag,parent);
-		    	})
-	    	}
+    //docFragment.appendChild(root);
 
-			var div = document.createElement(tags.tag);
-	    	if(null != tags.children[0]){
-	    		console.log(tags.children[0]);
-				let innerText=document.createTextNode(tags.children[0]);
-				div.appendChild(innerText);
-	    	}
-			if(tags.attrs.hasOwnProperty('id')){
-				div.id = "row";	
-			}
-			if(tags.attrs.hasOwnProperty('onClick')){
-				div.onclick = tags.attrs.onClick;	
-			}
-			appendChild(div,parent);
-	    })
-		}
-		return div;
-	}
-    
-    docFragment.appendChild(addChildren(tags, div));
-	
-	/*
-    var rowDiv = document.createElement("div");
-    rowDiv.id = "row";
-    docFragment.appendChild(rowDiv);
-    var app = document.createElement("div");
-    app.id = "app";
-    rowDiv.appendChild(app);
-    var h3 = document.createElement("h3");
-    var h3Text = document.createTextNode(spec.state.message || "Sample App");
-    h3.appendChild(h3Text);
-    app.appendChild(h3);
-    var button = document.createElement("button");
-    var buttonText = document.createTextNode("Add Word");
-    button.id = "add";
-    */
+	// Build children
+	let childrenTree = addChildren(tags, root);
+	console.log(childrenTree);
+	// Append to root node
+    docFragment.appendChild(root);
 
-    rootNode.appendChild(docFragment);
+	// Append to window
+    node.appendChild(docFragment);
 
-    //updateUI(spec);
 };
+
+/*
+
+    	if(null != tags.children[0] && typeof tags.children[0] == "string"){
+    		let innerText=document.createTextNode(tags.children[0]);
+			div.appendChild(innerText);
+    	}
+
+		if(tags.attrs.hasOwnProperty('id')){
+			div.id = "row";	
+		}
+		if(tags.attrs.hasOwnProperty('onClick')){
+			div.onclick = tags.attrs.onClick;	
+		}
+
+		//appendChild(div,root);
+
+		if(tag.children != null && typeof tag.children == "object"){
+    		const childrenTags=tag.children;
+	    	childrenTags.forEach((childTag)=>{
+	    		addChildren(childTag,div);
+	    	})
+    	}
+		*/

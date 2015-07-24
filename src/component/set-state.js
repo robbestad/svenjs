@@ -4,6 +4,7 @@ import {lifeCycle} from './life-cycle';
 
 exports.setState = (state, spec)=> {
     saveState(spec.time,state);
-	updateUI(spec, spec.render(state));
+    spec.render(state);
+//	updateUI(spec, spec.render(state));
 	lifeCycle(spec);
 };

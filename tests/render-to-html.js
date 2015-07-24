@@ -26,42 +26,74 @@ var tags= ({tag: "div", attrs: {id:"row"}, children: [
 ]});
 
 //const tags = spec.render();
-console.log(tags.tag);
-var docFragment = document.createDocumentFragment();
-
-var div = document.createElement(tags.tag);
-if(tags.attrs.hasOwnProperty('id')){
-    div.id = "row";	
-}
 const appendChild=(child,parent)=>{
 	return parent.appendChild(child);
 }
-const addChildren=(tags, parent)=>{
-    if(typeof tags.children == "object"){
-    tags.children.forEach((tag)=>{
-    	if(tag.children != null && typeof tag.children == "object"){
-    		const childrenTags=tag.children;
-	    	childrenTags.forEach((childTag)=>{
-	    		addChildren(childTag,parent);
-	    	})
-    	}
-		var div = document.createElement(tags.tag);
-		if(tags.attrs.hasOwnProperty('id')){
-			div.id = "row";	
-		}
-		if(tags.attrs.hasOwnProperty('onClick')){
-			div.onclick = tags.attrs.onClick;	
-		}
-		appendChild(div,parent);
-    })
+
+const setAttrs = (tag,node)=>{
+	//console.log(tag);
+	if(null != tag.children[0] && typeof tag.children[0] == "string"){
+		let innerText=document.createTextNode(tag.children[0]);
+		node.appendChild(innerText);
 	}
-	return div;
+	if(tag.hasOwnProperty('attrs')){
+		if(tag.attrs.hasOwnProperty('id')){
+			node.id = "row";	
+		}
+		if(tag.attrs.hasOwnProperty('onClick')){
+			node.onclick = tag.attrs.onClick;	
+		}
+	}
+	return node;
+}
+
+const addChildren=(tags, root)=>{
+    if(typeof tags.children != "object"){
+    	return false;
+    } 
+	var parent = document.createElement(tags.tag);
+
+    tags.children.forEach((tag)=>{
+			var child = document.createElement(tag.tag);
+			appendChild(setAttrs(tag,child),parent)
+			if(tag.children != null && typeof tag.children == "object"){
+	    		const childrenTags=tag.children;
+		    	childrenTags.forEach((childTag)=>{
+		    		console.log(childTag);
+		    		var childnode = document.createElement(childTag.tag);
+					appendChild(setAttrs(childnode,child),parent)
+		    		//addChildren(childnode,child);
+		    	})
+    	}
+		
+    })
+	appendChild(setAttrs(tags,parent),root)
+
+	return parent;
 }
 
 
 test('render html', function (t) {
-    docFragment.appendChild(addChildren(tags, div));
-console.log(docFragment);
+  
+    var docFragment = document.createDocumentFragment();
+
+	// Root node    
+	var div = document.createElement(tags.tag);
+	if(tags.attrs.hasOwnProperty('id')){
+	    div.id = tags.attrs.id;	
+	}
+
+    docFragment.appendChild(div);
+
+	// Build children
+	let childrenTree = addChildren(tags, div);
+	console.log(childrenTree);
+	// Append to root node
+    docFragment.appendChild(childrenTree);
+
+	// Append to window
+   // rootNode.appendChild(docFragment);
+//console.log(docFragment);
 //parse(div);
 t.end();
 });

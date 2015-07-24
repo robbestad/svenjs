@@ -183,20 +183,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				'use strict';
 
-				exports.updateUI = function (spec, html, time) {
-					var rootNode = spec._svenjs.rootNode;
-					time = time || spec.time;
-					html = html || spec.render(spec.state);
-					if (JSON.stringify(rootNode.innerHTML) === JSON.stringify(html)) {
-						return;
-					}
-					rootNode.innerHTML = '';
-					if (typeof html === 'string') {
-						rootNode.appendChild(document.createRange().createContextualFragment(html));
-					} else {
-						rootNode.appendChild(html);
-					}
-				};
+				exports.updateUI = function (spec, html, time) {};
+
+				/*let rootNode = spec._svenjs.rootNode;
+	   time = time || spec.time;
+	   html = html || spec.render(spec.state)
+	   if (JSON.stringify(rootNode.innerHTML) === JSON.stringify(html)) {
+	     return;
+	   }
+	   rootNode.innerHTML = "";
+	   if (typeof html === "string") {
+	     rootNode.appendChild(
+	       document.createRange().createContextualFragment(html)
+	     );
+	   } else {
+	     rootNode.appendChild(html);
+	   }
+	   */
 
 				/***/
 			},
@@ -249,7 +252,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				exports.setState = function (state, spec) {
 					_saveState.saveState(spec.time, state);
-					_updateUi.updateUI(spec, spec.render(state));
+					spec.render(state);
+					//	updateUI(spec, spec.render(state));
 					_lifeCycle.lifeCycle(spec);
 				};
 
@@ -292,70 +296,97 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				'use strict';
 
-				exports.render = function (spec, rootNode) {
-					spec._svenjs.rootNode = rootNode;
+				var appendChild = function appendChild(child, parent) {
+					return parent.appendChild(child);
+				};
+
+				var setAttrs = function setAttrs(tag, node) {
+					//console.log(tag);
+					if (null != tag.children[0] && typeof tag.children[0] == 'string') {
+						var innerText = document.createTextNode(tag.children[0]);
+						node.appendChild(innerText);
+					}
+					if (tag.hasOwnProperty('attrs')) {
+
+						if (tag.attrs.hasOwnProperty('id')) {
+							node.id = 'row';
+						}
+						if (tag.attrs.hasOwnProperty('onClick')) {
+							node.onclick = tag.attrs.onClick;
+						}
+					}
+					return node;
+				};
+
+				var addChildren = function addChildren(tags, root) {
+					if (typeof tags.children != 'object') {
+						return false;
+					}
+
+					var parent = document.createElement(tags.tag);
+					setAttrs(tags, parent);
+					appendChild(parent, root);
+
+					tags.children.forEach(function (tag) {
+						var child = document.createElement(tag.tag);
+						appendChild(setAttrs(tag, child), parent);
+						if (tag.children != null && typeof tag.children == 'object') {
+							var childrenTags = tag.children;
+							childrenTags.forEach(function (childTag) {
+								//console.log(childTag);
+								var childnode = document.createElement(childTag.tag);
+								setAttrs(childnode, child);
+								appendChild(childnode, child);
+							});
+						}
+					});
+
+					return root;
+				};
+
+				exports.render = function (spec, node) {
+					spec._svenjs.rootNode = node;
 
 					var tags = spec.render();
 
 					var docFragment = document.createDocumentFragment();
 
-					var div = document.createElement(tags.tag);
+					// Root node 
+					var root = document.createElement(tags.tag);
 					if (tags.attrs.hasOwnProperty('id')) {
-						div.id = 'row';
+						root.id = tags.attrs.id;
 					}
-					var appendChild = function appendChild(child, parent) {
-						return parent.appendChild(child);
-					};
-					var addChildren = function addChildren(tags, parent) {
-						if (typeof tags.children == 'object') {
-							tags.children.forEach(function (tag) {
-								if (tag.children != null && typeof tag.children == 'object') {
-									var childrenTags = tag.children;
-									childrenTags.forEach(function (childTag) {
-										addChildren(childTag, parent);
-									});
-								}
+					//docFragment.appendChild(root);
 
-								var div = document.createElement(tags.tag);
-								if (null != tags.children[0]) {
-									console.log(tags.children[0]);
-									var innerText = document.createTextNode(tags.children[0]);
-									div.appendChild(innerText);
-								}
-								if (tags.attrs.hasOwnProperty('id')) {
-									div.id = 'row';
-								}
-								if (tags.attrs.hasOwnProperty('onClick')) {
-									div.onclick = tags.attrs.onClick;
-								}
-								appendChild(div, parent);
-							});
-						}
-						return div;
-					};
+					// Build children
+					var childrenTree = addChildren(tags, root);
+					console.log(childrenTree);
+					// Append to root node
+					docFragment.appendChild(root);
 
-					docFragment.appendChild(addChildren(tags, div));
-
-					/*
-	       var rowDiv = document.createElement("div");
-	       rowDiv.id = "row";
-	       docFragment.appendChild(rowDiv);
-	       var app = document.createElement("div");
-	       app.id = "app";
-	       rowDiv.appendChild(app);
-	       var h3 = document.createElement("h3");
-	       var h3Text = document.createTextNode(spec.state.message || "Sample App");
-	       h3.appendChild(h3Text);
-	       app.appendChild(h3);
-	       var button = document.createElement("button");
-	       var buttonText = document.createTextNode("Add Word");
-	       button.id = "add";
-	       */
-
-					rootNode.appendChild(docFragment);
-
-					//updateUI(spec);
+					// Append to window
+					node.appendChild(docFragment);
 				};
+
+				/*
+	   	    	if(null != tags.children[0] && typeof tags.children[0] == "string"){
+	       		let innerText=document.createTextNode(tags.children[0]);
+	   			div.appendChild(innerText);
+	       	}
+	   			if(tags.attrs.hasOwnProperty('id')){
+	   			div.id = "row";	
+	   		}
+	   		if(tags.attrs.hasOwnProperty('onClick')){
+	   			div.onclick = tags.attrs.onClick;	
+	   		}
+	   			//appendChild(div,root);
+	   			if(tag.children != null && typeof tag.children == "object"){
+	       		const childrenTags=tag.children;
+	   	    	childrenTags.forEach((childTag)=>{
+	   	    		addChildren(childTag,div);
+	   	    	})
+	       	}
+	   		*/
 
 				/***/
 			},
