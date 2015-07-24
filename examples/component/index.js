@@ -307,7 +307,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						tags.children.forEach(function (tag) {
 							console.log(tag);
 
-							if (tag.children != null && tag.children.length > 0) {
+							if (tag.children != null) {
 								var childrenTags = tag.children;
 								childrenTags.forEach(function (childTag) {
 									addChildren(childTag);
