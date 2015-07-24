@@ -234,7 +234,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (tag.hasOwnProperty('attrs')) {
 
 			if (tag.attrs.hasOwnProperty('id')) {
-				node.id = 'row';
+				node.id = tag.attrs.id;
 			}
 			if (tag.attrs.hasOwnProperty('onClick')) {
 				node.onclick = tag.attrs.onClick;
@@ -288,7 +288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var childrenTree = addChildren(tags, root);
 		console.log(childrenTree);
 		// Append to root node
-		root.appendChild(childrenTree);
+		docFragment.appendChild(childrenTree);
 
 		// Append to window
 		node.appendChild(docFragment);
