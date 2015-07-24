@@ -9,6 +9,14 @@ exports.createComponent = (spec, rootNode) => {
 		spec.setState=function(state){
 		    return setState(state,this);
 		 };
+		
+		spec.jsx=function(parts){
+			console.log('this.jsx');	
+			console.log(this);	
+			console.log(parts);
+		    //return parts;
+		 };
+
 	}
 
 	if(!spec.isMounted){
@@ -27,6 +35,7 @@ exports.createComponent = (spec, rootNode) => {
 
 		if("function" === typeof spec.render){
 			console.log('applying render');
+			//console.log(spec.render);
 			document.getElementById('ui').innerHTML = "";
 			spec.render.apply(spec);
 		}

@@ -1,5 +1,8 @@
 //import {updateUI} from './update-ui';
 exports.jsx = (...parts) => {
+	console.log('jsx');
+
+	console.log(parts);
     let docFragment = document.createDocumentFragment();
     let el = document.createElement(parts[0]);
     //console.log(parts);

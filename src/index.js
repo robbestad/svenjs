@@ -9,12 +9,14 @@ import { render } from './component/render';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
 import { jsx } from './component/jsx';
+import { createElement } from './component/create-element';
 
 export {
   version,
   updateUI,
   setState,
   createStore,
+  createElement,
   createComponent,
   render,
   jsx,

@@ -1,8 +1,19 @@
 import {updateUI} from './update-ui';
+//import {jsx} from './jsx';
+
+let jsx = (parts) =>{
+	console.log(parts);
+	return parts;
+}
 
 exports.render = (spec, rootNode)=> {
+  console.log('render start');
+  console.log(spec.render());
+
   spec._svenjs.rootNode=rootNode;
+  //console.log(jsx(spec.render));
   updateUI(spec);
+  console.log('render done');
 };
 
 /*
