@@ -1,4 +1,4 @@
-const Svenjs = require('./sven.js');
+const Svenjs = require('../../../dist/sven.js');
 const getJSON = require('./get-json').getJSON;
 
 module.exports = Svenjs.createStore({

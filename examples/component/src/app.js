@@ -1,29 +1,63 @@
-const Svenjs = require('./sven.js');
-var clickyApp = Svenjs.createComponent({
-    displayName: "Clicky App",
-    initialState: {
-        clicks: 0
-    },
-    render(){
-      "use strict";
-      var state=this.state;
-      let svenFunc = () =>{
-        this.setState({clicks: (this.state.clicks ? ++this.state.clicks : 1)});
-      }
-      //const log = (level="debug") => (::console[level](this), this);
-      //state::log();
-      return (<div id="row">
+const Svenjs = require('../../../dist/sven.js');
+const MyStore = require('./store');
+
+var timeTravel = Svenjs.createComponent({
+  displayName:"First app",
+  initialState:{items: [], message:''},
+  componentDidMount(){
+    "use strict";
+    this.setState({items: [], message:''});
+    MyStore.listenTo(this.onEmit);
+  },
+  componentDidUpdate(){
+    "use strict";
+  },
+  onEmit(data){
+    console.log("data from store received!")
+    console.log(data);
+  },
+  handleClick: function (idx) {
+    console.log('handleClick');
+      var state= this.state;
+      var time = this.time;
+      var self = this;
+      state.items.push(this.getNextString());
+      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
+      this.setState(state);
+  },
+  goBack(){
+      Svenjs.timeTravel(this,-1);
+  },
+  goForward(){
+      Svenjs.timeTravel(this,1);
+  },
+  getNextString() {
+    "use strict";
+    var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
+    return words[Math.floor(Math.random() * words.length)];
+  },
+  render(){
+    var state= this.state;
+    var time = this.time;
+    var self = this;
+
+    let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
+    let backDisabled = time.pos <= 0 ? "disabled" : "false";
+
+    return (<div id="row">
               <div id="app">
-                  <h3>The Click App</h3>
-                  <button onClick={svenFunc}>Why not click me?</button>
+                  <h3>{this.state.message || "Sample App"}</h3>
+                  <button id="add" onClick={myFunc}>Add word</button>
+                  <div id="ui"></div>
+                  <small>(click word to delete)</small>
               </div>
               <div id="time-travel">
-                  <h3>Click stats</h3>
-                <p>You have clicked on the button {this.state.clicks} times</p>
+                  <h3>Time travel</h3>
+                  <button id="back" disabled={backDisabled} onClick={this.goBack.bind(this)}>Back</button>
+                  <button id="next" disabled={nextDisabled} onClick={this.goForward.bind(this)}>Next</button>
+                  <p id="time-pos"></p>
               </div>
-          </div>)
-
+        </div>);
     }
-
 });
-module.exports = clickyApp;
+module.exports = timeTravel;
