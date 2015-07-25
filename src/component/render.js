@@ -12,23 +12,36 @@ const setAttrs = (tag,node)=>{
 	}
 
 	if(tag.hasOwnProperty('attrs')){
-
+		console.log(tag.attrs);
+		if(tag.attrs.hasOwnProperty('className')){
+			node.className = tag.attrs.className;	
+		}
+		if(tag.attrs.hasOwnProperty('class')){
+			node.className = tag.attrs.class;	
+		}
 		if(tag.attrs.hasOwnProperty('id')){
 			node.id = tag.attrs.id;	
 		}
 		if(tag.attrs.hasOwnProperty('onClick')){
 			node.onclick = tag.attrs.onClick;	
 		}
+		if(tag.attrs.hasOwnProperty('onKeyDown')){
+			node.onkeydown = tag.attrs.onKeyDown;	
+			node.oninput = tag.attrs.onKeyDown;	
+		}
 	}
 	return node;
 }
 
-const addChildren=(tags, parent)=>{
+
+
+const buildChildren=(tags, parent)=>{
     if(typeof tags.children != "object"){
     	return false;
     } 
 
     tags.children.forEach((tag)=>{
+    	console.log(tag);
 		var child = document.createElement(tag.tag);
 		appendChild(setAttrs(tag,child),parent)
 		if(tag.children != null && typeof tag.children == "object"){
@@ -36,8 +49,8 @@ const addChildren=(tags, parent)=>{
 	    	childrenTags.forEach((childTag)=>{
 	    		var childnode = document.createElement(childTag.tag);
 				setAttrs(childTag,childnode);
-				//setAttrs(childnode,child);
 				appendChild(childnode,child);
+		    	buildChildren(childTag,childnode);
 	    	})
 		}
 		
@@ -61,7 +74,7 @@ exports.render = (spec, node) => {
 	}
 
 	// Build children
-	let childrenTree = addChildren(tags, root);
+	let childrenTree = buildChildren(tags, root);
 	//console.log(childrenTree);
 	
 	// Append to root node

@@ -12,9 +12,9 @@ A pure functional reactive web framework
  	
  	- With time travel abilities comes immutability
 
- - Built in hot loader
-
  - Built in store implementation
+
+ - Synthetic event handler. Implemented in such a way that input events work across browsers.
  
 
 
