@@ -52,6 +52,7 @@ const addChildren=(tags, parent)=>{
 
 exports.render = (spec, node) => {
     spec._svenjs.rootNode = node;
+    node.innerHTML="";
 
     const tags = spec.render();
     
@@ -62,9 +63,6 @@ exports.render = (spec, node) => {
 	if(tags.attrs.hasOwnProperty('id')){
 	    root.id = tags.attrs.id;	
 	}
-
-
-    //docFragment.appendChild(root);
 
 	// Build children
 	let childrenTree = addChildren(tags, root);

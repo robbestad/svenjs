@@ -60,17 +60,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _componentUpdateUi = __webpack_require__(2);
 
-	var _componentSaveState = __webpack_require__(4);
+	var _componentSaveState = __webpack_require__(5);
 
 	var _componentTimeTravel = __webpack_require__(8);
 
-	var _componentSetState = __webpack_require__(5);
+	var _componentSetState = __webpack_require__(6);
 
-	var _componentCreateComponent = __webpack_require__(6);
+	var _componentCreateComponent = __webpack_require__(7);
 
 	var _componentLifeCycle = __webpack_require__(1);
 
-	var _componentRender = __webpack_require__(7);
+	var _componentRender = __webpack_require__(4);
 
 	var _storeCreateStore = __webpack_require__(10);
 
@@ -96,13 +96,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+
+	var _render = __webpack_require__(4);
 
 	exports.lifeCycle = function (spec) {
 		if (spec.isMounted) {
 			spec.componentDidUpdate.apply(spec);
+			_render.render(spec, spec._svenjs.rootNode);
 		}
 	};
 
@@ -151,75 +154,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _libDeepCopy = __webpack_require__(3);
-
-	exports.saveState = function (spec, state) {
-	  //	console.log(state.clicks);
-	  //spec.state.clicks=state.clicks;
-	  spec.state = _libDeepCopy.deepCopy(state);
-	  var time = spec.time || { history: [], pos: -1 };
-	  time.history.splice(time.pos + 1);
-	  time.history.push(_libDeepCopy.deepCopy(state));
-	  time.pos++;
-	};
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _updateUi = __webpack_require__(2);
-
-	var _saveState = __webpack_require__(4);
-
-	var _lifeCycle = __webpack_require__(1);
-
-	exports.setState = function (state, spec) {
-		_saveState.saveState(spec, state);
-		//    spec.render(state);
-		//	updateUI(spec, spec.render(state));
-		_lifeCycle.lifeCycle(spec);
-		//spec.render.apply(spec);
-	};
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _setState = __webpack_require__(5);
-
-	exports.createComponent = function (spec) {
-		console.log(spec.displayName);
-		spec._svenjs = { rootNode: {} };
-		if (!spec.isBound) {
-			spec.isBound = true;
-
-			spec.setState = function (state) {
-				return _setState.setState(state, this);
-			};
-		}
-		if (!spec.isMounted) {
-			spec.time = { history: [], pos: -1 };
-			spec.isMounted = true;
-			if (undefined !== spec.initialState) {
-				spec.state = spec.initialState;
-			}
-			if ("function" === typeof spec.componentDidMount) {
-				spec.componentDidMount.apply(spec);
-			}
-		}
-		return spec;
-	};
-
-/***/ },
-/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -277,6 +211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.render = function (spec, node) {
 		spec._svenjs.rootNode = node;
+		node.innerHTML = "";
 
 		var tags = spec.render();
 
@@ -288,8 +223,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			root.id = tags.attrs.id;
 		}
 
-		//docFragment.appendChild(root);
-
 		// Build children
 		var childrenTree = addChildren(tags, root);
 		//console.log(childrenTree);
@@ -299,6 +232,75 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// Append to window
 		node.appendChild(docFragment);
+	};
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _libDeepCopy = __webpack_require__(3);
+
+	exports.saveState = function (spec, state) {
+	  //	console.log(state.clicks);
+	  //spec.state.clicks=state.clicks;
+	  spec.state = _libDeepCopy.deepCopy(state);
+	  var time = spec.time || { history: [], pos: -1 };
+	  time.history.splice(time.pos + 1);
+	  time.history.push(_libDeepCopy.deepCopy(state));
+	  time.pos++;
+	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _updateUi = __webpack_require__(2);
+
+	var _saveState = __webpack_require__(5);
+
+	var _lifeCycle = __webpack_require__(1);
+
+	exports.setState = function (state, spec) {
+		_saveState.saveState(spec, state);
+		//    spec.render(state);
+		//	updateUI(spec, spec.render(state));
+		_lifeCycle.lifeCycle(spec);
+		//spec.render.apply(spec);
+	};
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _setState = __webpack_require__(6);
+
+	exports.createComponent = function (spec) {
+		console.log(spec.displayName);
+		spec._svenjs = { rootNode: {} };
+		if (!spec.isBound) {
+			spec.isBound = true;
+
+			spec.setState = function (state) {
+				return _setState.setState(state, this);
+			};
+		}
+		if (!spec.isMounted) {
+			spec.time = { history: [], pos: -1 };
+			spec.isMounted = true;
+			if (undefined !== spec.initialState) {
+				spec.state = spec.initialState;
+			}
+			if ("function" === typeof spec.componentDidMount) {
+				spec.componentDidMount.apply(spec);
+			}
+		}
+		return spec;
 	};
 
 /***/ },
