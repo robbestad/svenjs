@@ -9,7 +9,6 @@ var timeTravel = Svenjs.createComponent({
         "use strict";
         MyStore.listenTo(this.onEmit);
     },
-
     componentDidUpdate() {
         "use strict";
     },
@@ -46,7 +45,7 @@ var timeTravel = Svenjs.createComponent({
 
       let svenFunc = () =>{
         this.setState({clicks: (this.state.clicks ? ++this.state.clicks : 1)});
-        console.log(this.state.clicks);
+        //console.log(this.state);
       }
 
      return ({tag: "div", attrs: {id:"row"}, children: [

@@ -5,7 +5,7 @@ let _data="_content+emitted_";
 module.exports = Svenjs.createStore({
 	init(){
 		const self = this;
-		getJSON('http://www.reddit.com/r/javascript/.json')
+		getJSON('http://jsonplaceholder.typicode.com/posts/1')
 	    .then(function (data) {
 	     self.emit(data);
 	    })

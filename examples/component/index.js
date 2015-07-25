@@ -487,7 +487,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'use strict';
 	        _store2['default'].listenTo(this.onEmit);
 	    },
-
 	    componentDidUpdate: function componentDidUpdate() {
 	        'use strict';
 	    },
@@ -527,7 +526,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var svenFunc = function svenFunc() {
 	            _this.setState({ clicks: _this.state.clicks ? ++_this.state.clicks : 1 });
-	            console.log(_this.state.clicks);
+	            //console.log(this.state);
 	        };
 
 	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: ['The Click App'] }, { tag: 'button', attrs: { onClick: svenFunc.bind(this) }, children: ['Why not click me?'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Click stats'] }, { tag: 'p', attrs: {}, children: ['You have clicked on the button ', this.state.clicks || 0, ' times'] }] }] };
@@ -575,7 +574,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Svenjs.createStore({
 		init: function init() {
 			var self = this;
-			_getJson.getJSON('http://www.reddit.com/r/javascript/.json').then(function (data) {
+			_getJson.getJSON('http://jsonplaceholder.typicode.com/posts/1').then(function (data) {
 				self.emit(data);
 			})['catch'](console.log.bind(console));
 
