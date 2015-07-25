@@ -6,6 +6,7 @@ exports.timeTravel = (spec,position)=> {
   let time = spec.time;
   let state = spec.state;
   time.pos+=position;
+  spec.state=state;
   state = deepCopy(time.history[time.pos]);
   spec.state=state;
   updateUI(spec,spec.render(state), time);

@@ -230,8 +230,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var _libDeepCopy = __webpack_require__(3);
 
-				exports.saveState = function (time, state) {
-					time = time || { history: [], pos: -1 };
+				exports.saveState = function (spec, state) {
+					//	console.log(state.clicks);
+					//spec.state.clicks=state.clicks;
+					spec.state = _libDeepCopy.deepCopy(state);
+					var time = spec.time || { history: [], pos: -1 };
 					time.history.splice(time.pos + 1);
 					time.history.push(_libDeepCopy.deepCopy(state));
 					time.pos++;
@@ -251,8 +254,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				var _lifeCycle = __webpack_require__(1);
 
 				exports.setState = function (state, spec) {
-					_saveState.saveState(spec.time, state);
-					spec.render(state);
+					_saveState.saveState(spec, state);
+					//    spec.render(state);
 					//	updateUI(spec, spec.render(state));
 					_lifeCycle.lifeCycle(spec);
 					//spec.render.apply(spec);
@@ -306,6 +309,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						tag.children.forEach(function (childTag) {
 							if (typeof childTag == 'string' || typeof childTag == 'number') {
 								if (typeof childTag == 'number') {
+									console.log('setAttrs');
 									console.log(childTag);
 								}
 								node.appendChild(document.createTextNode(childTag));
@@ -364,7 +368,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 					// Build children
 					var childrenTree = addChildren(tags, root);
-					console.log(childrenTree);
+					//console.log(childrenTree);
+
 					// Append to root node
 					docFragment.appendChild(childrenTree);
 
@@ -389,6 +394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					var time = spec.time;
 					var state = spec.state;
 					time.pos += position;
+					spec.state = state;
 					state = _libDeepCopy.deepCopy(time.history[time.pos]);
 					spec.state = state;
 					_updateUi.updateUI(spec, spec.render(state), time);
@@ -475,9 +481,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var timeTravel = Svenjs.createComponent({
 	    displayName: 'First app',
 	    initialState: {
-	        items: [],
-	        message: '',
-	        clicks: 10
+	        clicks: 0
 	    },
 	    componentDidMount: function componentDidMount() {
 	        'use strict';
@@ -516,17 +520,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var _this = this;
 
-	        console.log(this.state.clicks);
 	        var state = this.state;
 	        var time = this.time;
 	        var backDisabled = true;
 	        var nextDisabled = true;
 
 	        var svenFunc = function svenFunc() {
-	            _this.setState({ clicks: _this.state.clicks++ });
+	            _this.setState({ clicks: _this.state.clicks ? ++_this.state.clicks : 1 });
+	            console.log(_this.state.clicks);
 	        };
 
-	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: ['The Click App'] }, { tag: 'button', attrs: { onClick: svenFunc }, children: ['Why not click me?'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Click stats'] }, { tag: 'p', attrs: {}, children: ['You have clicked on the button ', this.state.clicks || 0, ' times'] }] }] };
+	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: ['The Click App'] }, { tag: 'button', attrs: { onClick: svenFunc.bind(this) }, children: ['Why not click me?'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Click stats'] }, { tag: 'p', attrs: {}, children: ['You have clicked on the button ', this.state.clicks || 0, ' times'] }] }] };
 	    }
 
 	});

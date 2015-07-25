@@ -7,6 +7,7 @@ const setAttrs = (tag,node)=>{
 		tag.children.forEach((childTag)=>{
 			if(typeof childTag == "string" || typeof childTag == "number"){
 				if(typeof childTag == "number"){
+					console.log('setAttrs');
 					console.log(childTag);
 				}
 				node.appendChild(document.createTextNode(childTag));
@@ -67,7 +68,8 @@ exports.render = (spec, node) => {
 
 	// Build children
 	let childrenTree = addChildren(tags, root);
-	console.log(childrenTree);
+	//console.log(childrenTree);
+	
 	// Append to root node
     docFragment.appendChild(childrenTree);
 
