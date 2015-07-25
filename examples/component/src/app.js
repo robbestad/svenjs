@@ -2,12 +2,11 @@ const Svenjs = require('../../../dist/sven.js');
 const MyStore = require('./store');
 
 var timeTravel = Svenjs.createComponent({
-  displayName:"First app",
+  displayName:"Timetravel App",
   initialState:{items: [], message:''},
   componentDidMount(){
     "use strict";
-    this.setState({items: [], message:''});
-    MyStore.listenTo(this.onEmit);
+    //MyStore.listenTo(this.onEmit);
   },
   componentDidUpdate(){
     "use strict";
@@ -43,6 +42,12 @@ var timeTravel = Svenjs.createComponent({
 
     let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
     let backDisabled = time.pos <= 0 ? "disabled" : "false";
+
+    let myFunc = () =>{
+      state.items.push(this.getNextString());
+      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
+      this.setState(state);
+    }
 
     return (<div id="row">
               <div id="app">

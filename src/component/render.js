@@ -11,17 +11,6 @@ const isArray = (object) => {
 	return type.call(object) === "[object Array]";
 };
 
-/*
-const toString=(data) => {
-		try {
-			if (data == null || data.toString() == null) return "";
-		} catch (e) {
-			return "";
-		}
-		return data;
-	}
-	*/
-
 const appendChild=(child,parent)=>{
 	return parent.appendChild(child);
 }
@@ -36,36 +25,24 @@ const setAttrs = (tag,node)=>{
 	}
 	if(tag.hasOwnProperty('attrs')){
 		const attr=tag.attrs;
-		//const log = (level="debug") => (::console[level](this), this);
-		//let log = (level) => (::console[level](this), this)  
 		for (var attrName in attr) {
 			if(attrName === "config" || attrName === "key") continue;
 			else if(attrName=="class" || attrName=="className") node.className = attr[attrName].toString();
-			//else if(attrName=="id") node.id = attr[attrName];
-			//else if(attrName=="placeholder") node.placeholder = attr[attrName];
-			//else if(attrName=="type") node.setAttribute('type',attr[attrName]);
-			//else if(attrName=="href") node.setAttribute('href',attr[attrName]);
-			//else if(attrName=="for") node.setAttribute('for',attr[attrName]);
 			else if(isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
 				node[attrName.toLowerCase()] = attr[attrName];
-				//node.onkeydown = attr[attrName];
 			}
 			//else if (attrName in node && attrName !== "list" && attrName !== "style" && attrName !== "form" && attrName !== "type" && attrName !== "width" && attrName !== "height") {
 			//	if (tag !== "input" || node[attrName] !== attr) node[attrName] = attr;
 			//}
 			else {
-				console.log(attrName);
+				//console.log(attrName);
 				node.setAttribute(''+attrName,attr[attrName].toString());
-				//node.setAttribute(node[attrName.toString()],attr[attrName]);
-				//node.setAttribute(node[attrName],attr[attrName].toString());
 			}
 		}
 		
 	}
 	return node;
 }
-
-
 
 const buildChildren=(tags, parent)=>{
     if(typeof tags.children != "object"){
@@ -114,5 +91,4 @@ exports.render = (spec, node) => {
 
 	// Append to window
     node.appendChild(docFragment);
-
 };

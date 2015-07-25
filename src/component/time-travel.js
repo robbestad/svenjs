@@ -1,5 +1,4 @@
 import {deepCopy} from '../lib/deep-copy';
-import {updateUI} from './update-ui';
 import {lifeCycle} from './life-cycle';
 
 exports.timeTravel = (spec,position)=> {
@@ -9,6 +8,6 @@ exports.timeTravel = (spec,position)=> {
   spec.state=state;
   state = deepCopy(time.history[time.pos]);
   spec.state=state;
-  updateUI(spec,spec.render(state), time);
+  spec,spec.render(state, spec._svenjs.rootNode);
   lifeCycle(spec);
 };
