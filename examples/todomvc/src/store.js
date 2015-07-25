@@ -1,12 +1,7 @@
 const Svenjs = require('./sven.js');
-const getJSON = require('./get-json').getJSON;
-
+let _data = ['Do this','Then do this'];
 module.exports = Svenjs.createStore({
 	init(){
-		getJSON('http://jsonplaceholder.typicode.com/posts/1')
-	    .then((data)=>{
-	     this.emit(data);
-	    })
-	    .catch(console.log.bind(console));   
+		this.emit(_data);
 	}
 });

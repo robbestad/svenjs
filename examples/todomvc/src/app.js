@@ -28,6 +28,7 @@ var todoMVCApp = Svenjs.createComponent({
       var state=this.state;
       //const log = (level="debug") => (::console[level](this), this);
       //state::log();
+     /*
       return(<div>
           <header className="header">
             <h1>todos</h1>
@@ -41,11 +42,13 @@ var todoMVCApp = Svenjs.createComponent({
           </header>
           
         </div>)
-
-      /*return (<div><section class="todoapp">
+*/
+      return (<section class="todoapp">
                         <header class="header">
                                 <h1>todos</h1>
-                                <input class="new-todo" placeholder="What needs to be done?" autofocus />
+                                <input class="new-todo" 
+                                  onKeyDown={this.handleNewTodoKeyDown}
+                                  placeholder="What needs to be done?" autofocus />
                         </header>
                         <section class="main">
                                 <input class="toggle-all" type="checkbox" />
@@ -55,27 +58,20 @@ var todoMVCApp = Svenjs.createComponent({
                         <footer class="footer">
                                 <span class="todo-count"></span>
                                 <ul class="filters">
-                                        <li>
-                                                <a href="#/" class="selected">All</a>
-                                        </li>
-                                        <li>
-                                                <a href="#/active">Active</a>
-                                        </li>
-                                        <li>
-                                                <a href="#/completed">Completed</a>
-                                        </li>
+                                    <li>
+                                            <a href="#/" class="selected">All</a>
+                                    </li>
+                                    <li>
+                                            <a href="#/active">Active</a>
+                                    </li>
+                                    <li>
+                                            <a href="#/completed">Completed</a>
+                                    </li>
                                 </ul>
                                 <button class="clear-completed">Clear completed</button>
                         </footer>
-                </section>
-                <footer class="info">
-                        <p>Double-click to edit a todo</p>
-                        <p>Created by <a href="http://twitter.com/oscargodson">Oscar Godson</a></p>
-                        <p>Refactored by <a href="https://github.com/cburgmer">Christoph Burgmer</a></p>
-                        <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
-                </footer>
-        </div>)
-*/
+                </section>)
+
     }
 
 });

@@ -158,10 +158,34 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
+	var isFunction = function isFunction(object) {
+		return typeof object === "function";
+	};
+	var isObject = function isObject(object) {
+		return type.call(object) === "[object Object]";
+	};
+	var isString = function isString(object) {
+		return type.call(object) === "[object String]";
+	};
+	var isArray = function isArray(object) {
+		return type.call(object) === "[object Array]";
+	};
+
+	/*
+	const toString=(data) => {
+			try {
+				if (data == null || data.toString() == null) return "";
+			} catch (e) {
+				return "";
+			}
+			return data;
+		}
+		*/
+
 	var appendChild = function appendChild(child, parent) {
 		return parent.appendChild(child);
 	};
-
+	var voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
 	var setAttrs = function setAttrs(tag, node) {
 		if (tag.hasOwnProperty("children")) {
 			tag.children.forEach(function (childTag) {
@@ -170,24 +194,30 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			});
 		}
-
 		if (tag.hasOwnProperty("attrs")) {
-			console.log(tag.attrs);
-			if (tag.attrs.hasOwnProperty("className")) {
-				node.className = tag.attrs.className;
-			}
-			if (tag.attrs.hasOwnProperty("class")) {
-				node.className = tag.attrs["class"];
-			}
-			if (tag.attrs.hasOwnProperty("id")) {
-				node.id = tag.attrs.id;
-			}
-			if (tag.attrs.hasOwnProperty("onClick")) {
-				node.onclick = tag.attrs.onClick;
-			}
-			if (tag.attrs.hasOwnProperty("onKeyDown")) {
-				node.onkeydown = tag.attrs.onKeyDown;
-				node.oninput = tag.attrs.onKeyDown;
+			var attr = tag.attrs;
+			//const log = (level="debug") => (::console[level](this), this);
+			//let log = (level) => (::console[level](this), this)
+			for (var attrName in attr) {
+				if (attrName === "config" || attrName === "key") continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();
+				//else if(attrName=="id") node.id = attr[attrName];
+				//else if(attrName=="placeholder") node.placeholder = attr[attrName];
+				//else if(attrName=="type") node.setAttribute('type',attr[attrName]);
+				//else if(attrName=="href") node.setAttribute('href',attr[attrName]);
+				//else if(attrName=="for") node.setAttribute('for',attr[attrName]);
+				else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
+					node[attrName.toLowerCase()] = attr[attrName];
+					//node.onkeydown = attr[attrName];
+				}
+				//else if (attrName in node && attrName !== "list" && attrName !== "style" && attrName !== "form" && attrName !== "type" && attrName !== "width" && attrName !== "height") {
+				//	if (tag !== "input" || node[attrName] !== attr) node[attrName] = attr;
+				//}
+				else {
+					console.log(attrName);
+					node.setAttribute("" + attrName, attr[attrName].toString());
+					//node.setAttribute(node[attrName.toString()],attr[attrName]);
+					//node.setAttribute(node[attrName],attr[attrName].toString());
+				}
 			}
 		}
 		return node;
@@ -199,7 +229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		tags.children.forEach(function (tag) {
-			console.log(tag);
+			//console.log(tag);
 			var child = document.createElement(tag.tag);
 			appendChild(setAttrs(tag, child), parent);
 			if (tag.children != null && typeof tag.children == "object") {
