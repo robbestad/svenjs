@@ -6,10 +6,6 @@ const setAttrs = (tag,node)=>{
 	if(tag.hasOwnProperty('children')){
 		tag.children.forEach((childTag)=>{
 			if(typeof childTag == "string" || typeof childTag == "number"){
-				if(typeof childTag == "number"){
-					console.log('setAttrs');
-					console.log(childTag);
-				}
 				node.appendChild(document.createTextNode(childTag));
 			}
 		});

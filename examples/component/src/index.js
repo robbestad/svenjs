@@ -5,6 +5,7 @@ Svenjs.render(
   First,
   rootNode
 );
+
 //const Second = require("./app2");
 //Svenjs.render(
 //  Second,

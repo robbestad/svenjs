@@ -60,6 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var First = __webpack_require__(2);
 	var rootNode = document.getElementById('ui');
 	Svenjs.render(First, rootNode);
+
 	//const Second = require("./app2");
 	//Svenjs.render(
 	//  Second,
@@ -174,7 +175,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				exports.lifeCycle = function (spec) {
 					if (spec.isMounted) {
-						spec.componentDidUpdate.apply(spec);
+						if (spec.hasOwnProperty('componentDidUpdate')) spec.componentDidUpdate.apply(spec);
 						_render.render(spec, spec._svenjs.rootNode);
 					}
 				};
@@ -239,10 +240,6 @@ return /******/ (function(modules) { // webpackBootstrap
 					if (tag.hasOwnProperty('children')) {
 						tag.children.forEach(function (childTag) {
 							if (typeof childTag == 'string' || typeof childTag == 'number') {
-								if (typeof childTag == 'number') {
-									console.log('setAttrs');
-									console.log(childTag);
-								}
 								node.appendChild(document.createTextNode(childTag));
 							}
 						});
@@ -470,127 +467,30 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _store = __webpack_require__(4);
-
-	var _store2 = _interopRequireDefault(_store);
+	"use strict";
 
 	var Svenjs = __webpack_require__(1);
-
-	var timeTravel = Svenjs.createComponent({
-	    displayName: 'First app',
+	var clickyApp = Svenjs.createComponent({
+	    displayName: "Clicky App",
 	    initialState: {
 	        clicks: 0
 	    },
-	    componentDidMount: function componentDidMount() {
-	        'use strict';
-	        _store2['default'].listenTo(this.onEmit);
-	    },
-	    componentDidUpdate: function componentDidUpdate() {
-	        'use strict';
-	    },
-	    onEmit: function onEmit(data) {
-	        console.log('data from store received!');
-	        console.log(data);
-	    },
-	    handleClick: function handleClick(idx) {
-	        console.log('handleClick');
-	        var state = this.state;
-	        var time = this.time;
-	        var self = this;
-	        state.items.push(this.getNextString());
-	        state.message = 'BOB' + (1 + Math.floor(Math.random() * 100)) + '!';
-	        this.setState(state);
-	    },
-	    goBack: function goBack() {
-	        Svenjs.timeTravel(this, -1);
-	    },
-	    goForward: function goForward() {
-	        Svenjs.timeTravel(this, 1);
-	    },
-	    getNextString: function getNextString() {
-	        'use strict';
-	        var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
-	        return words[Math.floor(Math.random() * words.length)];
-	    },
 	    render: function render() {
-	        'use strict';
+	        "use strict";
 
 	        var _this = this;
 
 	        var state = this.state;
-	        var time = this.time;
-	        var backDisabled = true;
-	        var nextDisabled = true;
-
 	        var svenFunc = function svenFunc() {
 	            _this.setState({ clicks: _this.state.clicks ? ++_this.state.clicks : 1 });
-	            //console.log(this.state);
 	        };
-
-	        return { tag: 'div', attrs: { id: 'row' }, children: [{ tag: 'div', attrs: { id: 'app' }, children: [{ tag: 'h3', attrs: {}, children: ['The Click App'] }, { tag: 'button', attrs: { onClick: svenFunc.bind(this) }, children: ['Why not click me?'] }] }, { tag: 'div', attrs: { id: 'time-travel' }, children: [{ tag: 'h3', attrs: {}, children: ['Click stats'] }, { tag: 'p', attrs: {}, children: ['You have clicked on the button ', this.state.clicks || 0, ' times'] }] }] };
+	        //const log = (level="debug") => (::console[level](this), this);
+	        //state::log();
+	        return { tag: "div", attrs: { id: "row" }, children: [{ tag: "div", attrs: { id: "app" }, children: [{ tag: "h3", attrs: {}, children: ["The Click App"] }, { tag: "button", attrs: { onClick: svenFunc }, children: ["Why not click me?"] }] }, { tag: "div", attrs: { id: "time-travel" }, children: [{ tag: "h3", attrs: {}, children: ["Click stats"] }, { tag: "p", attrs: {}, children: ["You have clicked on the button ", this.state.clicks, " times"] }] }] };
 	    }
 
 	});
-	module.exports = timeTravel;
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.getJSON = function (url) {
-	  'use strict';
-	  return new Promise(function (resolve, reject) {
-	    var xhr = new XMLHttpRequest();
-	    xhr.onreadystatechange = function () {
-	      if (xhr.readyState === 4) {
-	        if (xhr.status === 200) {
-	          resolve(JSON.parse(xhr.responseText));
-	        } else {
-	          reject(xhr.responseText);
-	        }
-	      }
-	    };
-	    xhr.open('GET', url);
-	    xhr.send();
-	  });
-	};
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _getJson = __webpack_require__(3);
-
-	var Svenjs = __webpack_require__(1);
-
-	var _data = '_content+emitted_';
-
-	module.exports = Svenjs.createStore({
-		init: function init() {
-			var self = this;
-			_getJson.getJSON('http://jsonplaceholder.typicode.com/posts/1').then(function (data) {
-				self.emit(data);
-			})['catch'](console.log.bind(console));
-
-			//.catch((reason) =>{
-			//	console.log('oh no, this happened:'+reason);
-			//});
-			/*
-	  setInterval(()=>{
-	  	_data = Math.random()*1000;
-	  	this.emit(_data);
-	  },10e3);
-	  */
-		}
-	});
+	module.exports = clickyApp;
 
 /***/ }
 /******/ ])

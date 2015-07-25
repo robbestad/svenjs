@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.lifeCycle = function (spec) {
 		if (spec.isMounted) {
-			spec.componentDidUpdate.apply(spec);
+			if (spec.hasOwnProperty("componentDidUpdate")) spec.componentDidUpdate.apply(spec);
 			_render.render(spec, spec._svenjs.rootNode);
 		}
 	};
@@ -166,10 +166,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (tag.hasOwnProperty("children")) {
 			tag.children.forEach(function (childTag) {
 				if (typeof childTag == "string" || typeof childTag == "number") {
-					if (typeof childTag == "number") {
-						console.log("setAttrs");
-						console.log(childTag);
-					}
 					node.appendChild(document.createTextNode(childTag));
 				}
 			});

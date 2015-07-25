@@ -6,7 +6,7 @@ rm -rf dist
 mkdir -p dist
 
 `npm bin`/babel src --out-dir lib
-#cp examples/component/app.js examples/component/app2.js
+#cp examples/component/src/app.js examples/component/src/app2.js
 $WEBPACK_CMD lib/index.js dist/sven.js
 rm examples/component/src/sven.js
 cp dist/sven.js examples/component/src/sven.js

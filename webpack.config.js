@@ -22,6 +22,9 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   module: {
+    preLoaders: [
+      { test: /\.js$/, loaders: ['svenjsx-loader'], exclude: /node_modules/ }
+    ],
     loaders: [
       { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
     ]
