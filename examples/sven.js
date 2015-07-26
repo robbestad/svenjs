@@ -103,7 +103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _render = __webpack_require__(3);
 
 	exports.lifeCycle = function (spec) {
-		if (spec.isMounted && Object.keys(spec._svenjs.rootNode)) {
+		if (spec.isMounted && spec._svenjs.rootNode) {
 			_render.render(spec, spec._svenjs.rootNode);
 			if (spec.hasOwnProperty("componentDidUpdate")) spec.componentDidUpdate.apply(spec);
 		}
@@ -248,7 +248,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.saveState = function (spec, state) {
 	  spec.state = _libDeepCopy.deepCopy(state);
-	  var time = spec.time || { history: [], pos: -1 };
+
+	  var time = undefined;
+	  if (spec.time) time = spec.time;else time = { history: [], pos: -1 };
+
 	  time.history.splice(time.pos + 1);
 	  time.history.push(_libDeepCopy.deepCopy(state));
 	  time.pos++;
