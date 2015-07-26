@@ -64,7 +64,7 @@ const buildChildren=(tags, parent)=>{
 			if(isArray(tag)){
 				tag.forEach((childtag,idx)=>{
 					var child = document.createElement(childtag.tag);
-					appendChild(setAttrs(tag,child),parent)
+					appendChild(setAttrs(childtag,child),parent)
 					buildChildren(childtag,child);
 				});
 			}

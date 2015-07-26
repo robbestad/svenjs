@@ -1,31 +1,71 @@
 const Svenjs = require('../../sven.js');
-var ENTER_KEY = 13;
+let ENTER_KEY = 13;
+let ESCAPE_KEY = 27;
 let _toggled=false;
+let _prevEditing=false;
+let _currentEdit=0;
 
-var todoMVCApp = Svenjs.createComponent({
+let todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
         messages:[
-          {id:1,message:"Get the mail",complete:false},
-          {id:2,message:"Make Coffe",complete:false}
+          {id:1,message:"Get the mail",complete:false,editing:false},
+          {id:2,message:"Make Coffe",complete:false,editing:false}
         ]
+    },
+    componentDidUpdate(){
+      let node= document.getElementById('new-todo');
+      if(node!==null && _prevEditing){
+        _prevEditing=false;
+        node.focus();
+        node.setSelectionRange(node.value.length, node.value.length); 
+      }
     },
     componentDidMount(){
       var url = self.history === true ? self.getPath() : window.location.hash.replace(/.*#\//, '');
       this.setState({messages:this.state.messages,url:url});
       window.addEventListener("hashchange", this.onHashChange.bind(this), false);
     },
+    handleEditTodoKeyDown(e){
+      if (e.keyCode === ESCAPE_KEY) {
+        this.simpleResetEditing();
+        return;
+      }
+      if (e.keyCode !== ENTER_KEY) {
+          return;
+      }
+      this.saveTodo(e);
+      this.resetEditing();
+      e.preventDefault();
+    },
+    handleNewTodoKeyDown(e) {
+      if (e.keyCode !== ENTER_KEY) {
+        return;
+      }
+      this.addTodo(e);
+      e.innerHTML="";
+      document.getElementsByClassName(e.srcElement.className)[0].focus();
+      e.preventDefault();
+    },
     onHashChange(){
         var url = self.history === true ? self.getPath() : window.location.hash.replace(/.*#\//, '');
+        this.resetEditing();
         this.setState({messages:this.state.messages,url:url});
+    },
+    saveTodo(e){
+      let messages=this.state.messages.filter((msg)=>{
+        if(msg.id === _currentEdit) msg.message=e.srcElement.value;
+        return msg
+      })
+      this.setState({messages:messages, url:this.state.url});
     },
     addTodo(e){
       let messages=this.state.messages;
       let lastId
       if(messages.length===0) lastId=1;
       else lastId=messages[messages.length-1].id;
-      messages.push({id:lastId+1, message:e.srcElement.value, complete: false});
-      this.setState({messages:messages});
+      messages.push({id:lastId+1, message:e.srcElement.value, complete: false, editing:false});
+      this.setState({messages:messages, url:this.state.url});
     },
     destroyMessage(item){
       let messages=this.state.messages.filter((msg)=>{
@@ -37,14 +77,52 @@ var todoMVCApp = Svenjs.createComponent({
       let messages=this.state.messages.filter((msg)=>{
         return msg.complete===false
       })
-      this.setState({messages:messages});
+      this.resetEditing();
+      this.setState({messages:messages, url:this.state.url});
     },
     toggleOne(item,e){
       let messages=this.state.messages.filter((msg)=>{
         if(msg.id === item.id) msg.complete=!msg.complete;
         return msg
       })
-      this.setState({messages:messages});
+      this.resetEditing();
+      this.setState({messages:messages, url:this.state.url})
+    },
+    simpleResetEditing(){
+      let messages=this.state.messages.map((msg)=>{
+        msg.editing = false;
+        return msg
+      });
+      _prevEditing=false;
+      this.setState({messages:messages, url:this.state.url});
+    },
+    resetEditing(e){
+      let update=false;
+      let messages=this.state.messages.map((msg)=>{
+        if(msg.editing) update=true;
+        msg.editing = false;
+        return msg
+      })
+      if(update) {
+        _prevEditing=true;
+        this.setState({messages:messages, url:this.state.url});
+      } else {
+        _prevEditing=false;
+      }
+      //e.preventDefault;
+    },
+    onDoubleClick(todo,e){
+      _currentEdit=todo.id;
+      if(!todo.complete){
+        let messages=this.state.messages.map((msg)=>{
+           msg.editing = msg.id===todo.id ? !msg.editing : false;
+          return msg
+        })
+        this.setState({messages:messages, url:this.state.url});
+        let node= document.getElementsByClassName('edit active')[0];
+        node.focus();
+        node.setSelectionRange(node.value.length, node.value.length); 
+      }
     },
     toggleAll(){
       _toggled=!_toggled;
@@ -52,6 +130,7 @@ var todoMVCApp = Svenjs.createComponent({
         msg.complete=_toggled;
         return msg;
       })
+      this.resetEditing();
       this.setState({messages:messages});
     },
     listTodos(){
@@ -70,28 +149,28 @@ var todoMVCApp = Svenjs.createComponent({
       return shownTodos.map((todo)=>{
         let label= todo.message;
         let checked=false;
+        let className="todo";
+        let editClassName="edit";
+        if(todo.editing){ 
+          className="todo editing";
+          editClassName="edit active";
+          }
         if(todo.complete) {
           label= <del>{todo.message}</del>;
           checked=true;
         }
-        return  <li className="todo">
+        return  <li className={className} >
                <div className="view">
                  <input className="toggle" type="checkbox" checked={checked} onClick={this.toggleOne.bind(this,todo)}  />
-                 <label>{label}</label>
+                 <label ondblclick={this.onDoubleClick.bind(this, todo)} >{label}</label>
                  <button className="destroy" onClick={this.destroyMessage.bind(this,todo)}></button>
                </div>
-               <input className="edit" type="text" value={todo.message} />
+               <input className={editClassName} 
+                type="text" 
+                onKeyDown={this.handleEditTodoKeyDown.bind(this)}
+                value={todo.message} />
              </li>
       })
-    },
-    handleNewTodoKeyDown(e) {
-      if (e.keyCode !== ENTER_KEY) {
-        return;
-      }
-      this.addTodo(e);
-      e.innerHTML="";
-      document.getElementsByClassName(e.srcElement.className)[0].focus();
-      e.preventDefault();
     },
     render(){
       "use strict";
@@ -101,12 +180,12 @@ var todoMVCApp = Svenjs.createComponent({
       if(this.state.url==="active") selected_active='selected';
       if(this.state.url==="completed") selected_completed='selected';
 
-    
-
       return (<section class="todoapp">
                 <header class="header">
                   <h1>todos</h1>
-                  <input class="new-todo" 
+                  <input className="new-todo" 
+                    id="new-todo"
+                    onClick={this.resetEditing.bind(this)}
                     onKeyDown={this.handleNewTodoKeyDown.bind(this)}
                     placeholder="What needs to be done?" autofocus />
                 </header>
@@ -119,7 +198,9 @@ var todoMVCApp = Svenjs.createComponent({
                 </section>
 
                 <footer class="footer">
-                  <span class="todo-count">{this.state.messages.length}</span>
+                  <span class="todo-count">{this.state.messages.length} 
+                    {this.state.messages.length === 1 ? " item" : " items"} remaining</span>
+                    
                   <ul class="filters">
                       <li>
                           <a href="#/all" class={selected_all}>All</a>
