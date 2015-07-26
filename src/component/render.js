@@ -49,32 +49,28 @@ const buildChildren=(tags, parent)=>{
     if(typeof tags.children != "object"){
 
     	if(!tags.hasOwnProperty('tag')){
-		    tags.forEach((tag)=>{
-		    	var child = document.createElement(tag.tag);
-				appendChild(setAttrs(tag,child),parent)
-		    })
+    		console.log(tags);
+			if(tags.hasOwnProperty('children')){
+			    tags.forEach((tag)=>{
+			    	var child = document.createElement(tag.tag);
+					appendChild(setAttrs(tag,child),parent);
+			    })
+			    
+			    //var child = document.createElement('span');
+				//buildChildren(tags,child);
+	    	}
 	    }
-
+		else
     	return false;
     } 
-    //console.log(tags);
 
+	if(tags.hasOwnProperty('children')){
     tags.children.forEach((tag)=>{
-    	//console.log(tag);
 		var child = document.createElement(tag.tag);
 		appendChild(setAttrs(tag,child),parent)
-		if(tag.children != null && typeof tag.children == "object"){
-    		const childrenTags=tag.children;
-	    	childrenTags.forEach((childTag)=>{
-	    		var childnode = document.createElement(childTag.tag);
-				setAttrs(childTag,childnode);
-				appendChild(childnode,child);
-		    	buildChildren(childTag,childnode);
-	    	})
-		}
-		
+		buildChildren(tag,child);
     })
-
+	} 
 	return parent;
 }
 

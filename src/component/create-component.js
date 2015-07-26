@@ -1,11 +1,14 @@
 import {setState} from './set-state';
-
+function log(level){
+	level = level || "debug";
+	console[level](this)
+}
 exports.createComponent = (spec)=> {
-    console.log(spec.displayName);
+	spec.displayName::log('info');
     spec._svenjs={rootNode:{}};
+
 	if(!spec.isBound){
 		spec.isBound=true;
-
 		spec.setState=function(state){
 		    return setState(state,this);
 		 };

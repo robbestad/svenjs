@@ -5,32 +5,32 @@ var ENTER_KEY = 13;
 var todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
-        messages:[{id:1,message:"do this"},{id:2,message:"then do that"}]
+        messages:[
+          {id:1,message:"Get the mail",complete:false},
+          {id:2,message:"Make Coffe",complete:false}
+        ]
+    },
+    addTodo(e){
+      let messages=this.state.messages;
+      let lastId=messages[messages.length-1].id;
+      messages.push({id:lastId+1, message:e.srcElement.value, complete: false});
+      this.setState({messages:messages});
     },
     handleNewTodoKeyDown(e) {
-      console.log(e);
       if (e.keyCode !== ENTER_KEY) {
         return;
       }
-      let messages=this.state.messages;
-      console.log(messages),
-      messages.push({id:Math.random()*100, message:"Come on!"});
-      this.setState(messages);
-      e.preventDefault();
-      /*
-      var val = React.findDOMNode(this.refs.newField).value.trim();
 
-      if (val) {
-        this.props.model.addTodo(val);
-        React.findDOMNode(this.refs.newField).value = '';
-      }
-      */
+      this.addTodo(e);
+      e.innerHTML="";
+      document.getElementsByClassName(e.srcElement.className)[0].focus();
+      e.preventDefault();
     },
     render(){
       "use strict";
       var state=this.state;
       //const log = (level="debug") => (::console[level](this), this);
-      //state::log();
+      
      /*
       return(<div>
           <header className="header">
@@ -46,8 +46,16 @@ var todoMVCApp = Svenjs.createComponent({
           
         </div>)
 */
+
       let messages=this.state.messages.map((item)=>{
-        return <li>{item.message}</li>
+        return  <li className="todo">
+                 <div className="view">
+                   <input className="toggle" type="checkbox" />
+                   <label>adssad</label>
+                   <button className="destroy"></button>
+                 </div>
+                 <input className="edit" type="text" value="asdas" />
+               </li>
       })
 
       return (<section class="todoapp">
@@ -57,14 +65,25 @@ var todoMVCApp = Svenjs.createComponent({
                                   onKeyDown={this.handleNewTodoKeyDown.bind(this)}
                                   placeholder="What needs to be done?" autofocus />
                         </header>
-                        <section class="main">
-                                <input class="toggle-all" type="checkbox" />
+                        <section className="main">
+                                <input className="toggle-all" type="checkbox" />
                                 <label for="toggle-all">Mark all as complete</label>
-                                <ul class="todo-list"></ul>
+
+                                <ul className="todo-list">
+                                {messages}
+                                 <li className="todo">
+                                   <div className="view">
+                                     <input className="toggle" type="checkbox" />
+                                     <label>adssad</label>
+                                     <button className="destroy"></button>
+                                   </div>
+                                   <input className="edit" type="text" value="asdas" />
+                                 </li>
+                                </ul>
+
                         </section>
-                        <ul>
-                          {messages}
-                        </ul>
+                       
+
                         <footer class="footer">
                                 <span class="todo-count"></span>
                                 <ul class="filters">

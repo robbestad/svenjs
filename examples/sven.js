@@ -179,31 +179,23 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (typeof tags.children != "object") {
 
 			if (!tags.hasOwnProperty("tag")) {
-				tags.forEach(function (tag) {
-					var child = document.createElement(tag.tag);
-					appendChild(setAttrs(tag, child), parent);
-				});
-			}
-
-			return false;
+				console.log(tags);
+				if (tags.hasOwnProperty("children")) {
+					tags.forEach(function (tag) {
+						var child = document.createElement(tag.tag);
+						appendChild(setAttrs(tag, child), parent);
+					});
+				}
+			} else return false;
 		}
-		//console.log(tags);
 
-		tags.children.forEach(function (tag) {
-			//console.log(tag);
-			var child = document.createElement(tag.tag);
-			appendChild(setAttrs(tag, child), parent);
-			if (tag.children != null && typeof tag.children == "object") {
-				var childrenTags = tag.children;
-				childrenTags.forEach(function (childTag) {
-					var childnode = document.createElement(childTag.tag);
-					setAttrs(childTag, childnode);
-					appendChild(childnode, child);
-					buildChildren(childTag, childnode);
-				});
-			}
-		});
-
+		if (tags.hasOwnProperty("children")) {
+			tags.children.forEach(function (tag) {
+				var child = document.createElement(tag.tag);
+				appendChild(setAttrs(tag, child), parent);
+				buildChildren(tag, child);
+			});
+		}
 		return parent;
 	};
 
@@ -231,6 +223,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Append to window
 		node.appendChild(docFragment);
 	};
+	//var child = document.createElement('span');
+	//buildChildren(tags,child);
 
 /***/ },
 /* 4 */
@@ -267,16 +261,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _setState = __webpack_require__(5);
 
+	function log(level) {
+		level = level || 'debug';
+		console[level](this);
+	}
 	exports.createComponent = function (spec) {
-		console.log(spec.displayName);
+		var _context;
+
+		(_context = spec.displayName, log).call(_context, 'info');
 		spec._svenjs = { rootNode: {} };
+
 		if (!spec.isBound) {
 			spec.isBound = true;
-
 			spec.setState = function (state) {
 				return _setState.setState(state, this);
 			};
@@ -287,7 +287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			if (undefined !== spec.initialState) {
 				spec.state = spec.initialState;
 			}
-			if ("function" === typeof spec.componentDidMount) {
+			if ('function' === typeof spec.componentDidMount) {
 				spec.componentDidMount.apply(spec);
 			}
 		}
