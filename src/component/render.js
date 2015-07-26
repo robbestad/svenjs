@@ -15,6 +15,9 @@ const isArray = (object) => {
 const appendChild=(child,parent)=>{
 	return parent.appendChild(child);
 }
+// Speed up calls to hasOwnProperty
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 const voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
 const setAttrs = (tag,node)=>{
 	if(tag.hasOwnProperty('children')){
@@ -24,7 +27,7 @@ const setAttrs = (tag,node)=>{
 			}
 		});
 	}
-	if(tag.hasOwnProperty('attrs')){
+	if((hasOwnProperty.call(tag, 'attrs'))){
 		const attr=tag.attrs;
 		for (var attrName in attr) {
 			if(attrName === "config" || attrName === "key") continue;
@@ -44,8 +47,8 @@ const setAttrs = (tag,node)=>{
 
 const buildChildren=(tags, parent)=>{
     if(typeof tags.children != "object"){
-    	if(!tags.hasOwnProperty('tag')){
-			if(tags.hasOwnProperty('children')){
+		if((hasOwnProperty.call(tags, 'tag'))){
+			if((hasOwnProperty.call(tags, 'children'))){
 			    tags.forEach((tag)=>{
 			    	var child = document.createElement(tag.tag);
 					appendChild(setAttrs(tag,child),parent);
@@ -55,7 +58,7 @@ const buildChildren=(tags, parent)=>{
 		else
     	return false;
     } 
-	if(tags.hasOwnProperty('children')){
+	if((hasOwnProperty.call(tags, 'children'))){
 	    tags.children.forEach((tag,idx)=>{
 	    	var tagName=tag.tag;
 			if(isArray(tag)){
@@ -73,7 +76,7 @@ const buildChildren=(tags, parent)=>{
 			}
 	    })
 	} 
-	if(!tags.hasOwnProperty('tag') && isArray(tags)){
+	if((hasOwnProperty.call(tags, 'tag'))  && isArray(tags)){
 		tags.forEach((tag)=>{
 			buildChildren(tag,parent);
 	    });
@@ -83,6 +86,7 @@ const buildChildren=(tags, parent)=>{
 
 exports.render = (spec, node) => {
     spec._svenjs.rootNode = node;
+    if(node){ 
     node.innerHTML="";
 
     const tags = spec.render();
@@ -103,4 +107,5 @@ exports.render = (spec, node) => {
 
 	// Append to window
     node.appendChild(docFragment);
+    }
 };

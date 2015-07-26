@@ -1,7 +1,7 @@
 const Svenjs = require('../../sven.js');
 var ENTER_KEY = 13;
 let _toggled=false;
-//import Svenjs from '../../../dist/sven.js';
+
 var todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
@@ -9,6 +9,15 @@ var todoMVCApp = Svenjs.createComponent({
           {id:1,message:"Get the mail",complete:false},
           {id:2,message:"Make Coffe",complete:false}
         ]
+    },
+    componentDidMount(){
+      var url = self.history === true ? self.getPath() : window.location.hash.replace(/.*#\//, '');
+      this.setState({messages:this.state.messages,url:url});
+      window.addEventListener("hashchange", this.onHashChange.bind(this), false);
+    },
+    onHashChange(){
+        var url = self.history === true ? self.getPath() : window.location.hash.replace(/.*#\//, '');
+        this.setState({messages:this.state.messages,url:url});
     },
     addTodo(e){
       let messages=this.state.messages;
@@ -45,21 +54,33 @@ var todoMVCApp = Svenjs.createComponent({
       })
       this.setState({messages:messages});
     },
-    listMessages(){
-      return this.state.messages.map((item)=>{
-        let label= item.message;
+    listTodos(){
+      
+      let shownTodos = this.state.messages.filter( (todo) => {
+        switch (this.state.url) {
+        case "active":
+          return !todo.complete;
+        case "completed":
+          return todo.complete;
+        default:
+          return true;
+        }
+      }, this);
+      
+      return shownTodos.map((todo)=>{
+        let label= todo.message;
         let checked=false;
-        if(item.complete) {
-          label= <del>{item.message}</del>;
+        if(todo.complete) {
+          label= <del>{todo.message}</del>;
           checked=true;
         }
         return  <li className="todo">
                <div className="view">
-                 <input className="toggle" type="checkbox" checked={checked} onClick={this.toggleOne.bind(this,item)}  />
+                 <input className="toggle" type="checkbox" checked={checked} onClick={this.toggleOne.bind(this,todo)}  />
                  <label>{label}</label>
-                 <button className="destroy" onClick={this.destroyMessage.bind(this,item)}></button>
+                 <button className="destroy" onClick={this.destroyMessage.bind(this,todo)}></button>
                </div>
-               <input className="edit" type="text" value={item.message} />
+               <input className="edit" type="text" value={todo.message} />
              </li>
       })
     },
@@ -75,6 +96,12 @@ var todoMVCApp = Svenjs.createComponent({
     render(){
       "use strict";
       var state=this.state;
+      let selected_all="", selected_active="", selected_completed="";
+      if(this.state.url==="" || this.state.url==="all") selected_all='selected';
+      if(this.state.url==="active") selected_active='selected';
+      if(this.state.url==="completed") selected_completed='selected';
+
+    
 
       return (<section class="todoapp">
                 <header class="header">
@@ -87,7 +114,7 @@ var todoMVCApp = Svenjs.createComponent({
                   <input className="toggle-all" type="checkbox" onClick={this.toggleAll.bind(this)} />
                   <label for="toggle-all">Mark all as complete</label>
                   <ul className="todo-list">
-                    {this.listMessages()}
+                    {this.listTodos()}
                   </ul>
                 </section>
 
@@ -95,13 +122,13 @@ var todoMVCApp = Svenjs.createComponent({
                   <span class="todo-count">{this.state.messages.length}</span>
                   <ul class="filters">
                       <li>
-                              <a href="#/" class="selected">All</a>
+                          <a href="#/all" class={selected_all}>All</a>
                       </li>
                       <li>
-                              <a href="#/active">Active</a>
+                          <a href="#/active" class={selected_active}>Active</a>
                       </li>
                       <li>
-                              <a href="#/completed">Completed</a>
+                          <a href="#/completed" class={selected_completed}>Completed</a>
                       </li>
                   </ul>
                   <button class="clear-completed" onClick={this.destroyCompleted.bind(this)}>Clear completed</button>

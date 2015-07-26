@@ -1,11 +1,8 @@
 import {setState} from './set-state';
-function log(level){
-	level = level || "debug";
-	console[level](this)
-}
+import {log} from '../lib/log';
 exports.createComponent = (spec)=> {
 	spec.displayName::log('info');
-    spec._svenjs={rootNode:{}};
+    spec._svenjs={rootNode:false};
 
 	if(!spec.isBound){
 		spec.isBound=true;

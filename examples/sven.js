@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _componentRender = __webpack_require__(3);
 
-	var _storeCreateStore = __webpack_require__(9);
+	var _storeCreateStore = __webpack_require__(10);
 
 	var _libDeepCopy = __webpack_require__(2);
 
@@ -89,7 +89,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	if (typeof module === 'object' && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module)))
 
 /***/ },
 /* 1 */
@@ -100,7 +100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _render = __webpack_require__(3);
 
 	exports.lifeCycle = function (spec) {
-		if (spec.isMounted && spec._svenjs.rootNode != {}) {
+		if (spec.isMounted && Object.keys(spec._svenjs.rootNode)) {
 			if (spec.hasOwnProperty("componentDidUpdate")) spec.componentDidUpdate.apply(spec);
 			_render.render(spec, spec._svenjs.rootNode);
 		}
@@ -148,6 +148,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var appendChild = function appendChild(child, parent) {
 		return parent.appendChild(child);
 	};
+	// Speed up calls to hasOwnProperty
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 	var voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
 	var setAttrs = function setAttrs(tag, node) {
 		if (tag.hasOwnProperty("children")) {
@@ -157,7 +160,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			});
 		}
-		if (tag.hasOwnProperty("attrs")) {
+		if (hasOwnProperty.call(tag, "attrs")) {
 			var attr = tag.attrs;
 			for (var attrName in attr) {
 				if (attrName === "config" || attrName === "key") continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
@@ -172,8 +175,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var buildChildren = function buildChildren(tags, parent) {
 		if (typeof tags.children != "object") {
-			if (!tags.hasOwnProperty("tag")) {
-				if (tags.hasOwnProperty("children")) {
+			if (hasOwnProperty.call(tags, "tag")) {
+				if (hasOwnProperty.call(tags, "children")) {
 					tags.forEach(function (tag) {
 						var child = document.createElement(tag.tag);
 						appendChild(setAttrs(tag, child), parent);
@@ -181,7 +184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			} else return false;
 		}
-		if (tags.hasOwnProperty("children")) {
+		if (hasOwnProperty.call(tags, "children")) {
 			tags.children.forEach(function (tag, idx) {
 				var tagName = tag.tag;
 				if (isArray(tag)) {
@@ -198,7 +201,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			});
 		}
-		if (!tags.hasOwnProperty("tag") && isArray(tags)) {
+		if (hasOwnProperty.call(tags, "tag") && isArray(tags)) {
 			tags.forEach(function (tag) {
 				buildChildren(tag, parent);
 			});
@@ -208,26 +211,28 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.render = function (spec, node) {
 		spec._svenjs.rootNode = node;
-		node.innerHTML = "";
+		if (node) {
+			node.innerHTML = "";
 
-		var tags = spec.render();
+			var tags = spec.render();
 
-		var docFragment = document.createDocumentFragment();
+			var docFragment = document.createDocumentFragment();
 
-		// Root node  
-		var root = document.createElement(tags.tag);
-		if (tags.attrs.hasOwnProperty("id")) {
-			root.id = tags.attrs.id;
+			// Root node  
+			var root = document.createElement(tags.tag);
+			if (tags.attrs.hasOwnProperty("id")) {
+				root.id = tags.attrs.id;
+			}
+
+			// Build children
+			var childrenTree = buildChildren(tags, root);
+
+			// Append to root node
+			docFragment.appendChild(childrenTree);
+
+			// Append to window
+			node.appendChild(docFragment);
 		}
-
-		// Build children
-		var childrenTree = buildChildren(tags, root);
-
-		// Append to root node
-		docFragment.appendChild(childrenTree);
-
-		// Append to window
-		node.appendChild(docFragment);
 	};
 
 /***/ },
@@ -269,15 +274,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _setState = __webpack_require__(5);
 
-	function log(level) {
-		level = level || 'debug';
-		console[level](this);
-	}
+	var _libLog = __webpack_require__(9);
+
 	exports.createComponent = function (spec) {
 		var _context;
 
-		(_context = spec.displayName, log).call(_context, 'info');
-		spec._svenjs = { rootNode: {} };
+		(_context = spec.displayName, _libLog.log).call(_context, 'info');
+		spec._svenjs = { rootNode: false };
 
 		if (!spec.isBound) {
 			spec.isBound = true;
@@ -335,6 +338,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
+	exports.log = function log(level) {
+		level = level || "debug";
+		console[level](this);
+	};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+
 	var _callbacks = [];
 	exports.createStore = function (spec) {
 		if (!spec.isMounted) {
@@ -355,7 +369,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
