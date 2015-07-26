@@ -32,11 +32,8 @@ const setAttrs = (tag,node)=>{
 			else if(isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
 				node[attrName.toLowerCase()] = attr[attrName];
 			}
-			//else if (attrName in node && attrName !== "list" && attrName !== "style" && attrName !== "form" && attrName !== "type" && attrName !== "width" && attrName !== "height") {
-			//	if (tag !== "input" || node[attrName] !== attr) node[attrName] = attr;
-			//}
+			else if(attrName === "checked" && (attr[attrName]===false || attr[attrName] === "")) continue;
 			else {
-				//console.log(attrName);
 				node.setAttribute(''+attrName,attr[attrName].toString());
 			}
 		}
@@ -58,13 +55,10 @@ const buildChildren=(tags, parent)=>{
 		else
     	return false;
     } 
-
 	if(tags.hasOwnProperty('children')){
 	    tags.children.forEach((tag,idx)=>{
 	    	var tagName=tag.tag;
 			if(isArray(tag)){
-	    	console.log(tag);
-	    	console.log(isArray(tag));
 				tag.forEach((childtag,idx)=>{
 					var child = document.createElement(childtag.tag);
 					appendChild(setAttrs(tag,child),parent)
@@ -79,13 +73,11 @@ const buildChildren=(tags, parent)=>{
 			}
 	    })
 	} 
-
 	if(!tags.hasOwnProperty('tag') && isArray(tags)){
 		tags.forEach((tag)=>{
 			buildChildren(tag,parent);
 	    });
 	}
-
 	return parent;
 }
 
@@ -105,7 +97,6 @@ exports.render = (spec, node) => {
 
 	// Build children
 	let childrenTree = buildChildren(tags, root);
-	//console.log(childrenTree);
 	
 	// Append to root node
     docFragment.appendChild(childrenTree);

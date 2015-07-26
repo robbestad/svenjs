@@ -162,12 +162,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			for (var attrName in attr) {
 				if (attrName === "config" || attrName === "key") continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
 					node[attrName.toLowerCase()] = attr[attrName];
-				}
-				//else if (attrName in node && attrName !== "list" && attrName !== "style" && attrName !== "form" && attrName !== "type" && attrName !== "width" && attrName !== "height") {
-				//	if (tag !== "input" || node[attrName] !== attr) node[attrName] = attr;
-				//}
-				else {
-					//console.log(attrName);
+				} else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
 					node.setAttribute("" + attrName, attr[attrName].toString());
 				}
 			}
@@ -186,13 +181,10 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			} else return false;
 		}
-
 		if (tags.hasOwnProperty("children")) {
 			tags.children.forEach(function (tag, idx) {
 				var tagName = tag.tag;
 				if (isArray(tag)) {
-					console.log(tag);
-					console.log(isArray(tag));
 					tag.forEach(function (childtag, idx) {
 						var child = document.createElement(childtag.tag);
 						appendChild(setAttrs(tag, child), parent);
@@ -206,13 +198,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			});
 		}
-
 		if (!tags.hasOwnProperty("tag") && isArray(tags)) {
 			tags.forEach(function (tag) {
 				buildChildren(tag, parent);
 			});
 		}
-
 		return parent;
 	};
 
@@ -232,7 +222,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// Build children
 		var childrenTree = buildChildren(tags, root);
-		//console.log(childrenTree);
 
 		// Append to root node
 		docFragment.appendChild(childrenTree);
