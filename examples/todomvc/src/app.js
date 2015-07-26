@@ -10,9 +10,12 @@ var todoMVCApp = Svenjs.createComponent({
     handleNewTodoKeyDown(e) {
       console.log(e);
       if (e.keyCode !== ENTER_KEY) {
-        console.log('hit enter');
         return;
       }
+      let messages=this.state.messages;
+      console.log(messages),
+      messages.push({id:Math.random()*100, message:"Come on!"});
+      this.setState(messages);
       e.preventDefault();
       /*
       var val = React.findDOMNode(this.refs.newField).value.trim();
@@ -51,7 +54,7 @@ var todoMVCApp = Svenjs.createComponent({
                         <header class="header">
                                 <h1>todos</h1>
                                 <input class="new-todo" 
-                                  onKeyDown={this.handleNewTodoKeyDown}
+                                  onKeyDown={this.handleNewTodoKeyDown.bind(this)}
                                   placeholder="What needs to be done?" autofocus />
                         </header>
                         <section class="main">
@@ -61,8 +64,6 @@ var todoMVCApp = Svenjs.createComponent({
                         </section>
                         <ul>
                           {messages}
-                          <li>2 do this</li>
-                          <li>2 then do this</li>
                         </ul>
                         <footer class="footer">
                                 <span class="todo-count"></span>

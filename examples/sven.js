@@ -187,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			return false;
 		}
-		console.log(tags);
+		//console.log(tags);
 
 		tags.children.forEach(function (tag) {
 			//console.log(tag);

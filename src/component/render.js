@@ -57,7 +57,7 @@ const buildChildren=(tags, parent)=>{
 
     	return false;
     } 
-    console.log(tags);
+    //console.log(tags);
 
     tags.children.forEach((tag)=>{
     	//console.log(tag);
