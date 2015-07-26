@@ -175,9 +175,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var buildChildren = function buildChildren(tags, parent) {
+
 		if (typeof tags.children != "object") {
+
+			if (!tags.hasOwnProperty("tag")) {
+				tags.forEach(function (tag) {
+					var child = document.createElement(tag.tag);
+					appendChild(setAttrs(tag, child), parent);
+				});
+			}
+
 			return false;
 		}
+		console.log(tags);
 
 		tags.children.forEach(function (tag) {
 			//console.log(tag);

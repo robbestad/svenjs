@@ -6,7 +6,7 @@ var timeTravel = Svenjs.createComponent({
   initialState:{items: [], message:''},
   componentDidMount(){
     "use strict";
-    //MyStore.listenTo(this.onEmit);
+    MyStore.listenTo(this.onEmit);
   },
   componentDidUpdate(){
     "use strict";
@@ -52,7 +52,6 @@ var timeTravel = Svenjs.createComponent({
     return (<div id="row">
               <div id="app">
                   <h3>{this.state.message || "Sample App"}</h3>
-                  <button id="add" onClick={myFunc}>Add word</button>
                   <div id="ui"></div>
                   <small>(click word to delete)</small>
               </div>

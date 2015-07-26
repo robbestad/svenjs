@@ -5,7 +5,7 @@ var ENTER_KEY = 13;
 var todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
-        clicks: 0
+        messages:[{id:1,message:"do this"},{id:2,message:"then do that"}]
     },
     handleNewTodoKeyDown(e) {
       console.log(e);
@@ -43,6 +43,10 @@ var todoMVCApp = Svenjs.createComponent({
           
         </div>)
 */
+      let messages=this.state.messages.map((item)=>{
+        return <li>{item.message}</li>
+      })
+
       return (<section class="todoapp">
                         <header class="header">
                                 <h1>todos</h1>
@@ -55,6 +59,11 @@ var todoMVCApp = Svenjs.createComponent({
                                 <label for="toggle-all">Mark all as complete</label>
                                 <ul class="todo-list"></ul>
                         </section>
+                        <ul>
+                          {messages}
+                          <li>2 do this</li>
+                          <li>2 then do this</li>
+                        </ul>
                         <footer class="footer">
                                 <span class="todo-count"></span>
                                 <ul class="filters">

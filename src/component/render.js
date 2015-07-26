@@ -45,9 +45,19 @@ const setAttrs = (tag,node)=>{
 }
 
 const buildChildren=(tags, parent)=>{
+
     if(typeof tags.children != "object"){
+
+    	if(!tags.hasOwnProperty('tag')){
+		    tags.forEach((tag)=>{
+		    	var child = document.createElement(tag.tag);
+				appendChild(setAttrs(tag,child),parent)
+		    })
+	    }
+
     	return false;
     } 
+    console.log(tags);
 
     tags.children.forEach((tag)=>{
     	//console.log(tag);
