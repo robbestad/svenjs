@@ -1,3 +1,4 @@
+const type = {}.toString;
 const isFunction=(object)=> {
 	return typeof object === "function";
 }
@@ -45,19 +46,13 @@ const setAttrs = (tag,node)=>{
 }
 
 const buildChildren=(tags, parent)=>{
-
     if(typeof tags.children != "object"){
-
     	if(!tags.hasOwnProperty('tag')){
-    		console.log(tags);
 			if(tags.hasOwnProperty('children')){
 			    tags.forEach((tag)=>{
 			    	var child = document.createElement(tag.tag);
 					appendChild(setAttrs(tag,child),parent);
 			    })
-			    
-			    //var child = document.createElement('span');
-				//buildChildren(tags,child);
 	    	}
 	    }
 		else
@@ -65,12 +60,32 @@ const buildChildren=(tags, parent)=>{
     } 
 
 	if(tags.hasOwnProperty('children')){
-    tags.children.forEach((tag)=>{
-		var child = document.createElement(tag.tag);
-		appendChild(setAttrs(tag,child),parent)
-		buildChildren(tag,child);
-    })
+	    tags.children.forEach((tag,idx)=>{
+	    	var tagName=tag.tag;
+			if(isArray(tag)){
+	    	console.log(tag);
+	    	console.log(isArray(tag));
+				tag.forEach((childtag,idx)=>{
+					var child = document.createElement(childtag.tag);
+					appendChild(setAttrs(tag,child),parent)
+					buildChildren(childtag,child);
+				});
+			}
+			else {
+				if("undefined" == typeof tagName) tagName="span";
+				var child = document.createElement(tagName);
+				appendChild(setAttrs(tag,child),parent)
+				buildChildren(tag,child);
+			}
+	    })
 	} 
+
+	if(!tags.hasOwnProperty('tag') && isArray(tags)){
+		tags.forEach((tag)=>{
+			buildChildren(tag,parent);
+	    });
+	}
+
 	return parent;
 }
 

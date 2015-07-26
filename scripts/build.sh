@@ -9,7 +9,7 @@ mkdir -p dist
 
 # Copy libs
 $WEBPACK_CMD lib/index.js dist/sven.js
-rm examples/sven.js
+#rm examples/sven.js
 cp dist/sven.js examples/sven.js
 
 # For prod

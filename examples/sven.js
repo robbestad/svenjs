@@ -131,6 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
+	var type = ({}).toString;
 	var isFunction = function isFunction(object) {
 		return typeof object === "function";
 	};
@@ -175,11 +176,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var buildChildren = function buildChildren(tags, parent) {
-
 		if (typeof tags.children != "object") {
-
 			if (!tags.hasOwnProperty("tag")) {
-				console.log(tags);
 				if (tags.hasOwnProperty("children")) {
 					tags.forEach(function (tag) {
 						var child = document.createElement(tag.tag);
@@ -190,12 +188,31 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		if (tags.hasOwnProperty("children")) {
-			tags.children.forEach(function (tag) {
-				var child = document.createElement(tag.tag);
-				appendChild(setAttrs(tag, child), parent);
-				buildChildren(tag, child);
+			tags.children.forEach(function (tag, idx) {
+				var tagName = tag.tag;
+				if (isArray(tag)) {
+					console.log(tag);
+					console.log(isArray(tag));
+					tag.forEach(function (childtag, idx) {
+						var child = document.createElement(childtag.tag);
+						appendChild(setAttrs(tag, child), parent);
+						buildChildren(childtag, child);
+					});
+				} else {
+					if ("undefined" == typeof tagName) tagName = "span";
+					var child = document.createElement(tagName);
+					appendChild(setAttrs(tag, child), parent);
+					buildChildren(tag, child);
+				}
 			});
 		}
+
+		if (!tags.hasOwnProperty("tag") && isArray(tags)) {
+			tags.forEach(function (tag) {
+				buildChildren(tag, parent);
+			});
+		}
+
 		return parent;
 	};
 
@@ -223,8 +240,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		// Append to window
 		node.appendChild(docFragment);
 	};
-	//var child = document.createElement('span');
-	//buildChildren(tags,child);
 
 /***/ },
 /* 4 */

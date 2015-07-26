@@ -51,12 +51,13 @@ var todoMVCApp = Svenjs.createComponent({
         return  <li className="todo">
                  <div className="view">
                    <input className="toggle" type="checkbox" />
-                   <label>adssad</label>
+                   <label>{item.message}</label>
                    <button className="destroy"></button>
                  </div>
-                 <input className="edit" type="text" value="asdas" />
+                 <input className="edit" type="text" value={item.message} />
                </li>
       })
+
 
       return (<section class="todoapp">
                         <header class="header">
@@ -70,15 +71,7 @@ var todoMVCApp = Svenjs.createComponent({
                                 <label for="toggle-all">Mark all as complete</label>
 
                                 <ul className="todo-list">
-                                {messages}
-                                 <li className="todo">
-                                   <div className="view">
-                                     <input className="toggle" type="checkbox" />
-                                     <label>adssad</label>
-                                     <button className="destroy"></button>
-                                   </div>
-                                   <input className="edit" type="text" value="asdas" />
-                                 </li>
+                                  {messages}
                                 </ul>
 
                         </section>
