@@ -14,5 +14,5 @@ cp dist/sven.js examples/sven.js
 
 # For prod
 #$WEBPACK_CMD -p examples/timetravel/src/index.js examples/timetravel/dist/index.min.js
-#$WEBPACK_CMD -p examples/todomvc/src/index.js examples/todomvc/dist/index.min.js
+$WEBPACK_CMD  examples/todomvc/src/index.js examples/todomvc/dist/index.js
 #$WEBPACK_CMD -p lib/index.js dist/sven.min.js

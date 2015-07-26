@@ -70,9 +70,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _componentRender = __webpack_require__(3);
 
-	var _storeCreateStore = __webpack_require__(10);
+	var _storeCreateStore = __webpack_require__(11);
 
 	var _libDeepCopy = __webpack_require__(2);
+
+	var _libFindDomNode = __webpack_require__(9);
 
 	var Svenjs = {
 	  version: _componentVersion.version,
@@ -83,13 +85,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  lifeCycle: _componentLifeCycle.lifeCycle,
 	  timeTravel: _componentTimeTravel.timeTravel,
 	  saveState: _componentSaveState.saveState,
+	  findDOMNode: _libFindDomNode.findDOMNode,
 	  deepCopy: _libDeepCopy.deepCopy
 	};
 
 	if (typeof module === 'object' && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module)))
 
 /***/ },
 /* 1 */
@@ -274,7 +277,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _setState = __webpack_require__(5);
 
-	var _libLog = __webpack_require__(9);
+	var _libLog = __webpack_require__(10);
 
 	exports.createComponent = function (spec) {
 		var _context;
@@ -338,13 +341,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
+	exports.findDOMNode = function (ref) {};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+
 	exports.log = function log(level) {
 		level = level || "debug";
 		console[level](this);
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -369,7 +380,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {

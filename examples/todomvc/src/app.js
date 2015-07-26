@@ -9,8 +9,8 @@ let todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
         messages:[
-          {id:1,message:"Get the mail",complete:false,editing:false},
-          {id:2,message:"Make Coffe",complete:false,editing:false}
+          {id:1,message:"Answer mail",complete:false,editing:false},
+          {id:2,message:"Get a cup of coffee",complete:false,editing:false}
         ]
     },
     componentDidUpdate(){
@@ -27,6 +27,7 @@ let todoMVCApp = Svenjs.createComponent({
       window.addEventListener("hashchange", this.onHashChange.bind(this), false);
     },
     handleEditTodoKeyDown(e){
+
       if (e.keyCode === ESCAPE_KEY) {
         this.simpleResetEditing();
         return;
@@ -38,13 +39,14 @@ let todoMVCApp = Svenjs.createComponent({
       this.resetEditing();
       e.preventDefault();
     },
-    handleNewTodoKeyDown(e) {
+    handleNewTodoKeyDown(id,e) {
       if (e.keyCode !== ENTER_KEY) {
         return;
       }
       this.addTodo(e);
       e.innerHTML="";
-      document.getElementsByClassName(e.srcElement.className)[0].focus();
+      //Svenjs.findDOMNode('new-todo');
+      document.getElementById(id).focus();
       e.preventDefault();
     },
     onHashChange(){
@@ -53,18 +55,20 @@ let todoMVCApp = Svenjs.createComponent({
         this.setState({messages:this.state.messages,url:url});
     },
     saveTodo(e){
+      let val = "undefined" === typeof e.srcElement ? e.target.value : e.srcElement.value;
       let messages=this.state.messages.filter((msg)=>{
-        if(msg.id === _currentEdit) msg.message=e.srcElement.value;
+        if(msg.id === _currentEdit) msg.message=val;
         return msg
       })
       this.setState({messages:messages, url:this.state.url});
     },
     addTodo(e){
       let messages=this.state.messages;
-      let lastId
+      let lastId;
+      let val = "undefined" === typeof e.srcElement ? e.target.value : e.srcElement.value;
       if(messages.length===0) lastId=1;
       else lastId=messages[messages.length-1].id;
-      messages.push({id:lastId+1, message:e.srcElement.value, complete: false, editing:false});
+      messages.push({id:lastId+1, message:val , complete: false, editing:false});
       this.setState({messages:messages, url:this.state.url});
     },
     destroyMessage(item){
@@ -109,7 +113,6 @@ let todoMVCApp = Svenjs.createComponent({
       } else {
         _prevEditing=false;
       }
-      //e.preventDefault;
     },
     onDoubleClick(todo,e){
       _currentEdit=todo.id;
@@ -186,7 +189,7 @@ let todoMVCApp = Svenjs.createComponent({
                   <input className="new-todo" 
                     id="new-todo"
                     onClick={this.resetEditing.bind(this)}
-                    onKeyDown={this.handleNewTodoKeyDown.bind(this)}
+                    onKeyDown={this.handleNewTodoKeyDown.bind(this,"new-todo")}
                     placeholder="What needs to be done?" autofocus />
                 </header>
                 <section className="main">
