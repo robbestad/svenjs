@@ -1,19 +1,13 @@
 const Svenjs = require('../../../dist/sven.js');
-const MyStore = require('./store');
 
 var timeTravel = Svenjs.createComponent({
-  displayName:"Timetravel App",
+  displayName:"First app",
   initialState:{items: [], message:''},
   componentDidMount(){
     "use strict";
-    MyStore.listenTo(this.onEmit);
   },
   componentDidUpdate(){
     "use strict";
-  },
-  onEmit(data){
-    console.log("data from store received!")
-    console.log(data);
   },
   handleClick: function (idx) {
       let items= this.state.items;
@@ -25,6 +19,10 @@ var timeTravel = Svenjs.createComponent({
   },
   goForward(){
       Svenjs.timeTravel(this,1);
+    "use strict";
+    this.state.items.splice(idx, 1);
+    this.state.message = "Spliced!";
+    this.setState(this.state);
   },
   getNextString() {
     "use strict";

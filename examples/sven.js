@@ -219,14 +219,13 @@ return /******/ (function(modules) { // webpackBootstrap
 			var docFragment = document.createDocumentFragment();
 
 			// Root node  
+			console.log(tags);
 			var root = document.createElement(tags.tag);
-			if (tags.attrs.hasOwnProperty("id")) {
-				root.id = tags.attrs.id;
-			}
+			setAttrs(tags, root);
 
 			// Build children
 			var childrenTree = buildChildren(tags, root);
-
+			console.log(childrenTree);
 			// Append to root node
 			docFragment.appendChild(childrenTree);
 
