@@ -18,11 +18,7 @@ var timeTravel = Svenjs.createComponent({
       Svenjs.timeTravel(this,-1);
   },
   goForward(){
-      Svenjs.timeTravel(this,1);
-    "use strict";
-    this.state.items.splice(idx, 1);
-    this.state.message = "Spliced!";
-    this.setState(this.state);
+    Svenjs.timeTravel(this,1);
   },
   getNextString() {
     "use strict";
@@ -33,9 +29,9 @@ var timeTravel = Svenjs.createComponent({
     let state= this.state;
     let time = this.time;
     let self = this;
-console.log(time);
-    let nextDisabled = time.pos >= time.history.length - 1 ? true : false;
-    let backDisabled = time.pos <= 0 ? true : false;
+
+    let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : false;
+    let backDisabled = time.pos <= 0 ? "disabled" : false;
 
     let words = this.state.items.map((item)=>{
         return <li>{item}</li>;
@@ -45,7 +41,7 @@ console.log(time);
               <div id="app">
                   <h3>{this.state.message || "Sample App"}</h3>
                   <button id="add" onClick={this.handleClick.bind(this)}>Add Word</button>
-                  <ul id="ui">{words}</ul>
+                  <div id="ui"><ul>{words}</ul></div>
               </div>
               <div id="time-travel">
                   <h3>Time travel</h3>

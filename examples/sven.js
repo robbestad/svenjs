@@ -163,7 +163,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (hasOwnProperty.call(tag, "attrs")) {
 			var attr = tag.attrs;
 			for (var attrName in attr) {
-				if (attrName === "config" || attrName === "key") continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
+				if (attrName === "config" || attrName === "key") continue;
+				if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
 					node[attrName.toLowerCase()] = attr[attrName];
 				} else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
 					node.setAttribute("" + attrName, attr[attrName].toString());
