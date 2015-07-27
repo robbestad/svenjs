@@ -9,7 +9,7 @@ let todoMVCApp = Svenjs.createComponent({
     displayName: "TodoMVC App",
     initialState: {
         messages:[
-          {id:1,message:"Answer mail",complete:false,editing:false},
+          {id:1,message:"Answer all the mail",complete:false,editing:false},
           {id:2,message:"Get a cup of coffee",complete:false,editing:false}
         ]
     },
@@ -45,7 +45,6 @@ let todoMVCApp = Svenjs.createComponent({
       }
       this.addTodo(e);
       e.innerHTML="";
-      //Svenjs.findDOMNode('new-todo');
       document.getElementById(id).focus();
       e.preventDefault();
     },

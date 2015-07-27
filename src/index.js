@@ -1,5 +1,4 @@
 import { version } from './component/version';
-import { saveState } from './component/save-state';
 import { timeTravel } from './component/time-travel';
 import { setState } from './component/set-state';
 import { createComponent } from './component/create-component';
@@ -17,7 +16,6 @@ const Svenjs= {
   render,
   lifeCycle,
   timeTravel,
-  saveState,
   findDOMNode,
   deepCopy
 };
