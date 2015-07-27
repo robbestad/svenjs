@@ -16,13 +16,9 @@ var timeTravel = Svenjs.createComponent({
     console.log(data);
   },
   handleClick: function (idx) {
-    console.log('handleClick');
-      var state= this.state;
-      var time = this.time;
-      var self = this;
-      state.items.push(this.getNextString());
-      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
-      this.setState(state);
+      let items= this.state.items;
+      items.push(this.getNextString());
+      this.setState({items:items,message:"Wordsworth"});
   },
   goBack(){
       Svenjs.timeTravel(this,-1);
@@ -36,24 +32,22 @@ var timeTravel = Svenjs.createComponent({
     return words[Math.floor(Math.random() * words.length)];
   },
   render(){
-    var state= this.state;
-    var time = this.time;
-    var self = this;
+    let state= this.state;
+    let time = this.time;
+    let self = this;
+console.log(time);
+    let nextDisabled = time.pos >= time.history.length - 1 ? true : false;
+    let backDisabled = time.pos <= 0 ? true : false;
 
-    let nextDisabled = time.pos >= time.history.length - 1 ? "disabled" : "false";
-    let backDisabled = time.pos <= 0 ? "disabled" : "false";
-
-    let myFunc = () =>{
-      state.items.push(this.getNextString());
-      state.message="BOB"+(1+Math.floor(Math.random()*100))+"!";
-      this.setState(state);
-    }
+    let words = this.state.items.map((item)=>{
+        return <li>{item}</li>;
+    });
 
     return (<div id="row">
               <div id="app">
                   <h3>{this.state.message || "Sample App"}</h3>
-                  <div id="ui"></div>
-                  <small>(click word to delete)</small>
+                  <button id="add" onClick={this.handleClick.bind(this)}>Add Word</button>
+                  <ul id="ui">{words}</ul>
               </div>
               <div id="time-travel">
                   <h3>Time travel</h3>
