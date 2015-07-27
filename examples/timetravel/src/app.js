@@ -20,9 +20,10 @@ var timeTravel = Svenjs.createComponent({
   goForward(){
     Svenjs.timeTravel(this,1);
   },
+
   getNextString() {
     "use strict";
-    var words = 'The quick brown fox jumps over the lazy dog'.split(' ');
+    var words = 'Pack my box with five dozen liquor jugs'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
   render(){
@@ -47,7 +48,9 @@ var timeTravel = Svenjs.createComponent({
                   <h3>Time travel</h3>
                   <button id="back" disabled={backDisabled} onClick={this.goBack.bind(this)}>Back</button>
                   <button id="next" disabled={nextDisabled} onClick={this.goForward.bind(this)}>Next</button>
-                  <p id="time-pos"></p>
+                  <p id="time-pos">
+                    Position {time.pos + 1} of {time.history.length}
+                  </p>
               </div>
         </div>);
     }
