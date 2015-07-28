@@ -80,6 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  createStore: _storeCreateStore.createStore,
 	  createComponent: _componentCreateComponent.createComponent,
 	  render: _componentRender.render,
+	  renderToString: _componentRender.renderToString,
 	  lifeCycle: _componentLifeCycle.lifeCycle,
 	  timeTravel: _componentTimeTravel.timeTravel,
 	  findDOMNode: _libFindDomNode.findDOMNode,
@@ -129,6 +130,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports) {
 
+	/**
+	 * render module.
+	 * @module component/render
+	 * @see module:svenjs
+	 * @author Sven A Robbestad <robbestad@gmail.com> 
+	 */
+
+	// define common functions used in this module
 	"use strict";
 
 	var type = ({}).toString;
@@ -144,21 +153,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	var isArray = function isArray(object) {
 		return type.call(object) === "[object Array]";
 	};
+	var isDefined = function isDefined(object) {
+		return type.call(object) !== "undefined";
+	};
 
 	var appendChild = function appendChild(child, parent) {
 		return parent.appendChild(child);
 	};
+
 	// Speed up calls to hasOwnProperty
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-	var voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
+	//const voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
+
+	/**
+	 * setAttrs. This sets all attributes on the node tag, like class names, event handlers etc.
+	 * @param {tag} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
+	 * @param {node} a DOM Node the children should be added to
+	 * @returns {Object} a DOM Node
+	 */
 	var setAttrs = function setAttrs(tag, node) {
 		if (tag.hasOwnProperty("children")) {
-			tag.children.forEach(function (childTag) {
-				if (typeof childTag == "string" || typeof childTag == "number") {
-					node.appendChild(document.createTextNode(childTag));
-				}
-			});
+			if (isArray(tag.children)) {
+				tag.children.forEach(function (childTag) {
+					if (typeof childTag == "string" || typeof childTag == "number") {
+						node.appendChild(document.createTextNode(childTag));
+					}
+				});
+			}
 		}
 		if (hasOwnProperty.call(tag, "attrs")) {
 			var attr = tag.attrs;
@@ -174,64 +196,116 @@ return /******/ (function(modules) { // webpackBootstrap
 		return node;
 	};
 
+	/**
+	 * buildChildren
+	 * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
+	 * @param {parent} a DOM Node the children should be added to
+	 * @returns {Object} a DOM Node
+	 */
 	var buildChildren = function buildChildren(tags, parent) {
 		if (typeof tags.children != "object") {
 			if (hasOwnProperty.call(tags, "tag")) {
 				if (hasOwnProperty.call(tags, "children")) {
-					tags.forEach(function (tag) {
-						var child = document.createElement(tag.tag);
-						appendChild(setAttrs(tag, child), parent);
-					});
+					if (isArray(tags.children)) {
+						tags.forEach(function (tag) {
+							var child = document.createElement(tag.tag);
+							appendChild(setAttrs(tag, child), parent);
+						});
+					}
 				}
 			} else return false;
 		}
 		if (hasOwnProperty.call(tags, "children")) {
-			tags.children.forEach(function (tag, idx) {
-				var tagName = tag.tag;
-				if (isArray(tag)) {
-					tag.forEach(function (childtag, idx) {
-						var child = document.createElement(childtag.tag);
-						appendChild(setAttrs(childtag, child), parent);
-						buildChildren(childtag, child);
-					});
-				} else {
-					if ("undefined" == typeof tagName) tagName = "span";
-					var child = document.createElement(tagName);
-					appendChild(setAttrs(tag, child), parent);
-					buildChildren(tag, child);
-				}
-			});
+			if (isArray(tags.children)) {
+				tags.children.forEach(function (tag, idx) {
+					var tagName = tag.tag;
+					if (isArray(tag)) {
+						tag.forEach(function (childtag, idx) {
+							var child = document.createElement(childtag.tag);
+							appendChild(setAttrs(childtag, child), parent);
+							buildChildren(childtag, child);
+						});
+					} else {
+						if ("undefined" == typeof tagName) tagName = "span";
+						var child = document.createElement(tagName);
+						appendChild(setAttrs(tag, child), parent);
+						buildChildren(tag, child);
+					}
+				});
+			}
 		}
 		if (hasOwnProperty.call(tags, "tag") && isArray(tags)) {
-			tags.forEach(function (tag) {
-				buildChildren(tag, parent);
-			});
+			if (isArray(tags)) {
+				tags.forEach(function (tag) {
+					buildChildren(tag, parent);
+				});
+			}
 		}
 		return parent;
 	};
 
+	var renderToString = exports.renderToString = function (tags) {
+		return vDom(tags).innerHTML;
+	};
+
+	/**
+	 * vDom
+	 * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
+	 * @returns {Object} a DOM Node
+	 */
+	var vDom = function vDom(tags) {
+		var docFragment = document.createDocumentFragment();
+
+		// Root node  
+		var root = document.createElement(tags.tag);
+		setAttrs(tags, root);
+
+		// Build children
+		var childrenTree = buildChildren(tags, root);
+
+		// Append to root node
+		docFragment.appendChild(childrenTree);
+
+		// Append to window
+		return docFragment;
+	};
+
+	/**
+	 * Render
+	 * @alias svenjs.render
+	 * @param {spec} a Svenjs component with a render method. Optional, set to false if not used
+	 * @param {node} a document node (e.g from document.getElementById()).
+	 * @param {tags} optional pre-rendered tags
+	 * @returns {undefined}
+	 */
 	exports.render = function (spec, node) {
-		spec._svenjs.rootNode = node;
+		var preRendered = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
 		if (node) {
+
+			if (isObject(spec)) {
+				// Set internal ref
+				if (!hasOwnProperty.call(spec, "_svenjs")) {
+					spec._svenjs = { rootNode: false };
+				}
+				spec._svenjs.rootNode = node;
+			}
+
+			// reset HTML
 			node.innerHTML = "";
+			// Get the converted tags
+			var tags = undefined;
 
-			var tags = spec.render();
-
-			var docFragment = document.createDocumentFragment();
-
-			// Root node  
-			console.log(tags);
-			var root = document.createElement(tags.tag);
-			setAttrs(tags, root);
-
-			// Build children
-			var childrenTree = buildChildren(tags, root);
-			console.log(childrenTree);
-			// Append to root node
-			docFragment.appendChild(childrenTree);
+			if (isObject(preRendered)) {
+				tags = preRendered;
+			} else {
+				tags = spec.render();
+			}
 
 			// Append to window
-			node.appendChild(docFragment);
+			node.appendChild(vDom(tags));
+		} else {
+			return "Error: no node to attach rendered HTML";
 		}
 	};
 
@@ -264,9 +338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _libLog = __webpack_require__(11);
 
 	exports.createComponent = function (spec) {
-		var _context;
-
-		(_context = spec.displayName, _libLog.log).call(_context, 'info');
+		//spec.displayName::log('info');
 		spec._svenjs = { rootNode: false };
 
 		if (!spec.isBound) {

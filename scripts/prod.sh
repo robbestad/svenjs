@@ -9,6 +9,8 @@ echo
 echo Generating dist build of SVENJS
 echo
 $WEBPACK_CMD -p lib/index.js dist/sven.min.js
+cp dist/sven.min.js ~/Jottacloud/Work/projects/learn-svenjs/src/scripts/sven.js
+cp dist/sven.js ~/Jottacloud/Work/opensource/vdom-benchmark-svenjs/node_modules/svenjs/index.js
 
 # For prod
 echo 
@@ -26,5 +28,5 @@ $WEBPACK_CMD -p examples/todomvc/src/index.js examples/todomvc/dist/app.min.js
 echo 
 echo Generating main app
 echo
-$WEBPACK_CMD -p examples/main/src/index.js examples/main/dist/app.min.js
+$WEBPACK_CMD -p examples/composable/src/index.js examples/composable/dist/app.min.js
 
