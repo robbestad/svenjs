@@ -4,7 +4,7 @@ A minimal reactive web framework
 
 # Demos
 
-  - [TodoMVC](http://svenjs-todomvc.herokuapp.com/)
+  - [TodoMVC](http://svenjs-todomvc.herokuapp.com/). [Source](https://github.com/svenanders/svenjs-todomvc)
 
 # Goals
 
