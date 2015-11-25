@@ -4,8 +4,7 @@ A minimal reactive web framework
 
 # Demos
 
-  - [TodoMVC](http://todomvc.svenardo.com/) ([Source](https://github.com/svenanders/universaljs-todomvc))
-  - [Clicky](http://clicky.svenardo.com/) ([Source](https://github.com/svenanders/universaljs-example-clicky))
+  - [TodoMVC](http://svenjs-todomvc.herokuapp.com/)
 
 # Goals
 
