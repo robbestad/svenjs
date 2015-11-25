@@ -1,7 +1,7 @@
 const Svenjs = require('../../sven.js');
 const Sub = require('./sub.js');
 
-let MainApp = Svenjs.createComponent({
+module.exports = Svenjs.create({
     displayName: "Main",
     render(){
       "use strict";
@@ -11,6 +11,4 @@ let MainApp = Svenjs.createComponent({
                 <div className="pure-u-1 pure-u-md-1-3">{Sub.render(Sub.spec)}</div>
             </div>);
     }
-
 });
-module.exports = MainApp;

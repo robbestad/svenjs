@@ -1,5 +1,5 @@
 import {setState} from './set-state';
-exports.createComponent = (spec)=> {
+exports.create = (spec)=> {
     spec._svenjs={rootNode:false};
 
 	if(!spec.isBound){

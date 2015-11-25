@@ -143,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						version: _componentVersion.version,
 						setState: _componentSetState.setState,
 						createStore: _storeCreateStore.createStore,
-						createComponent: _componentCreateComponent.createComponent,
+						create: _componentCreateComponent.create,
 						render: _componentRender.render,
 						lifeCycle: _componentLifeCycle.lifeCycle,
 						timeTravel: _componentTimeTravel.timeTravel,
@@ -352,7 +352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var _libLog = __webpack_require__(10);
 
-				exports.createComponent = function (spec) {
+				exports.create = function (spec) {
 					var _context;
 
 					(_context = spec.displayName, _libLog.log).call(_context, 'info');
@@ -565,7 +565,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						version: _componentVersion.version,
 						setState: _componentSetState.setState,
 						createStore: _storeCreateStore.createStore,
-						createComponent: _componentCreateComponent.createComponent,
+						create: _componentCreateComponent.create,
 						render: _componentRender.render,
 						lifeCycle: _componentLifeCycle.lifeCycle,
 						timeTravel: _componentTimeTravel.timeTravel,
@@ -774,7 +774,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var _libLog = __webpack_require__(10);
 
-				exports.createComponent = function (spec) {
+				exports.create = function (spec) {
 					var _context;
 
 					(_context = spec.displayName, _libLog.log).call(_context, 'info');
@@ -918,7 +918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _prevEditing = false;
 	var _currentEdit = 0;
 
-	var todoMVCApp = Svenjs.createComponent({
+	var todoMVCApp = Svenjs.create({
 	  displayName: "TodoMVC App",
 	  initialState: {
 	    messages: [{ id: 1, message: "Answer mail", complete: false, editing: false }, { id: 2, message: "Get a cup of coffee", complete: false, editing: false }]

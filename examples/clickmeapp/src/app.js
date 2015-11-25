@@ -1,5 +1,5 @@
 const Svenjs = require('../../../dist/sven.js');
-var clickyApp = Svenjs.createComponent({
+var clickyApp = Svenjs.create({
     displayName: "Clicky App",
     initialState: {
         clicks: 0

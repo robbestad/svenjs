@@ -53,7 +53,7 @@ Here's a basic Universal component ([Source](https://github.com/svenanders/svenj
 ```html
 const Sven = require("svenjs");
 
-module.exports = Sven.createComponent({
+module.exports = Sven.create({
     initialState: {
         clicks: 0
     },

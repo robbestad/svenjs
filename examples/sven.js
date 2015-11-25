@@ -64,7 +64,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _setState = __webpack_require__(4);
 
-	var _createComponent = __webpack_require__(5);
+	var _create = __webpack_require__(5);
 
 	var _lifeCycle = __webpack_require__(2);
 
@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  version: _version.version,
 	  setState: _setState.setState,
 	  createStore: _createStore.createStore,
-	  createComponent: _createComponent.createComponent,
+	  create: _create.create,
 	  render: _render.render,
 	  renderToString: _render.renderToString,
 	  lifeCycle: _lifeCycle.lifeCycle,
@@ -335,7 +335,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _setState = __webpack_require__(4);
 
-	exports.createComponent = function (spec) {
+	exports.create = function (spec) {
 		spec._svenjs = { rootNode: false };
 
 		if (!spec.isBound) {
