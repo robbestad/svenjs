@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 git commit -am"Autopush"
 git push origin --all
-BRANCH='git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3'
-git push github ${BRANCH}
-
+branch_name=$(git symbolic-ref -q HEAD)
+branch_name=${branch_name##refs/heads/}
+git push github $branch_name
 #git push --mirror git@github.com:svenanders/svenjs.git
