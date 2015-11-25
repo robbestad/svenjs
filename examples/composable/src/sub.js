@@ -1,6 +1,6 @@
 const Svenjs = require('../../sven.js');
 
-let Sub = Svenjs.createComponent({
+let Sub = Svenjs.create({
     displayName: "Sub",
     render(){
       "use strict";

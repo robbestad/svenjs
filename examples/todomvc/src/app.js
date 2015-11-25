@@ -5,7 +5,7 @@ let _toggled=false;
 let _prevEditing=false;
 let _currentEdit=0;
 
-let todoMVCApp = Svenjs.createComponent({
+let todoMVCApp = Svenjs.create({
     displayName: "TodoMVC App",
     initialState: {
         messages:[

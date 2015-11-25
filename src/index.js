@@ -1,7 +1,7 @@
 import { version } from './component/version';
 import { timeTravel } from './component/time-travel';
 import { setState } from './component/set-state';
-import { createComponent } from './component/create-component';
+import { create } from './component/create';
 import { lifeCycle } from './component/life-cycle';
 import { render, renderToString } from './component/render';
 import { createStore } from './store/create-store';
@@ -11,7 +11,7 @@ const Svenjs= {
   version,
   setState,
   createStore,
-  createComponent,
+  create,
   render,
   renderToString,
   lifeCycle,

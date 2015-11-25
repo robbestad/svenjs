@@ -1,6 +1,6 @@
 const Svenjs = require('../../../dist/sven.js');
 
-var timeTravel = Svenjs.createComponent({
+var timeTravel = Svenjs.create({
   displayName:"First app",
   initialState:{items: [], message:''},
   componentDidMount(){

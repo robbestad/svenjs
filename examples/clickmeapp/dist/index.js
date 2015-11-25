@@ -150,7 +150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						updateUI: _componentUpdateUi.updateUI,
 						setState: _componentSetState.setState,
 						createStore: _storeCreateStore.createStore,
-						createComponent: _componentCreateComponent.createComponent,
+						create: _componentCreateComponent.create,
 						render: _componentRender.render,
 						lifeCycle: _componentLifeCycle.lifeCycle,
 						timeTravel: _componentTimeTravel.timeTravel,
@@ -353,7 +353,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var _setState = __webpack_require__(6);
 
-				exports.createComponent = function (spec) {
+				exports.create = function (spec) {
 					console.log(spec.displayName);
 					spec._svenjs = { rootNode: {} };
 					if (!spec.isBound) {
@@ -470,7 +470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 
 	var Svenjs = __webpack_require__(1);
-	var clickyApp = Svenjs.createComponent({
+	var clickyApp = Svenjs.create({
 	    displayName: "Clicky App",
 	    initialState: {
 	        clicks: 0
