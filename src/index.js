@@ -6,7 +6,6 @@ import { lifeCycle } from './component/life-cycle';
 import { render, renderToString } from './component/render';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
-import { findDOMNode } from './lib/find-dom-node';
 
 const Svenjs= {
   version,
@@ -17,7 +16,6 @@ const Svenjs= {
   renderToString,
   lifeCycle,
   timeTravel,
-  findDOMNode,
   deepCopy
 };
 

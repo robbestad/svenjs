@@ -1,7 +1,5 @@
 import {setState} from './set-state';
-import {log} from '../lib/log';
 exports.createComponent = (spec)=> {
-	//spec.displayName::log('info');
     spec._svenjs={rootNode:false};
 
 	if(!spec.isBound){

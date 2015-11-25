@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["Svenjs"] = factory();
 	else
@@ -68,11 +68,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _componentRender = __webpack_require__(3);
 
-	var _storeCreateStore = __webpack_require__(12);
+	var _storeCreateStore = __webpack_require__(10);
 
 	var _libDeepCopy = __webpack_require__(1);
-
-	var _libFindDomNode = __webpack_require__(10);
 
 	var Svenjs = {
 	  version: _componentVersion.version,
@@ -83,32 +81,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  renderToString: _componentRender.renderToString,
 	  lifeCycle: _componentLifeCycle.lifeCycle,
 	  timeTravel: _componentTimeTravel.timeTravel,
-	  findDOMNode: _libFindDomNode.findDOMNode,
 	  deepCopy: _libDeepCopy.deepCopy
 	};
 
-	if (typeof module === 'object' && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module)))
 
 /***/ },
 /* 1 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
-	var deepCopy = exports.deepCopy = function (obj) {
-	  if (obj === null || typeof obj !== 'object' || 'isActiveClone' in obj) return obj;
-	  var temp = obj.constructor();
-	  for (var key in obj) {
-	    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-	      obj['isActiveClone'] = null;
-	      temp[key] = deepCopy(obj[key]);
-	      delete obj['isActiveClone'];
-	    }
-	  }
-	  return temp;
+	exports.deepCopy = function (o) {
+	  return JSON.parse(JSON.stringify(o));
 	};
 
 /***/ },
@@ -122,7 +110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.lifeCycle = function (spec) {
 		if (spec.isMounted && spec._svenjs.rootNode) {
 			_render.render(spec, spec._svenjs.rootNode);
-			if (spec.hasOwnProperty("componentDidUpdate")) spec.componentDidUpdate.apply(spec);
+			if (spec.hasOwnProperty('componentDidUpdate')) spec.componentDidUpdate.apply(spec);
 		}
 	};
 
@@ -173,7 +161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var setAttrs = function setAttrs(tag, node) {
-		if (tag.hasOwnProperty("children")) {
+		if (tag.hasOwnProperty('children')) {
 			if (isArray(tag.children)) {
 				tag.children.forEach(function (childTag) {
 					if (typeof childTag == "string" || typeof childTag == "number") {
@@ -182,14 +170,14 @@ return /******/ (function(modules) { // webpackBootstrap
 				});
 			}
 		}
-		if (hasOwnProperty.call(tag, "attrs")) {
+		if (hasOwnProperty.call(tag, 'attrs')) {
 			var attr = tag.attrs;
 			for (var attrName in attr) {
 				if (attrName === "config" || attrName === "key") continue;
 				if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
 					node[attrName.toLowerCase()] = attr[attrName];
 				} else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
-					node.setAttribute("" + attrName, attr[attrName].toString());
+					node.setAttribute('' + attrName, attr[attrName].toString());
 				}
 			}
 		}
@@ -204,8 +192,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	var buildChildren = function buildChildren(tags, parent) {
 		if (typeof tags.children != "object") {
-			if (hasOwnProperty.call(tags, "tag")) {
-				if (hasOwnProperty.call(tags, "children")) {
+			if (hasOwnProperty.call(tags, 'tag')) {
+				if (hasOwnProperty.call(tags, 'children')) {
 					if (isArray(tags.children)) {
 						tags.forEach(function (tag) {
 							var child = document.createElement(tag.tag);
@@ -215,7 +203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			} else return false;
 		}
-		if (hasOwnProperty.call(tags, "children")) {
+		if (hasOwnProperty.call(tags, 'children')) {
 			if (isArray(tags.children)) {
 				tags.children.forEach(function (tag, idx) {
 					var tagName = tag.tag;
@@ -234,7 +222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				});
 			}
 		}
-		if (hasOwnProperty.call(tags, "tag") && isArray(tags)) {
+		if (hasOwnProperty.call(tags, 'tag') && isArray(tags)) {
 			if (isArray(tags)) {
 				tags.forEach(function (tag) {
 					buildChildren(tag, parent);
@@ -285,7 +273,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			if (isObject(spec)) {
 				// Set internal ref
-				if (!hasOwnProperty.call(spec, "_svenjs")) {
+				if (!hasOwnProperty.call(spec, '_svenjs')) {
 					spec._svenjs = { rootNode: false };
 				}
 				spec._svenjs.rootNode = node;
@@ -305,7 +293,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// Append to window
 			node.appendChild(vDom(tags));
 		} else {
-			return "Error: no node to attach rendered HTML";
+			return 'Error: no node to attach rendered HTML';
 		}
 	};
 
@@ -331,14 +319,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var _setState = __webpack_require__(4);
 
-	var _libLog = __webpack_require__(11);
-
 	exports.createComponent = function (spec) {
-		//spec.displayName::log('info');
 		spec._svenjs = { rootNode: false };
 
 		if (!spec.isBound) {
@@ -353,7 +338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			if (undefined !== spec.initialState) {
 				spec.state = spec.initialState;
 			}
-			if ('function' === typeof spec.componentDidMount) {
+			if ("function" === typeof spec.componentDidMount) {
 				spec.componentDidMount.apply(spec);
 			}
 		}
@@ -430,25 +415,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
-	exports.findDOMNode = function (ref) {};
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	exports.log = function log(level) {
-		level = level || "debug";
-		console[level](this);
-	};
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	"use strict";
-
 	var _callbacks = [];
 	exports.createStore = function (spec) {
 		if (!spec.isMounted) {
@@ -469,7 +435,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {

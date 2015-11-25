@@ -22,6 +22,7 @@
     "clone": "^1.0.2",
     "eslint": "^0.24.1",
     "glob": "~4.2.2",
+    "jsdom": "^7.0.2",
     "jstransform": "^11.0.3",
     "object-assign": "^3.0.0",
     "path": "^0.11.14",

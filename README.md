@@ -1,6 +1,6 @@
 # SvenJS
 
-A (mostly) pure functional reactive web framework
+A minimal reactive web framework
 
 # Goals
 
