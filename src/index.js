@@ -1,17 +1,18 @@
-import { version } from './component/version';
-import { timeTravel } from './component/time-travel';
-import { setState } from './component/set-state';
-import { create } from './component/create';
-import { lifeCycle } from './component/life-cycle';
-import { render, renderToString } from './component/render';
+import { version } from './core/version';
+import { create } from './core/create';
+import { render, renderToString } from './core/render';
+
+import { timeTravel } from './web/time-travel';
+import { setState } from './web/set-state';
+import { lifeCycle } from './web/life-cycle';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
 
 const Svenjs= {
   version,
+  create,
   setState,
   createStore,
-  create,
   render,
   renderToString,
   lifeCycle,

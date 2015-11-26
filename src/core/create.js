@@ -1,4 +1,4 @@
-import {setState} from './set-state';
+import {setState} from '../web/set-state';
 exports.create = (spec)=> {
     spec._svenjs={rootNode:false};
 

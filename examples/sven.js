@@ -58,19 +58,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-	var _version = __webpack_require__(9);
-
-	var _timeTravel = __webpack_require__(8);
-
-	var _setState = __webpack_require__(4);
+	var _version = __webpack_require__(6);
 
 	var _create = __webpack_require__(5);
 
-	var _lifeCycle = __webpack_require__(2);
-
 	var _render = __webpack_require__(3);
 
-	var _createStore = __webpack_require__(10);
+	var _timeTravel = __webpack_require__(10);
+
+	var _setState = __webpack_require__(4);
+
+	var _lifeCycle = __webpack_require__(2);
+
+	var _createStore = __webpack_require__(7);
 
 	var _deepCopy = __webpack_require__(1);
 
@@ -80,9 +80,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Svenjs = {
 	  version: _version.version,
+	  create: _create.create,
 	  setState: _setState.setState,
 	  createStore: _createStore.createStore,
-	  create: _create.create,
 	  render: _render.render,
 	  renderToString: _render.renderToString,
 	  lifeCycle: _lifeCycle.lifeCycle,
@@ -315,9 +315,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _saveState = __webpack_require__(7);
+	var _saveState = __webpack_require__(9);
 
-	var _saveHistory = __webpack_require__(6);
+	var _saveHistory = __webpack_require__(8);
 
 	var _lifeCycle = __webpack_require__(2);
 
@@ -359,60 +359,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _deepCopy = __webpack_require__(1);
-
-	exports.saveHistory = function (spec, diff_state) {
-	  var time = undefined;
-	  if (spec.time) time = (0, _deepCopy.deepCopy)(spec.time);else time = { history: [], pos: -1 };
-
-	  time.history.splice(time.pos + 1);
-	  time.history.push((0, _deepCopy.deepCopy)(diff_state));
-	  time.pos++;
-	  return time;
-	};
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _deepCopy = __webpack_require__(1);
-
-	exports.saveState = function (spec, diff_state) {
-
-	  var state = (0, _deepCopy.deepCopy)(diff_state);
-	  Object.freeze(state);
-	  return state;
-	};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _deepCopy = __webpack_require__(1);
-
-	var _lifeCycle = __webpack_require__(2);
-
-	exports.timeTravel = function (spec, position) {
-	  var time = spec.time;
-	  var state = spec.state;
-	  time.pos += position;
-	  spec.state = state;
-	  state = (0, _deepCopy.deepCopy)(time.history[time.pos]);
-	  spec.state = state;
-	  spec, spec.render(state, spec._svenjs.rootNode);
-	  (0, _lifeCycle.lifeCycle)(spec);
-	};
-
-/***/ },
-/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -422,7 +368,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 10 */
+/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -444,6 +390,60 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}
 		return spec;
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _deepCopy = __webpack_require__(1);
+
+	exports.saveHistory = function (spec, diff_state) {
+	  var time = undefined;
+	  if (spec.time) time = (0, _deepCopy.deepCopy)(spec.time);else time = { history: [], pos: -1 };
+
+	  time.history.splice(time.pos + 1);
+	  time.history.push((0, _deepCopy.deepCopy)(diff_state));
+	  time.pos++;
+	  return time;
+	};
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _deepCopy = __webpack_require__(1);
+
+	exports.saveState = function (spec, diff_state) {
+
+	  var state = (0, _deepCopy.deepCopy)(diff_state);
+	  Object.freeze(state);
+	  return state;
+	};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _deepCopy = __webpack_require__(1);
+
+	var _lifeCycle = __webpack_require__(2);
+
+	exports.timeTravel = function (spec, position) {
+	  var time = spec.time;
+	  var state = spec.state;
+	  time.pos += position;
+	  spec.state = state;
+	  state = (0, _deepCopy.deepCopy)(time.history[time.pos]);
+	  spec.state = state;
+	  spec, spec.render(state, spec._svenjs.rootNode);
+	  (0, _lifeCycle.lifeCycle)(spec);
 	};
 
 /***/ },

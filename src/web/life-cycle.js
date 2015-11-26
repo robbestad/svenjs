@@ -1,4 +1,4 @@
-import {render} from "./render";
+import {render} from "../core/render";
 exports.lifeCycle = (spec)=> {
 	if(spec.isMounted && spec._svenjs.rootNode){
 		render(spec, spec._svenjs.rootNode);
