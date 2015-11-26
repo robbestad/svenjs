@@ -1,28 +1,15 @@
 /**
  * render module.
  * @module component/render
- * @see module:svenjs
+ * @see module:universaljs
  * @author Sven A Robbestad <robbestad@gmail.com> 
  */
 
-// define common functions used in this module
-const type = {}.toString;
-const isFunction=(object)=> {
-	return typeof object === "function";
-}
-const isObject = (object) => {
-	return type.call(object) === "[object Object]";
-}
-const isString = (object) => {
-	return type.call(object) === "[object String]";
-}
-const isArray = (object) => {
-	return type.call(object) === "[object Array]";
-};
-const isDefined = (object) => {
-	return type.call(object) !== "undefined";
-};
+// The vDOM
+let vDomCache=[];
 
+// define common functions used in this mod ule
+import {isFunction, isObject, isString, isArray} from '../lib/validations';
 
 const appendChild=(child,parent)=>{
 	return parent.appendChild(child);
@@ -40,7 +27,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty;
  * @returns {Object} a DOM Node
  */
 const setAttrs = (tag,node)=>{
-	if(tag.hasOwnProperty('children')){
+	if((hasOwnProperty.call(tag, 'children'))){
 		if(isArray(tag.children)){
 			tag.children.forEach((childTag)=>{
 				if(typeof childTag == "string" || typeof childTag == "number"){
@@ -69,58 +56,67 @@ const setAttrs = (tag,node)=>{
 }
 
 /**
+ * buildElement
+ * @param {tag} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
+ * @returns {Object} a DOM Node
+ */
+const buildElement=(tag)=>{
+	let child = document.createElement(tag.tag);
+	setAttrs(tag,child);
+	return child;
+}
+
+/**
  * buildChildren
  * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
  * @param {parent} a DOM Node the children should be added to
  * @returns {Object} a DOM Node
  */
  const buildChildren=(tags, parent)=>{
-    if(typeof tags.children != "object"){
-		if((hasOwnProperty.call(tags, 'tag'))){
-			if((hasOwnProperty.call(tags, 'children'))){
-				if (isArray(tags.children)) {
-				    tags.forEach((tag)=>{
-				    	var child = document.createElement(tag.tag);
-						appendChild(setAttrs(tag,child),parent);
-				    })
-				}
-	    	}
-	    }
-		else
-    	return false;
-    } 
+	//let _vdom=[];
+ 	let childNode;
 	if((hasOwnProperty.call(tags, 'children'))){
 	if (isArray(tags.children)) {
 	    tags.children.forEach((tag,idx)=>{
 	    	var tagName=tag.tag;
 			if(isArray(tag)){
 				tag.forEach((childtag,idx)=>{
-					var child = document.createElement(childtag.tag);
-					appendChild(setAttrs(childtag,child),parent)
-					buildChildren(childtag,child);
+					// Subcomponents
+					if((hasOwnProperty.call(childtag, 'sjxid'))){
+						childtag.attrs['universaljs-id']=sjxid;
+					}
+					childNode=buildElement(childtag);
+			                buildChildren(childtag,childNode);
+					appendChild(childNode,parent);
 				});
 			}
 			else {
-				if("undefined" == typeof tagName) tagName="span";
-				var child = document.createElement(tagName);
-				appendChild(setAttrs(tag,child),parent)
-				buildChildren(tag,child);
+				if("undefined" != typeof tagName){
+					if(tag.tag==="strong" ||
+						tag.tag==="input"){
+						childNode=buildElement(tag);
+				    	appendChild(childNode,parent);
+				    buildChildren(tag,childNode);
+
+					} else {
+						childNode=buildElement(tag);
+				    	buildChildren(tag,childNode);
+				    	//_vdom.push(childNode,parent);
+				    	appendChild(childNode,parent);
+					}
+
+				} 
 			}
 	    })
 		}
 	} 
-	if((hasOwnProperty.call(tags, 'tag'))  && isArray(tags)){
-		if (isArray(tags)) {
-			tags.forEach((tag)=>{
-				buildChildren(tag,parent);
-		    });
-		}
-	}
 	return parent;
+	//return [_vdom,parent];
 }
 
-const renderToString= exports.renderToString = (tags) => {
-    return vDom(tags).innerHTML;
+
+exports.renderToString = (tags,data) => {
+    return vDom(tags,data).innerHTML;
 };
 
 /**
@@ -128,27 +124,32 @@ const renderToString= exports.renderToString = (tags) => {
  * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
  * @returns {Object} a DOM Node
  */
-const vDom  = (tags) => {
+const vDom  = (tags, data) => {
  var docFragment = document.createDocumentFragment();
 
 	// Root node    
 	var root = document.createElement(tags.tag);
-	setAttrs(tags,root);
+	setAttrs(tags,data.rootNode);
 
 	// Build children
 	let childrenTree = buildChildren(tags, root);
-
-	// Append to root node
     docFragment.appendChild(childrenTree);
 
+	//vDomCache.push(childrenTree[0]);
+	
+	//// Append to root node
+	//vDomCache[vDomCache.length-1].forEach((node)=>{
+		//docFragment.appendChild(node);
+	//})
+    
 	// Append to window
     return docFragment;
 }
 
 /**
  * Render
- * @alias svenjs.render
- * @param {spec} a Svenjs component with a render method. Optional, set to false if not used
+ * @alias universaljs.render
+ * @param {spec} a universaljs component with a render method. Optional, set to false if not used
  * @param {node} a document node (e.g from document.getElementById()).
  * @param {tags} optional pre-rendered tags
  * @returns {undefined}
@@ -162,7 +163,7 @@ const vDom  = (tags) => {
 		        spec._svenjs={rootNode:false};
 			}
 	    spec._svenjs.rootNode = node;
-		}
+		} 
 
 	    // reset HTML
 	    node.innerHTML="";
@@ -176,7 +177,7 @@ const vDom  = (tags) => {
 		}
 
 		// Append to window
-	    node.appendChild(vDom(tags));
+	    node.appendChild(vDom(tags,spec._svenjs));
     } else {
     	return 'Error: no node to attach rendered HTML';
     }

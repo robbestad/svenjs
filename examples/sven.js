@@ -64,13 +64,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _render = __webpack_require__(3);
 
-	var _timeTravel = __webpack_require__(10);
+	var _timeTravel = __webpack_require__(11);
 
 	var _setState = __webpack_require__(4);
 
 	var _lifeCycle = __webpack_require__(2);
 
-	var _createStore = __webpack_require__(7);
+	var _createStore = __webpack_require__(8);
 
 	var _deepCopy = __webpack_require__(1);
 
@@ -93,7 +93,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	if (( false ? 'undefined' : _typeof(module)) === "object" && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module)))
 
 /***/ },
 /* 1 */
@@ -114,48 +114,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _render = __webpack_require__(3);
 
 	exports.lifeCycle = function (spec) {
-		if (spec.isMounted && spec._svenjs.rootNode) {
-			(0, _render.render)(spec, spec._svenjs.rootNode);
+		var rootNode = undefined;
+		if (spec._svenjs.rootNode) {
+			rootNode = spec._svenjs.rootNode;
+		};
+
+		var sjxid = document.querySelector("[sjxid='" + spec.render().attrs.sjxid + "']");
+		if (sjxid) {
+			rootNode = sjxid;
+		};
+
+		if (spec.isMounted && rootNode) {
+			(0, _render.render)(spec, rootNode);
 			if (spec.hasOwnProperty('componentDidUpdate')) spec.componentDidUpdate.apply(spec);
 		}
 	};
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
-
-	function _typeof(obj) {
-		return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-	}
+	var _validations = __webpack_require__(7);
 
 	/**
 	 * render module.
 	 * @module component/render
-	 * @see module:svenjs
+	 * @see module:universaljs
 	 * @author Sven A Robbestad <robbestad@gmail.com> 
 	 */
 
-	// define common functions used in this module
-	var type = ({}).toString;
-	var isFunction = function isFunction(object) {
-		return typeof object === "function";
-	};
-	var isObject = function isObject(object) {
-		return type.call(object) === "[object Object]";
-	};
-	var isString = function isString(object) {
-		return type.call(object) === "[object String]";
-	};
-	var isArray = function isArray(object) {
-		return type.call(object) === "[object Array]";
-	};
-	var isDefined = function isDefined(object) {
-		return type.call(object) !== "undefined";
-	};
+	// The vDOM
+	var vDomCache = [];
+
+	// define common functions used in this mod ule
 
 	var appendChild = function appendChild(child, parent) {
 		return parent.appendChild(child);
@@ -173,8 +166,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var setAttrs = function setAttrs(tag, node) {
-		if (tag.hasOwnProperty('children')) {
-			if (isArray(tag.children)) {
+		if (hasOwnProperty.call(tag, 'children')) {
+			if ((0, _validations.isArray)(tag.children)) {
 				tag.children.forEach(function (childTag) {
 					if (typeof childTag == "string" || typeof childTag == "number") {
 						node.appendChild(document.createTextNode(childTag));
@@ -186,7 +179,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var attr = tag.attrs;
 			for (var attrName in attr) {
 				if (attrName === "config" || attrName === "key") continue;
-				if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if (isFunction(attr[attrName]) && attrName.slice(0, 2) == "on") {
+				if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if ((0, _validations.isFunction)(attr[attrName]) && attrName.slice(0, 2) == "on") {
 					node[attrName.toLowerCase()] = attr[attrName];
 				} else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
 					node.setAttribute('' + attrName, attr[attrName].toString());
@@ -197,55 +190,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
+	 * buildElement
+	 * @param {tag} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
+	 * @returns {Object} a DOM Node
+	 */
+	var buildElement = function buildElement(tag) {
+		var child = document.createElement(tag.tag);
+		setAttrs(tag, child);
+		return child;
+	};
+
+	/**
 	 * buildChildren
 	 * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
 	 * @param {parent} a DOM Node the children should be added to
 	 * @returns {Object} a DOM Node
 	 */
 	var buildChildren = function buildChildren(tags, parent) {
-		if (_typeof(tags.children) != "object") {
-			if (hasOwnProperty.call(tags, 'tag')) {
-				if (hasOwnProperty.call(tags, 'children')) {
-					if (isArray(tags.children)) {
-						tags.forEach(function (tag) {
-							var child = document.createElement(tag.tag);
-							appendChild(setAttrs(tag, child), parent);
-						});
-					}
-				}
-			} else return false;
-		}
+		//let _vdom=[];
+		var childNode = undefined;
 		if (hasOwnProperty.call(tags, 'children')) {
-			if (isArray(tags.children)) {
+			if ((0, _validations.isArray)(tags.children)) {
 				tags.children.forEach(function (tag, idx) {
 					var tagName = tag.tag;
-					if (isArray(tag)) {
+					if ((0, _validations.isArray)(tag)) {
 						tag.forEach(function (childtag, idx) {
-							var child = document.createElement(childtag.tag);
-							appendChild(setAttrs(childtag, child), parent);
-							buildChildren(childtag, child);
+							// Subcomponents
+							if (hasOwnProperty.call(childtag, 'sjxid')) {
+								childtag.attrs['universaljs-id'] = sjxid;
+							}
+							childNode = buildElement(childtag);
+							buildChildren(childtag, childNode);
+							appendChild(childNode, parent);
 						});
 					} else {
-						if ("undefined" == typeof tagName) tagName = "span";
-						var child = document.createElement(tagName);
-						appendChild(setAttrs(tag, child), parent);
-						buildChildren(tag, child);
+						if ("undefined" != typeof tagName) {
+							if (tag.tag === "strong" || tag.tag === "input") {
+								childNode = buildElement(tag);
+								appendChild(childNode, parent);
+								buildChildren(tag, childNode);
+							} else {
+								childNode = buildElement(tag);
+								buildChildren(tag, childNode);
+								//_vdom.push(childNode,parent);
+								appendChild(childNode, parent);
+							}
+						}
 					}
-				});
-			}
-		}
-		if (hasOwnProperty.call(tags, 'tag') && isArray(tags)) {
-			if (isArray(tags)) {
-				tags.forEach(function (tag) {
-					buildChildren(tag, parent);
 				});
 			}
 		}
 		return parent;
+		//return [_vdom,parent];
 	};
 
-	var renderToString = exports.renderToString = function (tags) {
-		return vDom(tags).innerHTML;
+	exports.renderToString = function (tags, data) {
+		return vDom(tags, data).innerHTML;
 	};
 
 	/**
@@ -253,18 +253,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {tags} a tag structure (e.g {tag: "div", attrs: {class:"test"}, children: []})
 	 * @returns {Object} a DOM Node
 	 */
-	var vDom = function vDom(tags) {
+	var vDom = function vDom(tags, data) {
 		var docFragment = document.createDocumentFragment();
 
 		// Root node  
 		var root = document.createElement(tags.tag);
-		setAttrs(tags, root);
+		setAttrs(tags, data.rootNode);
 
 		// Build children
 		var childrenTree = buildChildren(tags, root);
-
-		// Append to root node
 		docFragment.appendChild(childrenTree);
+
+		//vDomCache.push(childrenTree[0]);
+
+		//// Append to root node
+		//vDomCache[vDomCache.length-1].forEach((node)=>{
+		//docFragment.appendChild(node);
+		//})
 
 		// Append to window
 		return docFragment;
@@ -272,8 +277,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * Render
-	 * @alias svenjs.render
-	 * @param {spec} a Svenjs component with a render method. Optional, set to false if not used
+	 * @alias universaljs.render
+	 * @param {spec} a universaljs component with a render method. Optional, set to false if not used
 	 * @param {node} a document node (e.g from document.getElementById()).
 	 * @param {tags} optional pre-rendered tags
 	 * @returns {undefined}
@@ -283,7 +288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		if (node) {
 
-			if (isObject(spec)) {
+			if ((0, _validations.isObject)(spec)) {
 				// Set internal ref
 				if (!hasOwnProperty.call(spec, '_svenjs')) {
 					spec._svenjs = { rootNode: false };
@@ -296,14 +301,14 @@ return /******/ (function(modules) { // webpackBootstrap
 			// Get the converted tags
 			var tags = undefined;
 
-			if (isObject(preRendered)) {
+			if ((0, _validations.isObject)(preRendered)) {
 				tags = preRendered;
 			} else {
 				tags = spec.render();
 			}
 
 			// Append to window
-			node.appendChild(vDom(tags));
+			node.appendChild(vDom(tags, spec._svenjs));
 		} else {
 			return 'Error: no node to attach rendered HTML';
 		}
@@ -315,9 +320,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _saveState = __webpack_require__(9);
+	var _saveState = __webpack_require__(10);
 
-	var _saveHistory = __webpack_require__(8);
+	var _saveHistory = __webpack_require__(9);
 
 	var _lifeCycle = __webpack_require__(2);
 
@@ -371,6 +376,31 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports) {
 
+	"use strict"
+
+	// define common functions used in this module
+	;
+	var type = ({}).toString;
+	exports.isFunction = function (object) {
+	       return typeof object === "function";
+	};
+	exports.isObject = function (object) {
+	       return type.call(object) === "[object Object]";
+	};
+	exports.isString = function (object) {
+	       return type.call(object) === "[object String]";
+	};
+	exports.isArray = function (object) {
+	       return type.call(object) === "[object Array]";
+	};
+	exports.isDefined = function (object) {
+	       return type.call(object) !== "undefined";
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
 	"use strict";
 
 	var _callbacks = [];
@@ -393,7 +423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -411,7 +441,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -426,7 +456,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -447,7 +477,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
