@@ -8,7 +8,7 @@ $DEV
 echo 
 echo Generating dist build of SVENJS
 echo
-$WEBPACK_CMD -p lib/index.js dist/sven.min.js
+$WEBPACK_CMD -p build/index.js dist/sven.min.js
 cp dist/sven.min.js ../svenjs-npm/index.min.js
 cp dist/sven.js ../svenjs-npm/index.js
 #cp dist/sven.js ~/Jottacloud/Work/opensource/vdom-benchmark-svenjs/node_modules/svenjs/index.js

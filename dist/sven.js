@@ -58,21 +58,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-	var _version = __webpack_require__(5);
+	var _version = __webpack_require__(6);
 
-	var _create = __webpack_require__(4);
+	var _create = __webpack_require__(5);
 
-	var _render = __webpack_require__(2);
+	var _render = __webpack_require__(3);
 
-	var _timeTravel = __webpack_require__(9);
+	var _timeTravel = __webpack_require__(11);
 
-	var _setState = __webpack_require__(3);
+	var _setState = __webpack_require__(4);
 
-	var _lifeCycle = __webpack_require__(1);
+	var _lifeCycle = __webpack_require__(2);
 
-	var _createStore = __webpack_require__(6);
+	var _createStore = __webpack_require__(8);
 
-	var _deepCopy = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./lib/deep-copy\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _deepCopy = __webpack_require__(1);
 
 	function _typeof(obj) {
 	  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
@@ -93,15 +93,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	if (( false ? 'undefined' : _typeof(module)) === "object" && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module)))
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.deepCopy = function (o) {
+	  return JSON.parse(JSON.stringify(o));
+	};
+
+/***/ },
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _render = __webpack_require__(2);
+	var _render = __webpack_require__(3);
 
 	exports.lifeCycle = function (spec) {
 		var rootNode = undefined;
@@ -121,12 +131,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _validations = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../lib/validations\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _validations = __webpack_require__(7);
 
 	/**
 	 * render module.
@@ -305,16 +315,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _saveState = __webpack_require__(8);
+	var _saveState = __webpack_require__(10);
 
-	var _saveHistory = __webpack_require__(7);
+	var _saveHistory = __webpack_require__(9);
 
-	var _lifeCycle = __webpack_require__(1);
+	var _lifeCycle = __webpack_require__(2);
 
 	exports.setState = function (state, spec) {
 	    spec.state = (0, _saveState.saveState)(spec, state);
@@ -323,12 +333,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _setState = __webpack_require__(3);
+	var _setState = __webpack_require__(4);
 
 	exports.create = function (spec) {
 		spec._svenjs = { rootNode: false };
@@ -353,7 +363,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -363,7 +373,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 6 */
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict"
+	// define common functions used in this module
+
+	;
+	var type = ({}).toString;
+	exports.isFunction = function (object) {
+	  return typeof object === "function";
+	};
+	exports.isObject = function (object) {
+	  return type.call(object) === "[object Object]";
+	};
+	exports.isString = function (object) {
+	  return type.call(object) === "[object String]";
+	};
+	exports.isArray = function (object) {
+	  return type.call(object) === "[object Array]";
+	};
+	exports.isDefined = function (object) {
+	  return type.call(object) !== "undefined";
+	};
+
+/***/ },
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -388,12 +423,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _deepCopy = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../lib/deep-copy\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _deepCopy = __webpack_require__(1);
 
 	exports.saveHistory = function (spec, diff_state) {
 	  var time = undefined;
@@ -406,12 +441,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _deepCopy = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../lib/deep-copy\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _deepCopy = __webpack_require__(1);
 
 	exports.saveState = function (spec, diff_state) {
 
@@ -421,14 +456,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _deepCopy = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../lib/deep-copy\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _deepCopy = __webpack_require__(1);
 
-	var _lifeCycle = __webpack_require__(1);
+	var _lifeCycle = __webpack_require__(2);
 
 	exports.timeTravel = function (spec, position) {
 	  var time = spec.time;
@@ -442,7 +477,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {

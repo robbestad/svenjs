@@ -2,11 +2,11 @@
 WEBPACK_CMD=node_modules/.bin/webpack
 
 # Generate libs
-rm -rf lib
+rm -rf build
 rm -rf dist
 mkdir -p dist
-`npm bin`/babel src --out-dir lib
+`npm bin`/babel src --out-dir build
 
 # Copy libs
-$WEBPACK_CMD lib/index.js dist/sven.js
+$WEBPACK_CMD build/index.js dist/sven.js
 cp dist/sven.js examples/sven.js
