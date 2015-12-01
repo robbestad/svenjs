@@ -114,20 +114,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _render = __webpack_require__(3);
 
 	exports.lifeCycle = function (spec) {
-		var rootNode = undefined;
-		if (spec._svenjs.rootNode) {
-			rootNode = spec._svenjs.rootNode;
-		};
+	  var rootNode = undefined;
+	  if (spec._svenjs.rootNode) {
+	    rootNode = spec._svenjs.rootNode;
+	  };
 
-		var sjxid = document.querySelector("[sjxid='" + spec.render().attrs.sjxid + "']");
-		if (sjxid) {
-			rootNode = sjxid;
-		};
+	  var sjxid = document.querySelector("[sjxid='" + spec.render().attrs.sjxid + "']");
+	  if (sjxid) {
+	    rootNode = sjxid;
+	  };
 
-		if (spec.isMounted && rootNode) {
-			(0, _render.render)(spec, rootNode);
-			if (spec.hasOwnProperty('componentDidUpdate')) spec.componentDidUpdate.apply(spec);
-		}
+	  if (spec.isMounted && rootNode) {
+	    (0, _render.render)(spec, rootNode);
+	    if (spec.hasOwnProperty('_didUpdate')) spec._didUpdate.apply(spec);
+	  }
 	};
 
 /***/ },
@@ -325,7 +325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Append to window
 	    node.appendChild(vDom(tags, spec._svenjs));
 	  } else {
-	    return 'Error: no node to attach rendered HTML';
+	    return 'Error: No node to attach';
 	  }
 	};
 
@@ -374,8 +374,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (undefined !== spec.initialState) {
 	      spec.state = spec.initialState;
 	    }
-	    if ("function" === typeof spec.componentDidMount) {
-	      spec.componentDidMount.apply(spec);
+	    if ("function" === typeof spec._didMount) {
+	      spec._didMount.apply(spec);
 	    }
 	  }
 	  return spec;
@@ -388,7 +388,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 
 	exports.version = function () {
-	  return "0.0.2-alpha";
+	  return "0.0.3";
 	};
 
 /***/ },

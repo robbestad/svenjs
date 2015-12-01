@@ -18,8 +18,8 @@ exports.create = (spec,props)=> {
     if(undefined !== spec.initialState){
       spec.state = spec.initialState;
     }
-    if("function" === typeof spec.componentDidMount){
-      spec.componentDidMount.apply(spec);
+    if("function" === typeof spec._didMount){
+      spec._didMount.apply(spec);
     }
 
   }
