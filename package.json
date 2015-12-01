@@ -3,7 +3,8 @@
   "version": "0.0.1-alpha",
   "description": "Pure functional reactive web framework",
   "scripts": {
-    "test": "./node_modules/.bin/babel-tape-runner tests/*"
+    "test": "./node_modules/.bin/babel-tape-runner tests/*",
+    "watch": "sane 'sh scripts/prod.sh' --glob='src/**/*.js'"
   },
   "repository": {
     "type": "git",

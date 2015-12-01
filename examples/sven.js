@@ -136,12 +136,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
+	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
 	var _validations = __webpack_require__(7);
+
+	function _typeof(obj) {
+	  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+	}
 
 	/**
 	 * render module.
 	 * @module component/render
-	 * @see module:universaljs
+	 * @see module:svenjs
 	 * @author Sven A Robbestad <robbestad@gmail.com> 
 	 */
 
@@ -151,7 +157,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// define common functions used in this mod ule
 
 	var appendChild = function appendChild(child, parent) {
-		return parent.appendChild(child);
+	  return parent.appendChild(child);
 	};
 
 	// Speed up calls to hasOwnProperty
@@ -166,27 +172,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var setAttrs = function setAttrs(tag, node) {
-		if (hasOwnProperty.call(tag, 'children')) {
-			if ((0, _validations.isArray)(tag.children)) {
-				tag.children.forEach(function (childTag) {
-					if (typeof childTag == "string" || typeof childTag == "number") {
-						node.appendChild(document.createTextNode(childTag));
-					}
-				});
-			}
-		}
-		if (hasOwnProperty.call(tag, 'attrs')) {
-			var attr = tag.attrs;
-			for (var attrName in attr) {
-				if (attrName === "config" || attrName === "key") continue;
-				if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if ((0, _validations.isFunction)(attr[attrName]) && attrName.slice(0, 2) == "on") {
-					node[attrName.toLowerCase()] = attr[attrName];
-				} else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
-					node.setAttribute('' + attrName, attr[attrName].toString());
-				}
-			}
-		}
-		return node;
+	  if (hasOwnProperty.call(tag, 'children')) {
+	    if ((0, _validations.isArray)(tag.children)) {
+	      tag.children.forEach(function (childTag) {
+	        if (typeof childTag == "string" || typeof childTag == "number") {
+	          node.appendChild(document.createTextNode(childTag));
+	        }
+	      });
+	    }
+	  }
+	  if (hasOwnProperty.call(tag, 'attrs')) {
+	    var attr = tag.attrs;
+	    for (var attrName in attr) {
+	      if (attrName === "config" || attrName === "key") continue;
+	      if (attrName === "disabled" && attr[attrName] === false) continue;else if (attrName == "class" || attrName == "className") node.className = attr[attrName].toString();else if ((0, _validations.isFunction)(attr[attrName]) && attrName.slice(0, 2) == "on") {
+	        node[attrName.toLowerCase()] = attr[attrName];
+	      } else if (attrName === "checked" && (attr[attrName] === false || attr[attrName] === "")) continue;else {
+	        node.setAttribute('' + attrName, attr[attrName].toString());
+	      }
+	    }
+	  }
+	  return node;
 	};
 
 	/**
@@ -195,9 +201,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var buildElement = function buildElement(tag) {
-		var child = document.createElement(tag.tag);
-		setAttrs(tag, child);
-		return child;
+	  var child = document.createElement(tag.tag);
+	  setAttrs(tag, child);
+	  return child;
 	};
 
 	/**
@@ -207,45 +213,54 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var buildChildren = function buildChildren(tags, parent) {
-		//let _vdom=[];
-		var childNode = undefined;
-		if (hasOwnProperty.call(tags, 'children')) {
-			if ((0, _validations.isArray)(tags.children)) {
-				tags.children.forEach(function (tag, idx) {
-					var tagName = tag.tag;
-					if ((0, _validations.isArray)(tag)) {
-						tag.forEach(function (childtag, idx) {
-							// Subcomponents
-							if (hasOwnProperty.call(childtag, 'sjxid')) {
-								childtag.attrs['universaljs-id'] = sjxid;
-							}
-							childNode = buildElement(childtag);
-							buildChildren(childtag, childNode);
-							appendChild(childNode, parent);
-						});
-					} else {
-						if ("undefined" != typeof tagName) {
-							if (tag.tag === "strong" || tag.tag === "input") {
-								childNode = buildElement(tag);
-								appendChild(childNode, parent);
-								buildChildren(tag, childNode);
-							} else {
-								childNode = buildElement(tag);
-								buildChildren(tag, childNode);
-								//_vdom.push(childNode,parent);
-								appendChild(childNode, parent);
-							}
-						}
-					}
-				});
-			}
-		}
-		return parent;
-		//return [_vdom,parent];
+	  var childNode = undefined;
+	  if (hasOwnProperty.call(tags, 'children')) {
+
+	    if ((0, _validations.isArray)(tags.children)) {
+	      tags.children.forEach(function (tag, idx) {
+	        if ('object' === (typeof tag === 'undefined' ? 'undefined' : _typeof(tag))) {
+	          if (tag.hasOwnProperty("render")) {
+	            childNode = buildElement(tag.render());
+	          } else {
+	            childNode = buildElement(tag);
+	          }
+	          buildChildren(tag, childNode);
+	          appendChild(childNode, parent);
+	        } else if ((0, _validations.isArray)(tag)) {
+	          var tagName = tag.tag;
+	          tag.forEach(function (childtag, idx) {
+	            // Subcomponents
+	            if (hasOwnProperty.call(childtag, 'sjxid')) {
+	              childtag.attrs['sjxid'] = sjxid;
+	            }
+	            childNode = buildElement(childtag);
+	            buildChildren(childtag, childNode);
+	            appendChild(childNode, parent);
+	          });
+	          //}
+	        } else {
+	            if ("undefined" != typeof tagName) {
+	              if (tag.tag === "strong" || tag.tag === "input") {
+	                childNode = buildElement(tag);
+	                appendChild(childNode, parent);
+	                buildChildren(tag, childNode);
+	              } else {
+	                childNode = buildElement(tag);
+	                buildChildren(tag, childNode);
+	                //_vdom.push(childNode,parent);
+	                appendChild(childNode, parent);
+	              }
+	            }
+	          }
+	      });
+	    }
+	  }
+	  return parent;
+	  //return [_vdom,parent];
 	};
 
 	exports.renderToString = function (tags, data) {
-		return vDom(tags, data).innerHTML;
+	  return vDom(tags, data).innerHTML;
 	};
 
 	/**
@@ -254,64 +269,64 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var vDom = function vDom(tags, data) {
-		var docFragment = document.createDocumentFragment();
+	  var docFragment = document.createDocumentFragment();
 
-		// Root node  
-		var root = document.createElement(tags.tag);
-		setAttrs(tags, data.rootNode);
+	  // Root node  
+	  var root = document.createElement(tags.tag);
+	  setAttrs(tags, data.rootNode);
 
-		// Build children
-		var childrenTree = buildChildren(tags, root);
-		docFragment.appendChild(childrenTree);
+	  // Build children
+	  var childrenTree = buildChildren(tags, root);
+	  docFragment.appendChild(childrenTree);
 
-		//vDomCache.push(childrenTree[0]);
+	  //vDomCache.push(childrenTree[0]);
 
-		//// Append to root node
-		//vDomCache[vDomCache.length-1].forEach((node)=>{
-		//docFragment.appendChild(node);
-		//})
+	  //// Append to root node
+	  //vDomCache[vDomCache.length-1].forEach((node)=>{
+	  //docFragment.appendChild(node);
+	  //})
 
-		// Append to window
-		return docFragment;
+	  // Append to window
+	  return docFragment;
 	};
 
 	/**
 	 * Render
-	 * @alias universaljs.render
-	 * @param {spec} a universaljs component with a render method. Optional, set to false if not used
+	 * @alias svenjs.render
+	 * @param {spec} a svenjs component with a render method. Optional, set to false if not used
 	 * @param {node} a document node (e.g from document.getElementById()).
 	 * @param {tags} optional pre-rendered tags
 	 * @returns {undefined}
 	 */
 	exports.render = function (spec, node) {
-		var preRendered = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+	  var preRendered = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-		if (node) {
+	  if (node) {
 
-			if ((0, _validations.isObject)(spec)) {
-				// Set internal ref
-				if (!hasOwnProperty.call(spec, '_svenjs')) {
-					spec._svenjs = { rootNode: false };
-				}
-				spec._svenjs.rootNode = node;
-			}
+	    if ((0, _validations.isObject)(spec)) {
+	      // Set internal ref
+	      if (!hasOwnProperty.call(spec, '_svenjs')) {
+	        spec._svenjs = { rootNode: false };
+	      }
+	      spec._svenjs.rootNode = node;
+	    }
 
-			// reset HTML
-			node.innerHTML = "";
-			// Get the converted tags
-			var tags = undefined;
+	    // reset HTML
+	    node.innerHTML = "";
+	    // Get the converted tags
+	    var tags = undefined;
 
-			if ((0, _validations.isObject)(preRendered)) {
-				tags = preRendered;
-			} else {
-				tags = spec.render();
-			}
+	    if ((0, _validations.isObject)(preRendered)) {
+	      tags = preRendered;
+	    } else {
+	      tags = spec.render();
+	    }
 
-			// Append to window
-			node.appendChild(vDom(tags, spec._svenjs));
-		} else {
-			return 'Error: no node to attach rendered HTML';
-		}
+	    // Append to window
+	    node.appendChild(vDom(tags, spec._svenjs));
+	  } else {
+	    return 'Error: no node to attach rendered HTML';
+	  }
 	};
 
 /***/ },
@@ -340,26 +355,30 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _setState = __webpack_require__(4);
 
-	exports.create = function (spec) {
-		spec._svenjs = { rootNode: false };
-
-		if (!spec.isBound) {
-			spec.isBound = true;
-			spec.setState = function (state) {
-				return (0, _setState.setState)(state, this);
-			};
-		}
-		if (!spec.isMounted) {
-			spec.time = { history: [], pos: -1 };
-			spec.isMounted = true;
-			if (undefined !== spec.initialState) {
-				spec.state = spec.initialState;
-			}
-			if ("function" === typeof spec.componentDidMount) {
-				spec.componentDidMount.apply(spec);
-			}
-		}
-		return spec;
+	exports.create = function (spec, props) {
+	  spec._svenjs = { rootNode: false };
+	  spec.props = {};
+	  if (props) {
+	    spec.props = props;
+	    delete spec.props.sjxid;
+	  }
+	  if (!spec.isBound) {
+	    spec.isBound = true;
+	    spec.setState = function (state) {
+	      return (0, _setState.setState)(state, this);
+	    };
+	  }
+	  if (!spec.isMounted) {
+	    spec.time = { history: [], pos: -1 };
+	    spec.isMounted = true;
+	    if (undefined !== spec.initialState) {
+	      spec.state = spec.initialState;
+	    }
+	    if ("function" === typeof spec.componentDidMount) {
+	      spec.componentDidMount.apply(spec);
+	    }
+	  }
+	  return spec;
 	};
 
 /***/ },
