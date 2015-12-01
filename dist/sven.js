@@ -219,14 +219,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if ((0, _validations.isArray)(tags.children)) {
 	      tags.children.forEach(function (tag, idx) {
 	        if ('object' === (typeof tag === 'undefined' ? 'undefined' : _typeof(tag))) {
-	          if (tag.hasOwnProperty("render")) {
+	          if (hasOwnProperty.call(tag, 'render')) {
 	            childNode = buildElement(tag.render());
 	          } else {
 	            childNode = buildElement(tag);
 	          }
 	          buildChildren(tag, childNode);
 	          appendChild(childNode, parent);
-	        } else if ((0, _validations.isArray)(tag)) {
+	        }
+	        if ((0, _validations.isArray)(tag)) {
 	          var tagName = tag.tag;
 	          tag.forEach(function (childtag, idx) {
 	            // Subcomponents

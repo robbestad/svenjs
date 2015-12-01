@@ -79,7 +79,7 @@ const buildChildren=(tags, parent)=>{
     if (isArray(tags.children)) {
       tags.children.forEach((tag,idx)=>{
         if('object' === typeof tag){
-          if(tag.hasOwnProperty("render")){
+          if((hasOwnProperty.call(tag, 'render'))){
             childNode=buildElement(tag.render());
           } else {
             childNode=buildElement(tag);
@@ -87,7 +87,7 @@ const buildChildren=(tags, parent)=>{
           buildChildren(tag,childNode);
           appendChild(childNode,parent);
         }
-        else if(isArray(tag)){
+       if(isArray(tag)){
           var tagName=tag.tag;
           tag.forEach((childtag,idx)=>{
             // Subcomponents

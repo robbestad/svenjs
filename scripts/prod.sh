@@ -14,8 +14,11 @@ cp dist/sven.js ../svenjs-npm/index.js
 #cp dist/sven.js ~/Jottacloud/Work/opensource/vdom-benchmark-svenjs/node_modules/svenjs/index.js
 cp dist/sven.min.js ../svenjs-blueprint/node_modules/svenjs/index.min.js
 cp dist/sven.js ../svenjs-blueprint/node_modules/svenjs/index.js
+cp dist/sven.min.js ../svenjs-todomvc/node_modules/svenjs/index.min.js
+cp dist/sven.js ../svenjs-todomvc/node_modules/svenjs/index.js
 
-### For prod
+
+## For prod
 #echo 
 #echo Generating timetravel app
 #echo
