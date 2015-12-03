@@ -11,6 +11,9 @@ exports.create = (spec,props)=> {
     spec.setState=function(state){
       return setState(state,this);
     };
+    if("function" === typeof spec._beforeMount){
+      spec._beforeMount.apply(spec);
+    }
   }
   if(!spec.isMounted){
     spec.time={history: [], pos: -1}

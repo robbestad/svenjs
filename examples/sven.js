@@ -368,6 +368,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    spec.setState = function (state) {
 	      return (0, _setState.setState)(state, this);
 	    };
+	    if ("function" === typeof spec._beforeMount) {
+	      spec._beforeMount.apply(spec);
+	    }
 	  }
 	  if (!spec.isMounted) {
 	    spec.time = { history: [], pos: -1 };
@@ -431,7 +434,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    spec.emit = function (data) {
 	      _callbacks.forEach(function (cb) {
-	        cb(data).bind(spec);
+	        cb(data);
 	      });
 	    };
 

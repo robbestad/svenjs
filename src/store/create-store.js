@@ -6,7 +6,7 @@ exports.createStore = (spec)=> {
     };
     spec.emit=(data)=>{
       _callbacks.forEach((cb)=>{
-        cb(data).bind(spec);
+        cb(data);
       });
     };
 
