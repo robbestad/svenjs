@@ -1,10 +1,16 @@
 # SvenJS
 
-A minimal reactive web framework
+A very small reactive web framework for very small apps
 
 # Demos
 
   - [TodoMVC](http://svenjs-todomvc.herokuapp.com/). [Source](https://github.com/svenanders/svenjs-todomvc)
+
+# Releases
+
+ - 0.3.2: Added *_beforeMount* life cycle method. 
+ - 0.3.1: Added composition (importing components and referencing them in JSX by name). For instance: _const SecondComponent = require("SecondComponent")_. Referenced in _render_ like this: _<SecondComponent />_
+ - 0.3.0: Renamed life cycle methods. New names: *_didMount* & *_didUpdate*
 
 # Goals
 
@@ -51,9 +57,9 @@ Build youself. Clone this repo and run
 Here's a basic Universal component ([Source](https://github.com/svenanders/svenjs-example-clicky)):
 
 ```html
-const Sven = require("svenjs");
+const Svenjs = require("svenjs");
 
-module.exports = Sven.create({
+module.exports = Svenjs.create({
     initialState: {
         clicks: 0
     },

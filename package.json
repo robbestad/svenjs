@@ -1,6 +1,6 @@
 {
   "name": "svenjs",
-  "version": "0.0.1-alpha",
+  "version": "0.3.2",
   "description": "Pure functional reactive web framework",
   "scripts": {
     "test": "./node_modules/.bin/babel-tape-runner tests/*",
