@@ -34,7 +34,7 @@ A very small reactive web framework for very small apps
 
  - Minimal file size
 
-  - The minified version is about 4.8K. Compressing can reduce the file size even more.
+  - The minified version is about 5-6K. Compressing can reduce the file size even more.
 
 # Install
 
