@@ -425,21 +425,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _callbacks = [];
 	exports.createStore = function (spec) {
-		if (!spec.isMounted) {
-			spec.listenTo = function (cb) {
-				_callbacks.push(cb);
-			};
-			spec.emit = function (data) {
-				_callbacks.forEach(function (cb) {
-					cb(data);
-				});
-			};
+	  if (!spec.isMounted) {
+	    spec.listenTo = function (cb) {
+	      _callbacks.push(cb);
+	    };
+	    spec.emit = function (data) {
+	      _callbacks.forEach(function (cb) {
+	        cb(data).bind(spec);
+	      });
+	    };
 
-			if ("function" === typeof spec.init) {
-				spec.init.apply(spec);
-			}
-		}
-		return spec;
+	    if ("function" === typeof spec.init) {
+	      spec.init.apply(spec);
+	    }
+	  }
+	  return spec;
 	};
 
 /***/ },

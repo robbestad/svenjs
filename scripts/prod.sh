@@ -17,6 +17,8 @@ cp dist/sven.js ../svenjs-blueprint/node_modules/svenjs/index.js
 cp dist/sven.min.js ../svenjs-todomvc/node_modules/svenjs/index.min.js
 cp dist/sven.js ../svenjs-todomvc/node_modules/svenjs/index.js
 
+cp dist/sven.min.js ../map/node_modules/svenjs/index.min.js
+cp dist/sven.js ../map/node_modules/svenjs/index.js
 
 ## For prod
 #echo 
