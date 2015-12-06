@@ -58,15 +58,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-	var _version = __webpack_require__(4);
+	var _version = __webpack_require__(6);
 
-	var _create = __webpack_require__(6);
+	var _create = __webpack_require__(5);
 
 	var _render = __webpack_require__(3);
 
 	var _timeTravel = __webpack_require__(11);
 
-	var _setState = __webpack_require__(5);
+	var _setState = __webpack_require__(4);
 
 	var _lifeCycle = __webpack_require__(2);
 
@@ -119,6 +119,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    rootNode = spec._svenjs.rootNode;
 	  };
 	  if (!rootNode) rootNode = document.querySelector("[sjxid='" + spec._sjxid + "']");
+	  console.log(spec._sjxid);
 
 	  if (spec.isMounted && rootNode) {
 	    (0, _render.render)(spec, rootNode);
@@ -126,19 +127,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	};
 
+	//
+	//import {render} from "../core/render";
+	//
+	//exports.lifeCycle = (spec)=> {
+	//  let rootNode;
+	//  if(spec._svenjs.rootNode){
+	//    rootNode=spec._svenjs.rootNode;
+	//  };
+	//
+	//  let sjxid=document.querySelector("[sjxid='"+spec.render().attrs.sjxid+"']");
+	//  if(sjxid){
+	//    rootNode=sjxid;
+	//  };
+	//
+	//  if(spec.isMounted && rootNode){
+	//    render(spec, rootNode);
+	//    if(spec.hasOwnProperty('_didUpdate')) spec._didUpdate.apply(spec);
+	//  }	
+	//};
+
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * render module.
-	 * @module core/render
-	 * @see module:svenjs
-	 * @author Sven A Robbestad <sven@robbestad.com>
-	 */
-
-	'use strict' // The vDOM
-	;
+	'use strict';
 
 	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
@@ -148,6 +161,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
 	}
 
+	/**
+	 * render module.
+	 * @module component/render
+	 * @see module:svenjs
+	 * @author Sven A Robbestad <robbestad@gmail.com> 
+	 */
+
+	// The vDOM
 	var vDomCache = [];
 
 	// define common functions used in this mod ule
@@ -159,7 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// Speed up calls to hasOwnProperty
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-	//const voidElems = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
+	//const voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
 
 	/**
 	 * setAttrs. This sets all attributes on the node tag, like class names, event handlers etc.
@@ -177,7 +198,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	  }
-
 	  if (hasOwnProperty.call(tag, 'attrs')) {
 	    var attr = tag.attrs;
 	    for (var attrName in attr) {
@@ -198,10 +218,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Object} a DOM Node
 	 */
 	var buildElement = function buildElement(tag) {
-	  if ("undefined" === typeof tag.tag) {
-	    tag.tag = "span";
-	    tag.attrs = { "sjxid": Math.floor(Math.random() * new Date().getTime()) };
-	  }
 	  var child = document.createElement(tag.tag);
 	  setAttrs(tag, child);
 	  return child;
@@ -216,34 +232,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	var buildChildren = function buildChildren(tags, parent) {
 	  var childNode = undefined;
 	  if (hasOwnProperty.call(tags, 'children')) {
+
 	    if ((0, _validations.isArray)(tags.children)) {
 	      tags.children.forEach(function (tag, idx) {
-	        if (null !== tag && 'object' === (typeof tag === 'undefined' ? 'undefined' : _typeof(tag))) {
-	          childNode = buildElement(tag);
+	        if ('object' === (typeof tag === 'undefined' ? 'undefined' : _typeof(tag))) {
+	          if (hasOwnProperty.call(tag, 'render')) {
+	            childNode = buildElement(tag.render());
+	          } else {
+	            childNode = buildElement(tag);
+	          }
 	          buildChildren(tag, childNode);
 	          appendChild(childNode, parent);
 	        }
 	        if ((0, _validations.isArray)(tag)) {
 	          var tagName = tag.tag;
 	          tag.forEach(function (childtag, idx) {
-	            if (!hasOwnProperty.call(childtag, 'render')) {
-	              childNode = buildElement(childtag);
-	              buildChildren(childtag, childNode);
-	              appendChild(childNode, parent);
+	            // Subcomponents
+	            if (hasOwnProperty.call(childtag, 'sjxid')) {
+	              childtag.attrs['sjxid'] = sjxid;
 	            }
+	            childNode = buildElement(childtag);
+	            buildChildren(childtag, childNode);
+	            appendChild(childNode, parent);
 	          });
-	        }
+	          //}
+	        } else {
+	            if ("undefined" != typeof tagName) {
+	              if (tag.tag === "strong" || tag.tag === "input") {
+	                childNode = buildElement(tag);
+	                appendChild(childNode, parent);
+	                buildChildren(tag, childNode);
+	              } else {
+	                childNode = buildElement(tag);
+	                buildChildren(tag, childNode);
+	                //_vdom.push(childNode,parent);
+	                appendChild(childNode, parent);
+	              }
+	            }
+	          }
 	      });
-	    }
-	  } else {
-	    // Components inside render
-	    if ('object' === (typeof tags === 'undefined' ? 'undefined' : _typeof(tags))) {
-	      if (hasOwnProperty.call(tags, 'render')) {
-	        buildChildren(tags.render(), parent);
-	      }
 	    }
 	  }
 	  return parent;
+	  //return [_vdom,parent];
 	};
 
 	exports.renderToString = function (tags, data) {
@@ -258,7 +289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var vDom = function vDom(tags, data) {
 	  var docFragment = document.createDocumentFragment();
 
-	  // Root node
+	  // Root node  
 	  var root = document.createElement(tags.tag);
 	  setAttrs(tags, data.rootNode);
 
@@ -266,6 +297,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var childrenTree = buildChildren(tags, root);
 	  docFragment.appendChild(childrenTree);
 
+	  //vDomCache.push(childrenTree[0]);
+
+	  //// Append to root node
+	  //vDomCache[vDomCache.length-1].forEach((node)=>{
+	  //docFragment.appendChild(node);
+	  //})
+
+	  // Append to window
 	  return docFragment;
 	};
 
@@ -277,7 +316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {tags} optional pre-rendered tags
 	 * @returns {undefined}
 	 */
-	var render = function render(spec, node) {
+	exports.render = function (spec, node) {
 	  var preRendered = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
 	  if (node) {
@@ -307,26 +346,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return 'Error: No node to attach';
 	  }
 	};
-	exports.render = render;
 
 /***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * @module core/version
-	 * @see module:svenjs
-	 * @author Sven A Robbestad <sven@robbestad.com>
-	 */
-	'use strict';
-
-	exports.version = function () {
-	  return process.env.npm_package_version;
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
-
-/***/ },
-/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -344,30 +366,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * @module core/create
-	 * @see module:svenjs
-	 * @author Sven A Robbestad <sven@robbestad.com>
-	 */
-	'use strict';
+	"use strict";
 
-	var _version = __webpack_require__(4);
-
-	var _setState = __webpack_require__(5);
+	var _setState = __webpack_require__(4);
 
 	exports.create = function (spec, props) {
 	  spec._svenjs = { rootNode: false };
 	  spec.props = {};
 	  if (props) {
-	    spec._jsxid = spec.props.sjxid;
 	    spec.props = props;
 	    delete spec.props.sjxid;
 	  }
 	  if (!spec.isBound) {
-	    spec.version = _version.version;
 	    spec.isBound = true;
 	    spec.setState = function (state) {
 	      return (0, _setState.setState)(state, this);
@@ -387,6 +400,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 	  return spec;
+	};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.version = function () {
+	  return "0.0.3";
 	};
 
 /***/ },
@@ -507,103 +530,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		return module;
 	}
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-
-	function cleanUpNextTick() {
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = setTimeout(cleanUpNextTick);
-	    draining = true;
-
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    clearTimeout(timeout);
-	}
-
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
 
 
 /***/ }
