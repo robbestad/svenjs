@@ -1,9 +1,10 @@
 /**
  * render module.
- * @module component/render
+ * @module core/render
  * @see module:svenjs
- * @author Sven A Robbestad <robbestad@gmail.com> 
+ * @author Sven A Robbestad <sven@robbestad.com>
  */
+'use strict';
 
 // The vDOM
 let vDomCache=[];
@@ -18,7 +19,7 @@ const appendChild=(child,parent)=>{
 // Speed up calls to hasOwnProperty
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-//const voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
+//const voidElems = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/;
 
 /**
  * setAttrs. This sets all attributes on the node tag, like class names, event handlers etc.
@@ -36,6 +37,7 @@ const setAttrs = (tag,node)=>{
       });
     }
   }
+
   if((hasOwnProperty.call(tag, 'attrs'))){
     const attr=tag.attrs;
     for (var attrName in attr) {
@@ -61,6 +63,10 @@ const setAttrs = (tag,node)=>{
  * @returns {Object} a DOM Node
  */
 const buildElement=(tag)=>{
+  if("undefined" === typeof tag.tag){
+    tag.tag="span";
+    tag.attrs={"sjxid":Math.floor(Math.random()*new Date().getTime())};
+  }
   let child = document.createElement(tag.tag);
   setAttrs(tag,child);
   return child;
@@ -75,52 +81,34 @@ const buildElement=(tag)=>{
 const buildChildren=(tags, parent)=>{
   let childNode;
   if((hasOwnProperty.call(tags, 'children'))){
-
     if (isArray(tags.children)) {
       tags.children.forEach((tag,idx)=>{
-        if('object' === typeof tag){
-          if((hasOwnProperty.call(tag, 'render'))){
-            childNode=buildElement(tag.render());
-          } else {
-            childNode=buildElement(tag);
-          }
+        if(null !== tag && 'object' === typeof tag){
+          childNode=buildElement(tag);
           buildChildren(tag,childNode);
           appendChild(childNode,parent);
         }
-       if(isArray(tag)){
+        if(isArray(tag)){
           var tagName=tag.tag;
           tag.forEach((childtag,idx)=>{
-            // Subcomponents
-            if((hasOwnProperty.call(childtag, 'sjxid'))){
-              childtag.attrs['sjxid']=sjxid;
-            }
-            childNode=buildElement(childtag);
-            buildChildren(childtag,childNode);
-            appendChild(childNode,parent);
-          });
-          //}
-        }
-        else {
-          if("undefined" != typeof tagName){
-            if(tag.tag==="strong" || tag.tag==="input"){
-              childNode=buildElement(tag);
-              appendChild(childNode,parent);
-              buildChildren(tag,childNode);
-
-            } else {
-              childNode=buildElement(tag);
-              buildChildren(tag,childNode);
-              //_vdom.push(childNode,parent);
+            if(!(hasOwnProperty.call(childtag, 'render'))){
+              childNode=buildElement(childtag);
+              buildChildren(childtag,childNode);
               appendChild(childNode,parent);
             }
-
-          } 
+          })
         }
       })
     }
-  } 
+  } else {
+    // Components inside render
+    if('object' === typeof tags){
+      if((hasOwnProperty.call(tags, 'render'))) {
+        buildChildren(tags.render(), parent)
+      }
+    }
+  }
   return parent;
-  //return [_vdom,parent];
 }
 
 
@@ -136,7 +124,7 @@ exports.renderToString = (tags,data) => {
 const vDom  = (tags, data) => {
   var docFragment = document.createDocumentFragment();
 
-  // Root node    
+  // Root node
   var root = document.createElement(tags.tag);
   setAttrs(tags,data.rootNode);
 
@@ -144,14 +132,6 @@ const vDom  = (tags, data) => {
   let childrenTree = buildChildren(tags, root);
   docFragment.appendChild(childrenTree);
 
-  //vDomCache.push(childrenTree[0]);
-
-  //// Append to root node
-  //vDomCache[vDomCache.length-1].forEach((node)=>{
-  //docFragment.appendChild(node);
-  //})
-
-  // Append to window
   return docFragment;
 }
 
@@ -163,8 +143,8 @@ const vDom  = (tags, data) => {
  * @param {tags} optional pre-rendered tags
  * @returns {undefined}
  */
-exports.render = (spec, node, preRendered=false) => {
-  if(node){ 
+const render = (spec, node, preRendered=false) => {
+  if(node){
 
     if(isObject(spec)){
       // Set internal ref
@@ -172,7 +152,7 @@ exports.render = (spec, node, preRendered=false) => {
         spec._svenjs={rootNode:false};
       }
       spec._svenjs.rootNode = node;
-    } 
+    }
 
     // reset HTML
     node.innerHTML="";
@@ -191,3 +171,4 @@ exports.render = (spec, node, preRendered=false) => {
     return 'Error: No node to attach';
   }
 };
+exports.render = render;
