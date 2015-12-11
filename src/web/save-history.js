@@ -1,11 +1,11 @@
-import {deepCopy} from '../lib/deep-copy';
+import {deepFreeze} from '../lib/deep-freeze';
 exports.saveHistory = (spec,diff_state)=> {
   let time;
-  if(spec.time) time = deepCopy(spec.time);
+  if(spec.time) time = deepFreeze(spec.time);
   else time={ history: [], pos: -1 };
 
   time.history.splice(time.pos + 1);
-  time.history.push(deepCopy(diff_state));
+  time.history.push(deepFreeze(diff_state));
   time.pos++;
   return time;
 };
