@@ -1,4 +1,4 @@
-import {deepFreeze} from '../lib/deep-freeze';
+import {deepCopy} from '../lib/deep-copy';
 import {lifeCycle} from './life-cycle';
 
 exports.timeTravel = (spec,position)=> {
@@ -6,7 +6,7 @@ exports.timeTravel = (spec,position)=> {
   let state = spec.state;
   time.pos+=position;
   spec.state=state;
-  state = deepFreeze(time.history[time.pos]);
+  state = deepCopy(time.history[time.pos]);
   spec.state=state;
   spec,spec.render(state, spec._svenjs.rootNode);
   lifeCycle(spec);

@@ -64,13 +64,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _render = __webpack_require__(3);
 
-	var _timeTravel = __webpack_require__(11);
+	var _timeTravel = __webpack_require__(12);
 
 	var _setState = __webpack_require__(5);
 
 	var _lifeCycle = __webpack_require__(2);
 
-	var _createStore = __webpack_require__(8);
+	var _createStore = __webpack_require__(9);
 
 	var _deepCopy = __webpack_require__(1);
 
@@ -93,7 +93,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	if (( false ? 'undefined' : _typeof(module)) === "object" && module != null && module.exports) module.exports = Svenjs;else if (true) !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	  return Svenjs;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)(module)))
 
 /***/ },
 /* 1 */
@@ -142,7 +142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-	var _validations = __webpack_require__(7);
+	var _validations = __webpack_require__(8);
 
 	function _typeof(obj) {
 	  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
@@ -323,7 +323,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.version = function () {
 	  return process.env.npm_package_version;
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14)))
 
 /***/ },
 /* 5 */
@@ -331,9 +331,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _saveState = __webpack_require__(10);
+	var _saveState = __webpack_require__(11);
 
-	var _saveHistory = __webpack_require__(9);
+	var _saveHistory = __webpack_require__(10);
 
 	var _lifeCycle = __webpack_require__(2);
 
@@ -393,6 +393,29 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports) {
 
+	"use strict";
+
+	function _typeof2(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
+	function _typeof(obj) {
+	  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+	}
+
+	var deepFreeze = exports.deepFreeze = function (o) {
+	  Object.freeze(o);
+
+	  Object.getOwnPropertyNames(o).forEach(function (prop) {
+	    if (o.hasOwnProperty(prop) && o[prop] !== null && (_typeof(o[prop]) === "object" || typeof o[prop] === "function") && !Object.isFrozen(o[prop])) {
+	      deepFreeze(o[prop]);
+	    }
+	  });
+	  return o;
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
 	"use strict"
 	// define common functions used in this module
 
@@ -415,7 +438,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -440,7 +463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -458,22 +481,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _deepCopy = __webpack_require__(1);
 
+	var _deepFreeze = __webpack_require__(7);
+
 	exports.saveState = function (spec, diff_state) {
 
 	  var state = (0, _deepCopy.deepCopy)(diff_state);
-	  Object.freeze(state);
+	  (0, _deepFreeze.deepFreeze)(state);
 	  return state;
 	};
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -494,7 +519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -510,7 +535,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser

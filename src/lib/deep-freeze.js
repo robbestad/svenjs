@@ -1,6 +1,6 @@
 "use strict";
 
-exports.deepFreeze = function o) {
+const deepFreeze = exports.deepFreeze = function (o) {
   Object.freeze(o);
 
   Object.getOwnPropertyNames(o).forEach(function (prop) {
