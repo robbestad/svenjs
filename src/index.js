@@ -8,6 +8,9 @@ import { lifeCycle } from './web/life-cycle';
 import { createStore } from './store/create-store';
 import { deepCopy } from './lib/deep-copy';
 
+console.log('version 1.3');
+
+
 const Svenjs= {
   version,
   create,
