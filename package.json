@@ -4,6 +4,9 @@
   "description": "Pure functional reactive web framework",
   "scripts": {
     "test": "./node_modules/.bin/babel-tape-runner tests/*",
+    "predist": "babel src -d es5",
+    "dist": "NODE_ENV=production webpack --config webpack.config.dist",
+    "postdist": "cp assets/* npmbuild",
     "watch": "sane 'sh scripts/prod.sh' --glob='src/**/*.js'"
   },
   "repository": {

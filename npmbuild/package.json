@@ -1,0 +1,48 @@
+{
+  "name": "svenjs",
+  "version": "1.0.0",
+  "description": "A minimal reactive framework",
+  "main": "index.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svenanders/svenjs.git"
+  },
+  "keywords": [
+    "svenjs"
+  ],
+  "author": {
+    "name": "Sven Anders Robbestad",
+    "email": "robbestad@gmail.com",
+    "url": "http://svenardo.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/svenanders/svenjs/issues"
+  },
+  "homepage": "https://github.com/svenanders/svenjs#readme",
+  "_id": "svenjs@0.2.1",
+  "_shasum": "8417ce8fd74750adc3c24b97ecd96c40e14c42f5",
+  "_from": "svenjs@*",
+  "_npmVersion": "2.11.3",
+  "_nodeVersion": "0.12.7",
+  "_npmUser": {
+    "name": "svenanders",
+    "email": "anders@robbestad.com"
+  },
+  "dist": {
+    "shasum": "8417ce8fd74750adc3c24b97ecd96c40e14c42f5",
+    "tarball": "http://registry.npmjs.org/svenjs/-/svenjs-0.2.1.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "svenanders",
+      "email": "anders@robbestad.com"
+    }
+  ],
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/svenjs/-/svenjs-0.2.1.tgz",
+  "readme": "ERROR: No README data found!"
+}
