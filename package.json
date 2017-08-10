@@ -37,6 +37,7 @@
     "tape": "~4.2.2",
     "uglify-js": "^2.4.23",
     "webpack": "^1.9.6",
+    "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^1.8.2"
   },
   "author": "",

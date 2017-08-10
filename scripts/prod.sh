@@ -9,16 +9,18 @@ echo
 echo Generating dist build of SVENJS
 echo
 $WEBPACK_CMD -p build/index.js dist/sven.min.js
-cp dist/sven.min.js ../svenjs-npm/index.min.js
-cp dist/sven.js ../svenjs-npm/index.js
-#cp dist/sven.js ~/Jottacloud/Work/opensource/vdom-benchmark-svenjs/node_modules/svenjs/index.js
-cp dist/sven.min.js ../svenjs-blueprint/node_modules/svenjs/index.min.js
-cp dist/sven.js ../svenjs-blueprint/node_modules/svenjs/index.js
-cp dist/sven.min.js ../svenjs-todomvc/node_modules/svenjs/index.min.js
-cp dist/sven.js ../svenjs-todomvc/node_modules/svenjs/index.js
 
-cp dist/sven.min.js ../map/node_modules/svenjs/index.min.js
-cp dist/sven.js ../map/node_modules/svenjs/index.js
+#cp dist/sven.min.js ../svenjs-npm/index.min.js
+#cp dist/sven.js ../svenjs-npm/index.js
+
+#cp dist/sven.js ~/Jottacloud/Work/opensource/vdom-benchmark-svenjs/node_modules/svenjs/index.js
+#cp dist/sven.min.js ../svenjs-blueprint/node_modules/svenjs/index.min.js
+#cp dist/sven.js ../svenjs-blueprint/node_modules/svenjs/index.js
+#cp dist/sven.min.js ../svenjs-todomvc/node_modules/svenjs/index.min.js
+#cp dist/sven.js ../svenjs-todomvc/node_modules/svenjs/index.js
+
+#cp dist/sven.min.js ../map/node_modules/svenjs/index.min.js
+#cp dist/sven.js ../map/node_modules/svenjs/index.js
 
 ## For prod
 #echo 

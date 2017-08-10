@@ -1,27 +1,26 @@
-const Svenjs = require('../../../dist/sven.js');
+const Svenjs = require('../../sven.js');
 var clickyApp = Svenjs.create({
     displayName: "Clicky App",
     initialState: {
         clicks: 0
     },
     render(){
-      "use strict";
       var state=this.state;
-      let svenFunc = () =>{
-        this.setState({clicks: (this.state.clicks ? ++this.state.clicks : 1)});
+      let handleClick = () =>{
+        this.setState(
+          {clicks: (this.state.clicks ? this.state.clicks + 1 : 1)
+          })
       }
-      //const log = (level="debug") => (::console[level](this), this);
-      //state::log();
       return (<div id="row">
-              <div id="app">
-                  <h3>The Click App</h3>
-                  <button onClick={svenFunc}>Why not click me?</button>
-              </div>
-              <div id="time-travel">
-                  <h3>Click stats</h3>
-                <p>You have clicked on the button {this.state.clicks} times</p>
-              </div>
-          </div>)
+        <div id="app">
+          <h3>The Click App</h3>
+          <button onClick={handleClick}>Why not click me?</button>
+        </div>
+        <div id="time-travel">
+          <h3>Click stats</h3>
+          <p>You have clicked on the button {this.state.clicks} times</p>
+        </div>
+      </div>)
 
     }
 

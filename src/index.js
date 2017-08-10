@@ -7,7 +7,6 @@ import { createStore } from './store/create-store';
 
 console.log('version 1.3');
 
-
 const Svenjs= {
   version,
   create,
