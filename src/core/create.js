@@ -57,7 +57,6 @@ const create = (_spec, props) => {
 	}
 	if (!spec.isMounted) {
 		spec.isMounted = true;
-		spec.time={history: [], pos: -1}
 
 		if (undefined !== spec.initialState) {
 			spec.state = spec.initialState;
