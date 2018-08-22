@@ -8,9 +8,8 @@ import setState from '../web/set-state';
 import lifeCycle from "root/web/life-cycle"
 
 const uuid = () => {
-	// const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	// return `${s() + s()}`;
-	return 123;
+	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	return `${s() + s()}`;
 }
 
 const deepClone = obj => {
@@ -58,6 +57,8 @@ const create = (_spec, props) => {
 	}
 	if (!spec.isMounted) {
 		spec.isMounted = true;
+		spec.time={history: [], pos: -1}
+
 		if (undefined !== spec.initialState) {
 			spec.state = spec.initialState;
 		}

@@ -1,16 +1,19 @@
-const Svenjs = require('../../../dist/sven.js');
+const Svenjs = require('dist/index.js');
+
+
+function deepCopy (o) {
+	return JSON.parse(JSON.stringify(o));
+};
+
 
 var timeTravel = Svenjs.create({
-  displayName:"First app",
   initialState:{items: [], message:''},
-  componentDidMount(){
-    "use strict";
+  _didMount(){
   },
-  componentDidUpdate(){
-    "use strict";
+  _didUpdate(){
   },
   handleClick: function (idx) {
-      let items= this.state.items;
+      let items= deepCopy(this.state.items);
       items.push(this.getNextString());
       this.setState({items:items,message:"Wordsworth"});
   },
@@ -22,7 +25,6 @@ var timeTravel = Svenjs.create({
   },
 
   getNextString() {
-    "use strict";
     var words = 'Pack my box with five dozen liquor jugs'.split(' ');
     return words[Math.floor(Math.random() * words.length)];
   },
