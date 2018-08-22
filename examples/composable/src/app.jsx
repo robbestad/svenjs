@@ -1,0 +1,20 @@
+// const Svenjs = require('root/index');
+const Svenjs = require('assets/index');
+const Welcome  = require('./welcome');
+const Welcome2  = require('./welcome2');
+const Counter = require('./counter');
+module.exports = Svenjs.create({
+  render(){
+    return (<div>
+
+      <h1>Hello</h1>
+      <div><Welcome greeting="We meet again"/></div>
+
+      <h1>Hello</h1>
+      <div><Welcome /></div>
+
+	    <h1>Counter</h1>
+      <div><Counter/></div>
+    </div>);
+  }
+});

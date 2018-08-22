@@ -1,9 +1,14 @@
-const Svenjs = require('../../sven.js');
+const Svenjs = require('assets/index.js');
 let ENTER_KEY = 13;
 let ESCAPE_KEY = 27;
 let _toggled=false;
 let _prevEditing=false;
 let _currentEdit=0;
+
+function deepCopy (o) {
+	return JSON.parse(JSON.stringify(o));
+};
+
 
 let todoMVCApp = Svenjs.create({
     displayName: "TodoMVC App",
@@ -13,15 +18,15 @@ let todoMVCApp = Svenjs.create({
           {id:2,message:"Get a cup of coffee",complete:false,editing:false}
         ]
     },
-    componentDidUpdate(){
+    _didUpdate(){
       let node= document.getElementById('new-todo');
       if(node!==null && _prevEditing){
         _prevEditing=false;
         node.focus();
-        node.setSelectionRange(node.value.length, node.value.length); 
+        node.setSelectionRange(node.value.length, node.value.length);
       }
     },
-    componentDidMount(){
+    _didMount(){
       var url = self.history === true ? self.getPath() : window.location.hash.replace(/.*#\//, '');
       this.setState({messages:this.state.messages,url:url});
       window.addEventListener("hashchange", this.onHashChange.bind(this), false);
@@ -62,7 +67,7 @@ let todoMVCApp = Svenjs.create({
       this.setState({messages:messages, url:this.state.url});
     },
     addTodo(e){
-      let messages=this.state.messages;
+      let messages=deepCopy(this.state.messages);
       let lastId;
       let val = "undefined" === typeof e.srcElement ? e.target.value : e.srcElement.value;
       if(messages.length===0) lastId=1;
@@ -123,7 +128,7 @@ let todoMVCApp = Svenjs.create({
         this.setState({messages:messages, url:this.state.url});
         let node= document.getElementsByClassName('edit active')[0];
         node.focus();
-        node.setSelectionRange(node.value.length, node.value.length); 
+        node.setSelectionRange(node.value.length, node.value.length);
       }
     },
     toggleAll(){
@@ -136,7 +141,7 @@ let todoMVCApp = Svenjs.create({
       this.setState({messages:messages});
     },
     listTodos(){
-      
+
       let shownTodos = this.state.messages.filter( (todo) => {
         switch (this.state.url) {
         case "active":
@@ -147,13 +152,13 @@ let todoMVCApp = Svenjs.create({
           return true;
         }
       }, this);
-      
+
       return shownTodos.map((todo)=>{
         let label= todo.message;
         let checked=false;
         let className="todo";
         let editClassName="edit";
-        if(todo.editing){ 
+        if(todo.editing){
           className="todo editing";
           editClassName="edit active";
           }
@@ -167,8 +172,8 @@ let todoMVCApp = Svenjs.create({
                  <label ondblclick={this.onDoubleClick.bind(this, todo)} >{label}</label>
                  <button className="destroy" onClick={this.destroyMessage.bind(this,todo)}></button>
                </div>
-               <input className={editClassName} 
-                type="text" 
+               <input className={editClassName}
+                type="text"
                 onKeyDown={this.handleEditTodoKeyDown.bind(this)}
                 value={todo.message} />
              </li>
@@ -185,7 +190,7 @@ let todoMVCApp = Svenjs.create({
       return (<section class="todoapp">
                 <header class="header">
                   <h1>todos</h1>
-                  <input className="new-todo" 
+                  <input className="new-todo"
                     id="new-todo"
                     onClick={this.resetEditing.bind(this)}
                     onKeyDown={this.handleNewTodoKeyDown.bind(this,"new-todo")}
@@ -200,9 +205,9 @@ let todoMVCApp = Svenjs.create({
                 </section>
 
                 <footer class="footer">
-                  <span class="todo-count">{this.state.messages.length} 
+                  <span class="todo-count">{this.state.messages.length}
                     {this.state.messages.length === 1 ? " item" : " items"} remaining</span>
-                    
+
                   <ul class="filters">
                       <li>
                           <a href="#/all" class={selected_all}>All</a>

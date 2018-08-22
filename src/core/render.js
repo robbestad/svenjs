@@ -175,6 +175,7 @@ const render = (spec, node, preRendered = false) => {
 
 		// Append to window
 		node.appendChild(vDom(tags, spec._svenjs));
+
 	} else {
 		return 'Error: No node to attach';
 	}

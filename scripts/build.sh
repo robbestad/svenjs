@@ -8,5 +8,5 @@ mkdir -p dist
 `npm bin`/babel src --out-dir build
 
 # Copy libs
-$WEBPACK_CMD build/index.js dist/sven.js
+$WEBPACK_CMD build/index.jsx dist/sven.js
 cp dist/sven.js examples/sven.js
