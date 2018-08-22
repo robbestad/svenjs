@@ -1,4 +1,5 @@
-const Svenjs = require('assets/index');
+// const Svenjs = require('assets/index');
+const Svenjs = require('dist/index.js');
 
 const Welcome = Svenjs.create({
 	initialState: {welcomeString: "Hello World!"},

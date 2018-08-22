@@ -1,4 +1,5 @@
-const Svenjs = require('assets/index.js');
+// const Svenjs = require('assets/index.js');
+const Svenjs = require('root/src/index.js');
 let ENTER_KEY = 13;
 let ESCAPE_KEY = 27;
 let _toggled=false;
@@ -180,7 +181,6 @@ let todoMVCApp = Svenjs.create({
       })
     },
     render(){
-      "use strict";
       var state=this.state;
       let selected_all="", selected_active="", selected_completed="";
       if(this.state.url==="" || this.state.url==="all") selected_all='selected';

@@ -1,5 +1,6 @@
-// const Svenjs = require('root/index');
-const Svenjs = require('assets/index');
+// const Svenjs = require('assets/index.js');
+const Svenjs = require('dist/index.js');
+console.log(Svenjs)
 const Welcome  = require('./welcome');
 const Welcome2  = require('./welcome2');
 const Counter = require('./counter');
@@ -12,6 +13,9 @@ module.exports = Svenjs.create({
 
       <h1>Hello</h1>
       <div><Welcome /></div>
+
+      <h1>Hello</h1>
+      <div><Welcome2 greeting="Yeah boi"/></div>
 
 	    <h1>Counter</h1>
       <div><Counter/></div>

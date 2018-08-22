@@ -1,4 +1,5 @@
-const Svenjs = require('assets/index');
+// const Svenjs = require('assets/index.js');
+const Svenjs = require('dist/index.js');
 
 const Welcome = Svenjs.create({
 	initialState: {welcomeString: "Hello World!"},
@@ -11,7 +12,8 @@ const Welcome = Svenjs.create({
 	},
 	render() {
 		const {welcomeString} = this.state;
-		return <div>{welcomeString}</div>
+		const {greeting} = this.props;
+		return <div>{welcomeString} {greeting}</div>
 	}
 });
 module.exports = Welcome;

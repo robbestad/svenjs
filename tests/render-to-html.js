@@ -1,4 +1,4 @@
-var Svenjs = require('../dist/sven.min.js');
+var Svenjs = require('../assets/index.js');
 var test = require('tape');
 var myFunc = ()=> {
 };
@@ -11,8 +11,10 @@ var goForward = ()=> {
   return "go forward";
 }
 var jsdom = require("jsdom");
-var document = jsdom.jsdom();
-var window = jsdom.jsdom();
+const { JSDOM } = jsdom;
+const { document } = (new JSDOM('')).window;
+global.document = document;
+
 var nodeCache = [], cellCache = {};
 
 var tags = ({
