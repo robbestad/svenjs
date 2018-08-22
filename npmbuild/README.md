@@ -16,10 +16,6 @@ A very small reactive web framework for very small apps
 
  - A web library that enables you to write code that can be accessed both serverside and clientside
 
- - Time travel
-
-  - Every component has time travel abilities built in by default.
-
  - Enforced state immutability
 
   - With time travel abilities comes immutability
@@ -34,7 +30,7 @@ A very small reactive web framework for very small apps
 
  - Minimal file size
 
-  - The minified version is about 5-6K. Compressing can reduce the file size even more.
+  - The minified version is about 8-9K. Compressing can reduce the file size even more.
 
 # Install
 
@@ -48,8 +44,6 @@ Build youself. Clone this repo and run
 
 ```bash
   npm run build
-   _or_
-  npm run dist # builds minified version
 ```
 
 # How to use 

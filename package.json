@@ -5,7 +5,7 @@
   "scripts": {
     "test": "tape tests/*",
     "build": "NODE_ENV=production webpack",
-    "postbuild": "cp assets/* npmbuild",
+    "postbuild": "cp dist/index.js npmbuild",
     "build:watch": "sane 'NODE_ENV=development npm run build'  --glob='src/**/*.js' --watchman",
     "watch": "sane 'NODE_ENV=production webpack -p'  --glob='src/**/*.js' --watchman"
   },
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/svenanders/svenjs.git"
   },
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "directories": {
     "example": "example"
   },
