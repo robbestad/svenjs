@@ -1,4 +1,4 @@
-const Svenjs = require('../../../dist/sven.js');
+const Svenjs = require('dist/index.js');
 const getJSON = require('./get-json').getJSON;
 
 module.exports = Svenjs.createStore({
@@ -7,6 +7,6 @@ module.exports = Svenjs.createStore({
 	    .then((data)=>{
 	     this.emit(data);
 	    })
-	    .catch(console.log.bind(console));   
+	    .catch(console.log.bind(console));
 	}
 });

@@ -1,4 +1,4 @@
-const Svenjs = require('../../sven.js');
+const Svenjs = require('dist/index.js');
 var clickyApp = Svenjs.create({
     displayName: "Clicky App",
     initialState: {
