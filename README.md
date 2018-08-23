@@ -1,6 +1,6 @@
 # SvenJS
 
-A very small javascript framework for composable web apps
+A JavaScript framework for composable web apps
 
 # Demos
 
