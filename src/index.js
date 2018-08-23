@@ -5,7 +5,7 @@ import setState from './web/set-state';
 import lifeCycle from './web/life-cycle';
 import createStore from './store/create-store';
 
-console.log(`running svenjs version ${version}`);
+console.info(`Running svenjs version ${version}`);
 
 const Svenjs = {
 	version,
@@ -18,7 +18,3 @@ const Svenjs = {
 };
 
 export default Svenjs;
-// if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;
-// else if (typeof define === "function" && define.amd) define(function () {
-// 	return Svenjs
-// });

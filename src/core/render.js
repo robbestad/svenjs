@@ -6,9 +6,6 @@
  */
 'use strict';
 
-// The vDOM
-let vDomCache = [];
-
 // define common functions used in this mod ule
 // import {isFunction, isObject, isString, isArray} from '../lib/validations';
 
@@ -89,29 +86,28 @@ const buildChildren = (tags, parent) => {
 	let childNode;
 	if ((hasOwnProperty.call(tags, 'children'))) {
 		if (isArray(tags.children)) {
-			tags.children.forEach((tag, idx) => {
+			tags.children.forEach(tag => {
 				if (null !== tag && 'object' === typeof tag) {
 					childNode = buildElement(tag);
 					buildChildren(tag, childNode);
 					appendChild(childNode, parent);
 				}
 				if (isArray(tag)) {
-					var tagName = tag.tag;
-					tag.forEach((childtag, idx) => {
+					tag.forEach(childtag => {
 						if (!(hasOwnProperty.call(childtag, 'render'))) {
 							childNode = buildElement(childtag);
 							buildChildren(childtag, childNode);
 							appendChild(childNode, parent);
 						}
-					})
+					});
 				}
-			})
+			});
 		}
 	} else {
 		// Components inside render
 		if ('object' === typeof tags) {
 			if ((hasOwnProperty.call(tags, 'render'))) {
-				buildChildren(tags.render(), parent)
+				buildChildren(tags.render(), parent);
 			}
 		}
 	}
@@ -181,4 +177,4 @@ const render = (spec, node, preRendered = false) => {
 export {
 	render,
 	renderToString
-}
+};

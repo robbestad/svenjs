@@ -5,7 +5,7 @@
  */
 import version from './version.js';
 import setState from '../web/set-state.js';
-import lifeCycle from "../web/life-cycle.js"
+import lifeCycle from "../web/life-cycle.js";
 import deepClone from "../lib/deep-clone.js";
 import uuid from "../lib/uuid.js";
 
@@ -24,7 +24,7 @@ const create = (_spec, props) => {
 	}
 	if (!spec.hasOwnProperty("attrs")) {
 		if (!spec.hasOwnProperty("attrs")) {
-			spec.attrs = {sjxid: uuid()}
+			spec.attrs = {sjxid: uuid()};
 		}
 	}
 	if (!spec.isBound) {

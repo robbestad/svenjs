@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 // define common functions used in this module
 var type = ({}).toString;
 const isFunction = function (object) {
@@ -22,4 +22,4 @@ export {
 	isString,
 	isArray,
 	isDefined
-}
+};

@@ -141,15 +141,14 @@ const buildChildren = (tags, parent) => {
 	let childNode;
 	if ((hasOwnProperty.call(tags, 'children'))) {
 		if (isArray(tags.children)) {
-			tags.children.forEach((tag, idx) => {
+			tags.children.forEach(tag => {
 				if (null !== tag && 'object' === typeof tag) {
 					childNode = buildElement(tag);
 					buildChildren(tag, childNode);
 					appendChild(childNode, parent);
 				}
 				if (isArray(tag)) {
-					var tagName = tag.tag;
-					tag.forEach((childtag, idx) => {
+					tag.forEach(childtag => {
 						if (!(hasOwnProperty.call(childtag, 'render'))) {
 							childNode = buildElement(childtag);
 							buildChildren(childtag, childNode);
@@ -319,7 +318,7 @@ const createStore = (spec)=> {
   return spec;
 };
 
-console.log(`running svenjs version ${version}`);
+console.info(`Running svenjs version ${version}`);
 
 const Svenjs = {
 	version,
@@ -330,9 +329,5 @@ const Svenjs = {
 	renderToString,
 	lifeCycle
 };
-// if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;
-// else if (typeof define === "function" && define.amd) define(function () {
-// 	return Svenjs
-// });
 
 export default Svenjs;

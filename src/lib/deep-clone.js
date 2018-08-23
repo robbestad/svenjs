@@ -8,8 +8,8 @@ const deepClone = obj => {
 	} else {
 		Object.keys(obj).forEach((key) => {
 			return newObj[key] = deepClone(obj[key]);
-		})
+		});
 	}
 	return newObj;
-}
+};
 export default deepClone;
