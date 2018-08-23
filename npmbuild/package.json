@@ -1,6 +1,6 @@
 {
   "name": "svenjs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A micro javascript framework for creating composable web apps",
   "main": "index.js",
   "scripts": {
