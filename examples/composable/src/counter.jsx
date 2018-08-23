@@ -1,5 +1,4 @@
-// const Svenjs = require('assets/index.js');
-const Svenjs = require('dist/index.js');
+const Svenjs = require('dist/index.js').default;
 
 const App = Svenjs.create({
 	initialState: {count: 0},

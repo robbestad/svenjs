@@ -1,5 +1,6 @@
 "use strict";
 
-exports.deepCopy = function (o) {
+const deepCopy = function (o) {
   return JSON.parse(JSON.stringify(o));
 };
+export default deepCopy;

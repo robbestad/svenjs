@@ -1,5 +1,5 @@
 let _callbacks=[];
-exports.createStore = (spec)=> {
+const createStore = (spec)=> {
   if(!spec.isMounted){
     spec.listenTo=function(cb){
       _callbacks.push(cb);
@@ -16,3 +16,4 @@ exports.createStore = (spec)=> {
   }
   return spec;
 };
+export default createStore;

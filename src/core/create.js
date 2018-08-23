@@ -3,9 +3,9 @@
  * @see module:svenjs
  * @author Sven A Robbestad <sven@robbestad.com>
  */
-import {version} from './version';
+import version from './version';
 import setState from '../web/set-state';
-import lifeCycle from "root/web/life-cycle"
+import lifeCycle from "../web/life-cycle"
 
 const uuid = () => {
 	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -67,7 +67,6 @@ const create = (_spec, props) => {
 				setTimeout(() => lifeCycle(spec), 100);
 		}
 	}
-	console.log(spec)
 	return spec;
 };
 export default create;

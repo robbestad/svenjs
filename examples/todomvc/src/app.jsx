@@ -1,5 +1,4 @@
-// const Svenjs = require('assets/index.js');
-const Svenjs = require('root/src/index.js');
+const Svenjs = require('dist/index.js').default;
 let ENTER_KEY = 13;
 let ESCAPE_KEY = 27;
 let _toggled=false;

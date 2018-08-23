@@ -1,6 +1,4 @@
-// const Svenjs = require('assets/index.js');
-const Svenjs = require('dist/index.js');
-console.log(Svenjs)
+const Svenjs = require('dist/index.js').default;
 const Welcome  = require('./welcome');
 const Welcome2  = require('./welcome2');
 const Counter = require('./counter');

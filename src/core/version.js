@@ -4,4 +4,6 @@
  * @author Sven A Robbestad <sven@robbestad.com>
  */
 
-exports.version =  require("root/../package.json").version;
+// import {version} from "../../package.json"
+// export default version;
+export default "2.0.1";

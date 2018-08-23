@@ -1,18 +1,55 @@
 /**
+ * @module core/version
+ * @see module:svenjs
+ * @author Sven A Robbestad <sven@robbestad.com>
+ */
+
+// import {version} from "../../package.json"
+// export default version;
+var version = "2.0.1";
+
+const deepCopy = function (o) {
+  return JSON.parse(JSON.stringify(o));
+};
+
+const deepFreeze = function (o) {
+  Object.freeze(o);
+
+  Object.getOwnPropertyNames(o).forEach(function (prop) {
+    if (o.hasOwnProperty(prop)
+    && o[prop] !== null
+    && (typeof o[prop] === "object" || typeof o[prop] === "function")
+    && !Object.isFrozen(o[prop])) {
+      deepFreeze(o[prop]);
+    }
+  });
+  return o;
+};
+
+const saveState = (spec,diff_state)=> {
+  const state = deepCopy(diff_state);
+  deepFreeze(state);
+  return state;
+};
+
+// define common functions used in this module
+var type = ({}).toString;
+const isFunction = function (object) {
+	return typeof object === "function";
+};
+const isObject = function (object) {
+	return type.call(object) === "[object Object]";
+};
+const isArray = function (object) {
+	return type.call(object) === "[object Array]";
+};
+
+/**
  * render module.
  * @module core/render
  * @see module:svenjs
  * @author Sven A Robbestad <sven@robbestad.com>
  */
-'use strict';
-
-// The vDOM
-let vDomCache = [];
-
-// define common functions used in this mod ule
-// import {isFunction, isObject, isString, isArray} from '../lib/validations';
-
-import {isFunction, isObject, isString, isArray} from "../lib/validations";
 
 
 const appendChild = (child, parent) => {
@@ -103,15 +140,15 @@ const buildChildren = (tags, parent) => {
 							buildChildren(childtag, childNode);
 							appendChild(childNode, parent);
 						}
-					})
+					});
 				}
-			})
+			});
 		}
 	} else {
 		// Components inside render
 		if ('object' === typeof tags) {
 			if ((hasOwnProperty.call(tags, 'render'))) {
-				buildChildren(tags.render(), parent)
+				buildChildren(tags.render(), parent);
 			}
 		}
 	}
@@ -151,8 +188,8 @@ const vDom = (tags, data) => {
  * @returns {undefined}
  */
 const render = (spec, node, preRendered = false) => {
-	console.log("node", node)
-	console.log("remder", spec.render())
+	console.log("node", node);
+	console.log("remder", spec.render());
 	if (node) {
 
 		if (isObject(spec)) {
@@ -173,16 +210,138 @@ const render = (spec, node, preRendered = false) => {
 		} else {
 			tags = spec.render();
 		}
-		console.log(tags)
+		console.log(tags);
 
 		// Append to window
 		node.appendChild(vDom(tags, spec._svenjs));
-		console.log(node)
+		console.log(node);
 	} else {
 		return 'Error: No node to attach';
 	}
 };
-export {
+
+const lifeCycle = (spec) => {
+	let rootNode;
+	if (spec._svenjs.rootNode) {
+		rootNode = spec._svenjs.rootNode;
+	}
+	if (spec.hasOwnProperty("attrs")  && spec.attrs.hasOwnProperty("sjxid")) {
+		if (!rootNode) rootNode = document.querySelector("[sjxid='" + spec.attrs.sjxid + "']");
+	}
+
+	if (spec.isMounted) {
+		render(spec, rootNode);
+		if (spec.hasOwnProperty('_didUpdate')) spec._didUpdate.apply(spec);
+	}
+};
+
+const setState = (state, spec)=> {
+	spec.state = saveState(spec, state);
+	lifeCycle(spec);
+};
+
+/**
+ * @module core/create
+ * @see module:svenjs
+ * @author Sven A Robbestad <sven@robbestad.com>
+ */
+
+const uuid = () => {
+	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	return `${s() + s()}`;
+};
+
+const deepClone = obj => {
+	if (!obj || typeof obj !== 'object') {
+		return obj;
+	}
+	let newObj = {};
+	if (Array.isArray(obj)) {
+		newObj = obj.map(item => deepClone(item));
+	} else {
+		Object.keys(obj).forEach((key) => {
+			return newObj[key] = deepClone(obj[key]);
+		});
+	}
+	return newObj;
+};
+
+const create = (_spec, props) => {
+	const spec = deepClone(_spec);
+	spec._svenjs = {rootNode: false};
+	spec.isBound = false;
+	spec.isMounted = false;
+	spec.props = {};
+
+	if (props) {
+		spec._jsxid = spec.props.sjxid;
+		spec.props = props;
+		setTimeout(() => lifeCycle(spec), 0);
+		delete spec.props.sjxid;
+	}
+	if (!spec.hasOwnProperty("attrs")) {
+		if (!spec.hasOwnProperty("attrs")) {
+			spec.attrs = {sjxid: uuid()};
+		}
+	}
+	if (!spec.isBound) {
+		spec.version = version;
+		spec.isBound = true;
+		spec.setState = function (state) {
+			return setState(state, this);
+		};
+		if ("function" === typeof spec._beforeMount) {
+			spec._beforeMount.apply(spec);
+		}
+	}
+	if (!spec.isMounted) {
+		spec.isMounted = true;
+
+		if (undefined !== spec.initialState) {
+			spec.state = spec.initialState;
+		}
+		if ("function" === typeof spec._didMount) {
+			spec._didMount.apply(spec);
+			if ("function" === typeof lifeCycle)
+				setTimeout(() => lifeCycle(spec), 100);
+		}
+	}
+	return spec;
+};
+
+let _callbacks=[];
+const createStore = (spec)=> {
+  if(!spec.isMounted){
+    spec.listenTo=function(cb){
+      _callbacks.push(cb);
+    };
+    spec.emit=(data)=>{
+      _callbacks.forEach((cb)=>{
+        cb(data);
+      });
+    };
+
+    if("function" === typeof spec.init){
+      spec.init.apply(spec);
+    }
+  }
+  return spec;
+};
+
+console.log(`running svenjs version ${version}`);
+
+const Svenjs = {
+	version,
+	create,
+	setState,
+	createStore,
 	render,
-	renderToString
-}
+	renderToString,
+	lifeCycle
+};
+// if (typeof module === "object" && module != null && module.exports) module.exports = Svenjs;
+// else if (typeof define === "function" && define.amd) define(function () {
+// 	return Svenjs
+// });
+
+export default Svenjs;

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="assets/app.css">
+    <meta charset="utf-8">
+    <title>SvenJS - browser-app</title>
+
+
+
+
+</head>
+<body>
+<div id="myapp"></div>
+
+</body>
+</html>
+<script type="module">
+	import Svenjs from "./assets/sven.browser.js";
+	console.log(Svenjs)
+	const App = Svenjs.create({
+		initialState: {
+			clicks: 0
+		},
+		render() {
+			var state = this.state;
+			let handleClick = () => {
+				this.setState(
+					{
+						clicks: (this.state.clicks ? this.state.clicks + 1 : 1)
+					})
+			}
+			return {tag: "div", attrs: {class: "test"}, children: ["HELLO WORLD"]}
+		}
+	});
+	Svenjs.render(
+		App,
+		document.getElementById("myapp")
+	);
+</script>

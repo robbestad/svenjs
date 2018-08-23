@@ -1,6 +1,6 @@
 "use strict";
 
-const deepFreeze = exports.deepFreeze = function (o) {
+const deepFreeze = function (o) {
   Object.freeze(o);
 
   Object.getOwnPropertyNames(o).forEach(function (prop) {
@@ -13,3 +13,4 @@ const deepFreeze = exports.deepFreeze = function (o) {
   });
   return o;
 };
+export default deepFreeze;
