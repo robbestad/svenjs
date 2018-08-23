@@ -1,5 +1,4 @@
-const Svenjs = require('dist/index.js').default;
-var clickyApp = Svenjs.create({
+import Svenjs from "dist/index.js"
 var clickyApp = Svenjs.create({
     displayName: "Clicky App",
     initialState: {
@@ -26,4 +25,4 @@ var clickyApp = Svenjs.create({
     }
 
 });
-module.exports = clickyApp;
+export default clickyApp;

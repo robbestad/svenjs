@@ -1,7 +1,7 @@
 {
   "name": "svenjs",
-  "version": "2.0.0",
-  "description": "A minimal reactive framework",
+  "version": "2.0.1",
+  "description": "A micro javascript framework for creating composable web apps",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

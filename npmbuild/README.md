@@ -1,36 +1,29 @@
 # SvenJS
 
-A very small reactive web framework for very small apps
+A micro javascript framework for creating composable web apps
 
 # Demos
 
-  - [TodoMVC](http://svenjs-todomvc.herokuapp.com/). [Source](https://github.com/svenanders/svenjs-todomvc)
+  - [TodoMVC](http://svenanders.github.io/svenjs-todomvc/). [Source](https://github.com/svenanders/svenjs-todomvc)
 
 # Releases
 
+ - 2.0.1: ES modules, bug fixes and more!
  - 0.3.2: Added *_beforeMount* life cycle method. 
  - 0.3.1: Added composition (importing components and referencing them in JSX by name). For instance: _const SecondComponent = require("SecondComponent")_. Referenced in _render_ like this: _<SecondComponent />_
  - 0.3.0: Renamed life cycle methods. New names: *_didMount* & *_didUpdate*
-
+ 
 # Goals
 
  - A web library that enables you to write code that can be accessed both serverside and clientside
 
  - Enforced state immutability
 
-  - With time travel abilities comes immutability
-
- - Built in store implementation
-
-  - With actions and emitter
+ - Built in store implementation (todo)
 
  - Synthetic event handler. Implemented in such a way that input events work across browsers.
 
- - Focus on developer experience; keeping the programmer happy
-
  - Minimal file size
-
-  - The minified version is about 8-9K. Compressing can reduce the file size even more.
 
 # Install
 
@@ -48,12 +41,10 @@ Build youself. Clone this repo and run
 
 # How to use 
 
-Here's a basic Universal component ([Source](https://github.com/svenanders/svenjs-example-clicky)):
-
 ```html
-const Svenjs = require("svenjs");
+import SvenJs from "svenjs";
 
-module.exports = Svenjs.create({
+SvenJs.create({
     initialState: {
         clicks: 0
     },
@@ -63,17 +54,18 @@ module.exports = Svenjs.create({
       this.setState({clicks: ++clicks });
     }
     return (<div id="row">
-        <div id="app">
             <h3>The Click App</h3>
-            <button onClick={clickFunc}>Why not click me?</button>
-        </div>
-        <div id="time-travel">
+            <div>
+              <button onClick={clickFunc}>Click me?</button>
+            </div>
+        <div>
             <h3>Click stats</h3>
           <p>You have clicked on the button {this.state.clicks} times</p>
         </div>
     </div>)
     }
 });
+SvenJs.render(App, document.getElementById("app"))
 ```
 
 ## Related Modules

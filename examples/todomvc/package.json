@@ -11,15 +11,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "connect-history-api-fallback": "^1.5.0",
-    "html-webpack-plugin": "^3.2.0",
-    "koa-connect": "^2.0.1",
-    "webpack": "^4.17.0",
-    "webpack-cli": "^3.1.0",
-    "webpack-serve": "^2.0.2",
     "@babel/core": "^7.0.0-rc.1",
     "@babel/preset-env": "^7.0.0-rc.1",
     "@babel/preset-react": "^7.0.0-rc.1",
-    "babel-loader": "^8.0.0-beta.4"
+    "babel-loader": "^8.0.0-beta.4",
+    "connect-history-api-fallback": "^1.5.0",
+    "html-webpack-plugin": "^3.2.0",
+    "jstransform": "^11.0.3",
+    "koa-connect": "^2.0.1",
+    "webpack": "^4.17.0",
+    "webpack-cli": "^3.1.0",
+    "webpack-serve": "^2.0.2"
+  },
+  "devDependencies": {
+    "svenjs": "^2.0.0",
+    "svenjsx": "^2.0.1",
+    "svenjsx-loader": "^2.0.2"
   }
 }

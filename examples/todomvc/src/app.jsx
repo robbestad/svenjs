@@ -1,4 +1,4 @@
-const Svenjs = require('dist/index.js').default;
+import SvenJs from "svenjs"
 let ENTER_KEY = 13;
 let ESCAPE_KEY = 27;
 let _toggled=false;
@@ -10,8 +10,7 @@ function deepCopy (o) {
 };
 
 
-let todoMVCApp = Svenjs.create({
-    displayName: "TodoMVC App",
+let todoMVCApp = SvenJs.create({
     initialState: {
         messages:[
           {id:1,message:"Answer all the mail",complete:false,editing:false},
@@ -82,14 +81,16 @@ let todoMVCApp = Svenjs.create({
       this.setState({messages:messages});
     },
     destroyCompleted(){
-      let messages=this.state.messages.filter((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+	    let messages=_messages.filter((msg)=>{
         return msg.complete===false
       })
       this.resetEditing();
       this.setState({messages:messages, url:this.state.url});
     },
     toggleOne(item,e){
-      let messages=this.state.messages.filter((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+	    let messages=_messages.filter((msg)=>{
         if(msg.id === item.id) msg.complete=!msg.complete;
         return msg
       })
@@ -97,7 +98,8 @@ let todoMVCApp = Svenjs.create({
       this.setState({messages:messages, url:this.state.url})
     },
     simpleResetEditing(){
-      let messages=this.state.messages.map((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+      let messages=_messages.map((msg)=>{
         msg.editing = false;
         return msg
       });
@@ -106,7 +108,9 @@ let todoMVCApp = Svenjs.create({
     },
     resetEditing(e){
       let update=false;
-      let messages=this.state.messages.map((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+
+	    let messages=_messages.map((msg)=>{
         if(msg.editing) update=true;
         msg.editing = false;
         return msg
@@ -120,8 +124,10 @@ let todoMVCApp = Svenjs.create({
     },
     onDoubleClick(todo,e){
       _currentEdit=todo.id;
-      if(!todo.complete){
-        let messages=this.state.messages.map((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+
+	    if(!todo.complete){
+        let messages=_messages.map((msg)=>{
            msg.editing = msg.id===todo.id ? !msg.editing : false;
           return msg
         })
@@ -133,7 +139,9 @@ let todoMVCApp = Svenjs.create({
     },
     toggleAll(){
       _toggled=!_toggled;
-      let messages=this.state.messages.map((msg)=>{
+	    let _messages=deepCopy(this.state.messages);
+
+	    let messages=_messages.map((msg)=>{
         msg.complete=_toggled;
         return msg;
       })
@@ -141,8 +149,9 @@ let todoMVCApp = Svenjs.create({
       this.setState({messages:messages});
     },
     listTodos(){
+	    let _messages=deepCopy(this.state.messages);
 
-      let shownTodos = this.state.messages.filter( (todo) => {
+      let shownTodos =_messages.filter( (todo) => {
         switch (this.state.url) {
         case "active":
           return !todo.complete;
@@ -224,4 +233,4 @@ let todoMVCApp = Svenjs.create({
     }
 
 });
-module.exports = todoMVCApp;
+export default todoMVCApp;
