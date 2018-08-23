@@ -12,8 +12,8 @@ let vDomCache = [];
 // define common functions used in this mod ule
 // import {isFunction, isObject, isString, isArray} from '../lib/validations';
 
-import {isFunction, isObject, isString, isArray} from "../lib/validations";
-
+import {isArray, isFunction, isObject} from "../lib/validations.js";
+import uuid from "../lib/uuid.js";
 
 const appendChild = (child, parent) => {
 	return parent.appendChild(child);
@@ -72,7 +72,7 @@ const setAttrs = (tag, node) => {
 const buildElement = (tag) => {
 	if ("undefined" === typeof tag.tag) {
 		tag.tag = "span";
-		tag.attrs = {"sjxid": Math.floor(Math.random() * new Date().getTime())};
+		tag.attrs = {"sjxid": uuid()};
 	}
 	let child = document.createElement(tag.tag);
 	setAttrs(tag, child);
@@ -151,8 +151,6 @@ const vDom = (tags, data) => {
  * @returns {undefined}
  */
 const render = (spec, node, preRendered = false) => {
-	console.log("node", node)
-	console.log("remder", spec.render())
 	if (node) {
 
 		if (isObject(spec)) {
@@ -173,11 +171,9 @@ const render = (spec, node, preRendered = false) => {
 		} else {
 			tags = spec.render();
 		}
-		console.log(tags)
 
 		// Append to window
 		node.appendChild(vDom(tags, spec._svenjs));
-		console.log(node)
 	} else {
 		return 'Error: No node to attach';
 	}

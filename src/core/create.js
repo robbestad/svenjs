@@ -3,29 +3,11 @@
  * @see module:svenjs
  * @author Sven A Robbestad <sven@robbestad.com>
  */
-import version from './version';
-import setState from '../web/set-state';
-import lifeCycle from "../web/life-cycle"
-
-const uuid = () => {
-	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	return `${s() + s()}`;
-}
-
-const deepClone = obj => {
-	if (!obj || typeof obj !== 'object') {
-		return obj;
-	}
-	let newObj = {};
-	if (Array.isArray(obj)) {
-		newObj = obj.map(item => deepClone(item));
-	} else {
-		Object.keys(obj).forEach((key) => {
-			return newObj[key] = deepClone(obj[key]);
-		})
-	}
-	return newObj;
-}
+import version from './version.js';
+import setState from '../web/set-state.js';
+import lifeCycle from "../web/life-cycle.js"
+import deepClone from "../lib/deep-clone.js";
+import uuid from "../lib/uuid.js";
 
 const create = (_spec, props) => {
 	const spec = deepClone(_spec);

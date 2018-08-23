@@ -8,8 +8,19 @@
 // export default version;
 var version = "2.0.1";
 
-const deepCopy = function (o) {
-  return JSON.parse(JSON.stringify(o));
+const deepClone = obj => {
+	if (!obj || typeof obj !== 'object') {
+		return obj;
+	}
+	let newObj = {};
+	if (Array.isArray(obj)) {
+		newObj = obj.map(item => deepClone(item));
+	} else {
+		Object.keys(obj).forEach((key) => {
+			return newObj[key] = deepClone(obj[key]);
+		});
+	}
+	return newObj;
 };
 
 const deepFreeze = function (o) {
@@ -27,7 +38,7 @@ const deepFreeze = function (o) {
 };
 
 const saveState = (spec,diff_state)=> {
-  const state = deepCopy(diff_state);
+  const state = deepClone(diff_state);
   deepFreeze(state);
   return state;
 };
@@ -44,13 +55,17 @@ const isArray = function (object) {
 	return type.call(object) === "[object Array]";
 };
 
+const uuid = () => {
+	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	return `${s() + s()}-${s()}`;
+};
+
 /**
  * render module.
  * @module core/render
  * @see module:svenjs
  * @author Sven A Robbestad <sven@robbestad.com>
  */
-
 
 const appendChild = (child, parent) => {
 	return parent.appendChild(child);
@@ -109,7 +124,7 @@ const setAttrs = (tag, node) => {
 const buildElement = (tag) => {
 	if ("undefined" === typeof tag.tag) {
 		tag.tag = "span";
-		tag.attrs = {"sjxid": Math.floor(Math.random() * new Date().getTime())};
+		tag.attrs = {"sjxid": uuid()};
 	}
 	let child = document.createElement(tag.tag);
 	setAttrs(tag, child);
@@ -188,8 +203,6 @@ const vDom = (tags, data) => {
  * @returns {undefined}
  */
 const render = (spec, node, preRendered = false) => {
-	console.log("node", node);
-	console.log("remder", spec.render());
 	if (node) {
 
 		if (isObject(spec)) {
@@ -210,11 +223,9 @@ const render = (spec, node, preRendered = false) => {
 		} else {
 			tags = spec.render();
 		}
-		console.log(tags);
 
 		// Append to window
 		node.appendChild(vDom(tags, spec._svenjs));
-		console.log(node);
 	} else {
 		return 'Error: No node to attach';
 	}
@@ -245,26 +256,6 @@ const setState = (state, spec)=> {
  * @see module:svenjs
  * @author Sven A Robbestad <sven@robbestad.com>
  */
-
-const uuid = () => {
-	const s = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	return `${s() + s()}`;
-};
-
-const deepClone = obj => {
-	if (!obj || typeof obj !== 'object') {
-		return obj;
-	}
-	let newObj = {};
-	if (Array.isArray(obj)) {
-		newObj = obj.map(item => deepClone(item));
-	} else {
-		Object.keys(obj).forEach((key) => {
-			return newObj[key] = deepClone(obj[key]);
-		});
-	}
-	return newObj;
-};
 
 const create = (_spec, props) => {
 	const spec = deepClone(_spec);

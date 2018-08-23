@@ -1,7 +1,7 @@
-import deepCopy from '../lib/deep-copy';
-import deepFreeze from '../lib/deep-freeze';
+import deepClone from '../lib/deep-clone.js';
+import deepFreeze from '../lib/deep-freeze.js';
 const saveState = (spec,diff_state)=> {
-  const state = deepCopy(diff_state);
+  const state = deepClone(diff_state);
   deepFreeze(state);
   return state;
 };
