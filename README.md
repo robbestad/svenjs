@@ -1,29 +1,31 @@
 # SvenJS
 
-A very small javascript framework for composable web apps
+A JavaScript framework for composable web apps
 
 # Demos
 
-  - [TodoMVC](http://svenanders.github.io/svenjs-todomvc/). [Source](https://github.com/svenanders/svenjs-todomvc)
+  - [TodoMVC](http://svenanders.github.io/svenjs-todomvc/) ([Source](https://github.com/svenanders/svenjs-todomvc))
 
 # Releases
 
- - 2.0.1: ES modules, bug fixes and more!
+ - 2.0.2: ES modules, bug fixes and more!
  - 0.3.2: Added *_beforeMount* life cycle method. 
  - 0.3.1: Added composition (importing components and referencing them in JSX by name). For instance: _const SecondComponent = require("SecondComponent")_. Referenced in _render_ like this: _<SecondComponent />_
  - 0.3.0: Renamed life cycle methods. New names: *_didMount* & *_didUpdate*
- 
-# Goals
 
- - A web library that enables you to write code that can be accessed both serverside and clientside
+# Features
 
  - Enforced state immutability
 
- - Built in store implementation (todo)
-
- - Synthetic event handler. Implemented in such a way that input events work across browsers.
-
  - Minimal file size
+
+# Goals
+
+ - Can be used in a browser script tag (almost there)
+
+ - A web library that enables you to write code that can be accessed both serverside and clientside
+
+ - Built in store implementation (todo)
 
 # Install
 
