@@ -10,9 +10,10 @@
     "typecheck": "pnpm -r typecheck"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "pnpm": ">=10.16.0"
   },
-  "packageManager": "pnpm@10.9.0",
+  "packageManager": "pnpm@10.34.5",
   "pnpm": {
     "onlyBuiltDependencies": ["esbuild"]
   }

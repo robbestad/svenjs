@@ -1,3 +1,7 @@
 packages:
   - packages/*
   - apps/*
+
+# Ignore versions published in the last day so compromised releases
+# can be yanked before they land in this workspace.
+minimumReleaseAge: 1440
