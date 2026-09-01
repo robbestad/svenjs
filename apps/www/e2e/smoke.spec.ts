@@ -66,7 +66,8 @@ test("known routes ship crawlable HTML and sharing metadata", async ({ request }
 });
 
 test("playground compiles the click example", async ({ page }) => {
-  await page.goto("/play/");
+  await page.goto("/play/?example=click");
+  await expect(page.getByLabel("Example")).toHaveValue("click");
   const frame = page.frameLocator(".play-preview");
   await expect(frame.getByRole("button", { name: "Why not click me?" })).toBeVisible({ timeout: 15_000 });
   await frame.getByRole("button", { name: "Why not click me?" }).click();

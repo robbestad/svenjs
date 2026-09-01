@@ -6,6 +6,7 @@ import {
   SITE_NAME,
   SITE_ORIGIN,
   SOCIAL_IMAGE,
+  SOCIAL_IMAGE_ALT,
   staticPaths,
   type PageMetadata,
 } from "./lib/site";
@@ -22,7 +23,8 @@ function renderHead(metadata: PageMetadata) {
   const title = escapeHtml(metadata.title);
   const description = escapeHtml(metadata.description);
   const canonical = escapeHtml(canonicalUrl(metadata));
-  const image = escapeHtml(SOCIAL_IMAGE);
+  const image = escapeHtml(metadata.socialImage ?? SOCIAL_IMAGE);
+  const imageAlt = escapeHtml(metadata.socialImageAlt ?? SOCIAL_IMAGE_ALT);
   const robots = metadata.noIndex ? "noindex, nofollow" : "index, follow";
 
   return [
@@ -39,12 +41,12 @@ function renderHead(metadata: PageMetadata) {
     `<meta property="og:image:type" content="image/png" />`,
     `<meta property="og:image:width" content="1200" />`,
     `<meta property="og:image:height" content="630" />`,
-    `<meta property="og:image:alt" content="SvenJS 3 — one HTML file, a button, and state" />`,
+    `<meta property="og:image:alt" content="${imageAlt}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${title}" />`,
     `<meta name="twitter:description" content="${description}" />`,
     `<meta name="twitter:image" content="${image}" />`,
-    `<meta name="twitter:image:alt" content="SvenJS 3 — one HTML file, a button, and state" />`,
+    `<meta name="twitter:image:alt" content="${imageAlt}" />`,
   ].join("\n    ");
 }
 

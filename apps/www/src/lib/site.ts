@@ -1,6 +1,6 @@
 import type { Route } from "./router";
 import { docs, getDoc } from "./docs";
-import { ClickPage, ComposePage, TodoPage } from "../pages/demos";
+import { ClickPage, ComposePage, MissionControlPage, TodoPage } from "../pages/demos";
 import { DocsPage } from "../pages/docs";
 import { HeritagePage } from "../pages/heritage";
 import { HomePage } from "../pages/home";
@@ -20,10 +20,12 @@ function configuredOrigin() {
 export const SITE_ORIGIN = configuredOrigin();
 export const SITE_NAME = "SvenJS 3";
 export const SOCIAL_IMAGE = new URL("/og.png", SITE_ORIGIN).href;
+export const SOCIAL_IMAGE_ALT = "SvenJS 3 — one HTML file, a button, and state";
 
 export const routes: Route[] = [
   { path: "/", component: HomePage },
   { path: "/play", component: PlayGate },
+  { path: "/demo/mission-control", component: MissionControlPage },
   { path: "/demo/todo", component: TodoPage },
   { path: "/demo/click", component: ClickPage },
   { path: "/demo/compose", component: ComposePage },
@@ -35,6 +37,7 @@ export const routes: Route[] = [
 export const staticPaths = [
   "/",
   "/play",
+  "/demo/mission-control",
   "/demo/todo",
   "/demo/click",
   "/demo/compose",
@@ -49,9 +52,15 @@ export type PageMetadata = {
   path: string;
   canonicalPath?: string;
   noIndex?: boolean;
+  socialImage?: string;
+  socialImageAlt?: string;
 };
 
-const pageMetadata: Record<string, Pick<PageMetadata, "title" | "description">> = {
+const pageMetadata: Record<
+  string,
+  Pick<PageMetadata, "title" | "description"> &
+    Partial<Pick<PageMetadata, "socialImage" | "socialImageAlt">>
+> = {
   "/": {
     title: "SvenJS 3 — A tiny UI runtime with state",
     description: "Build small interactive pages with components, immutable state, and a keyed DOM patch — with or without a build step.",
@@ -59,6 +68,12 @@ const pageMetadata: Record<string, Pick<PageMetadata, "title" | "description">> 
   "/play": {
     title: "Playground — SvenJS 3",
     description: "Edit a SvenJS app in the browser, share it, or download it as one self-contained HTML file.",
+  },
+  "/demo/mission-control": {
+    title: "Mission Control — SvenJS 3",
+    description: "Run 100 synthetic telemetry streams in a dependency-free SvenJS dashboard with shared state, keyed sorting, SVG charts, lifecycle cleanup, and one-file export.",
+    socialImage: new URL("/mission-control-og.png", SITE_ORIGIN).href,
+    socialImageAlt: "SvenJS Mission Control dashboard with telemetry graphs, fleet metrics, and selected asset state",
   },
   "/demo/todo": {
     title: "Todo demo — SvenJS 3",
@@ -134,6 +149,8 @@ export function syncDocumentMetadata(pathname: string) {
   if (typeof document === "undefined") return;
   const metadata = metadataForPath(pathname);
   const canonical = canonicalUrl(metadata);
+  const socialImage = metadata.socialImage ?? SOCIAL_IMAGE;
+  const socialImageAlt = metadata.socialImageAlt ?? SOCIAL_IMAGE_ALT;
 
   document.title = metadata.title;
   setMeta('meta[name="description"]', "content", metadata.description);
@@ -142,8 +159,10 @@ export function syncDocumentMetadata(pathname: string) {
   setMeta('meta[property="og:title"]', "content", metadata.title);
   setMeta('meta[property="og:description"]', "content", metadata.description);
   setMeta('meta[property="og:url"]', "content", canonical);
-  setMeta('meta[property="og:image"]', "content", SOCIAL_IMAGE);
+  setMeta('meta[property="og:image"]', "content", socialImage);
+  setMeta('meta[property="og:image:alt"]', "content", socialImageAlt);
   setMeta('meta[name="twitter:title"]', "content", metadata.title);
   setMeta('meta[name="twitter:description"]', "content", metadata.description);
-  setMeta('meta[name="twitter:image"]', "content", SOCIAL_IMAGE);
+  setMeta('meta[name="twitter:image"]', "content", socialImage);
+  setMeta('meta[name="twitter:image:alt"]', "content", socialImageAlt);
 }

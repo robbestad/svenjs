@@ -156,7 +156,7 @@ h1{font-size:1.6rem;margin:0 0 .8rem}
 .destroy{margin-left:auto;background:transparent;color:#a3988c}
 .compose-grid{display:grid;gap:.75rem}`;
 
-export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?: string) {
+export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?: string, title = "SvenJS") {
   const safe = script.replace(/<\/script/gi, "<\\/script");
   const runtimeTag = inlineRuntime
     ? `<script>\n${inlineRuntime.replace(/<\/script/gi, "<\\/script")}\n</script>`
@@ -166,7 +166,7 @@ export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?:
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SvenJS</title>
+  <title>${title}</title>
   <style>${PREVIEW_CSS}</style>
 </head>
 <body>

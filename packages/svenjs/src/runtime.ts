@@ -191,6 +191,7 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   patchProps(el, {}, vnode.props);
   warnKeys(vnode.children);
   for (const child of vnode.children) mount(child, el, null, childSvg);
+  if (tag === "select" && vnode.props.value != null) (el as HTMLSelectElement).value = String(vnode.props.value);
   parent.insertBefore(el, anchor);
   applyRef(vnode.props, el);
 }
@@ -295,6 +296,9 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
   const childSvg = elementSvg && newV.type !== "foreignObject";
   patchProps(el, oldV.props, newV.props);
   patchChildren(el, oldV.children, newV.children, childSvg);
+  if (newV.type === "select" && newV.props.value != null) {
+    (el as HTMLSelectElement).value = String(newV.props.value);
+  }
   if (oldV.props.ref !== newV.props.ref) {
     applyRef(oldV.props, null);
     applyRef(newV.props, el);
@@ -466,6 +470,7 @@ function hydrateVNode(vnode: VNode, parent: Node, node: Node | null, svg = false
       cursor = next;
     }
   }
+  if (tag === "select" && vnode.props.value != null) (el as HTMLSelectElement).value = String(vnode.props.value);
   applyRef(vnode.props, el);
   return el.nextSibling;
 }

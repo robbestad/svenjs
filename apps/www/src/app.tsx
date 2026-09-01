@@ -89,7 +89,7 @@ export const App = create<ShellProps, ShellState>({
             <a href="/play/" aria-current={path.startsWith("/play") ? "page" : undefined}>
               Playground
             </a>
-            <a href="/demo/todo/" aria-current={path.startsWith("/demo") ? "page" : undefined}>
+            <a href="/demo/mission-control/" aria-current={path.startsWith("/demo") ? "page" : undefined}>
               Demos
             </a>
             <a href="/docs/one-file/" aria-current={path.startsWith("/docs") ? "page" : undefined}>

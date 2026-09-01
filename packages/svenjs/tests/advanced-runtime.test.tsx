@@ -102,6 +102,18 @@ describe("component boundaries", () => {
 });
 
 describe("DOM patch details", () => {
+  it("applies a controlled select value after mounting its options", () => {
+    const host = root();
+    render(
+      <select value="second">
+        <option value="first">First</option>
+        <option value="second">Second</option>
+      </select>,
+      host,
+    );
+    expect((host.querySelector("select") as HTMLSelectElement).value).toBe("second");
+  });
+
   it("detaches an old ref and attaches its replacement", () => {
     const first = vi.fn();
     const second = vi.fn();
@@ -182,6 +194,21 @@ describe("DOM patch details", () => {
 });
 
 describe("hydration", () => {
+  it("restores a controlled select value after adopting its options", () => {
+    const node = (
+      <select value="second">
+        <option value="first">First</option>
+        <option value="second">Second</option>
+      </select>
+    );
+    const host = root();
+    host.innerHTML = renderToString(node);
+    (host.querySelector("select") as HTMLSelectElement).selectedIndex = 0;
+
+    hydrate(node, host);
+    expect((host.querySelector("select") as HTMLSelectElement).value).toBe("second");
+  });
+
   it("reuses prerendered DOM and makes it interactive", () => {
     const mounted = vi.fn();
     const App = create({

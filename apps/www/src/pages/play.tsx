@@ -4,6 +4,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import LZString from "lz-string";
 import { transform } from "sucrase";
 import { create } from "svenjs";
+import missionControlSource from "../demos/mission-control/mission-control.js?raw";
 import {
   BLANK_JS,
   CDN,
@@ -13,7 +14,13 @@ import {
   wrapHtmlFile,
 } from "../lib/one-file";
 
+const MISSION_JS = `${missionControlSource.replace(
+  "export function createMissionControl",
+  "function createMissionControl",
+)}\n\nconst App = createMissionControl(Svenjs);\nSvenjs.render(Svenjs.h(App, { standalone: true }), document.getElementById("app"));\n`;
+
 const EXAMPLES: Record<string, string> = {
+  mission: MISSION_JS,
   click: HELLO_JS,
   todo: TODO_JS,
   compose: COMPOSE_JS,
@@ -72,10 +79,13 @@ function escapeHtml(s: string) {
 function readHash() {
   const hash = location.hash.startsWith("#") ? location.hash.slice(1) : location.hash;
   const params = new URLSearchParams(hash);
+  const requested = params.get("example") ?? "";
+  const example = EXAMPLES[requested] ? requested : "shared";
   const packed = params.get("code");
-  if (!packed) return null;
+  if (!packed) return EXAMPLES[example] ? { source: EXAMPLES[example], example } : null;
   try {
-    return LZString.decompressFromEncodedURIComponent(packed);
+    const source = LZString.decompressFromEncodedURIComponent(packed);
+    return source ? { source, example } : null;
   } catch {
     return null;
   }
@@ -83,17 +93,19 @@ function readHash() {
 
 export const PlayPage = create({
   initialState: {
-    source: HELLO_JS,
-    example: "click",
+    source: MISSION_JS,
+    example: "mission",
     error: "",
     copied: "",
   },
   onBeforeMount() {
     const shared = readHash();
-    const source = shared || this.state.source;
+    const requested = new URLSearchParams(location.search).get("example") ?? "mission";
+    const example = EXAMPLES[requested] ? requested : "mission";
+    const source = shared?.source || EXAMPLES[example];
     this.state = {
       source,
-      example: shared ? "shared" : "click",
+      example: shared?.example ?? example,
       error: "",
       copied: "",
     };
@@ -144,15 +156,21 @@ export const PlayPage = create({
     this.applySource(source, name);
   },
   share() {
-    const packed = LZString.compressToEncodedURIComponent(this.state.source);
-    const url = `${location.origin}/play/#code=${packed}`;
-    history.replaceState({}, "", `/play/#code=${packed}`);
+    const params = new URLSearchParams({ example: this.state.example });
+    if (EXAMPLES[this.state.example] !== this.state.source) {
+      params.set("code", LZString.compressToEncodedURIComponent(this.state.source));
+    }
+    const hash = params.toString();
+    const url = `${location.origin}/play/#${hash}`;
+    history.replaceState({}, "", `/play/#${hash}`);
     navigator.clipboard?.writeText(url);
     this.setState({ ...this.state, copied: "link" });
   },
   async fileHtml() {
     const runtime = await fetch(`${location.origin}/playground-svenjs.js`).then((r) => r.text());
-    return wrapHtmlFile(this.state.source, CDN, runtime);
+    const script = toIframeScript(this.state.source);
+    const title = this.state.example === "mission" ? "SvenJS Mission Control" : "SvenJS";
+    return wrapHtmlFile(script, CDN, runtime, title);
   },
   copyHtml() {
     this.fileHtml().then((html: string) => {
@@ -187,9 +205,11 @@ export const PlayPage = create({
           <label>
             Example{" "}
             <select
-              value={EXAMPLES[this.state.example] ? this.state.example : "click"}
+              value={EXAMPLES[this.state.example] ? this.state.example : "shared"}
               onChange={(e: Event) => this.loadExample((e.target as HTMLSelectElement).value)}
             >
+              {!EXAMPLES[this.state.example] ? <option value="shared">Shared source</option> : null}
+              <option value="mission">Mission Control</option>
               <option value="click">Click</option>
               <option value="todo">Todo</option>
               <option value="compose">Composition</option>

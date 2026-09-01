@@ -82,9 +82,9 @@ export const HomePage = create({
         <section>
           <p className="kicker">Demos</p>
           <div className="demo-links">
-            <a href="/demo/todo/">
-              <h3>Todo</h3>
-              <p>Add, complete, filter. Same app as the playground export.</p>
+            <a href="/demo/mission-control/">
+              <h3>Mission Control</h3>
+              <p>100 live units, SVG telemetry, shared state, keyed sorting, lifecycle, and one-file export.</p>
             </a>
             <a href="/play/">
               <h3>Playground</h3>

@@ -18,7 +18,7 @@ export const PlayGate = create({
           </p>
           <h2>What you can do</h2>
           <ul>
-            <li>Start from click, todo, composition, or blank examples.</li>
+            <li>Launch Mission Control or start from click, todo, composition, and blank examples.</li>
             <li>Share source in a URL fragment without uploading it.</li>
             <li>Copy or download an HTML file that opens without npm.</li>
           </ul>

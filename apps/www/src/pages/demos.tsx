@@ -1,13 +1,19 @@
-import { create } from "svenjs";
+import { create, createStore, html } from "svenjs";
 import { ClickDemo } from "../demos/click/click";
 import { ComposeDemo } from "../demos/compose/compose";
+import { createMissionControl } from "../demos/mission-control/mission-control.js";
 import { TodoDemo } from "../demos/todo/todo";
+
+const MissionControl = createMissionControl({ create, createStore, html });
 
 const DemoNav = create<{ current: string }, Record<string, never>>({
   render() {
     const current = this.props.current;
     return (
       <nav className="subnav" aria-label="Demos">
+        <a href="/demo/mission-control/" aria-current={current === "mission-control" ? "page" : undefined}>
+          Mission Control
+        </a>
         <a href="/demo/todo/" aria-current={current === "todo" ? "page" : undefined}>
           Todo
         </a>
@@ -18,6 +24,17 @@ const DemoNav = create<{ current: string }, Record<string, never>>({
           Composition
         </a>
       </nav>
+    );
+  },
+});
+
+export const MissionControlPage = create({
+  render() {
+    return (
+      <div>
+        <DemoNav current="mission-control" />
+        <MissionControl />
+      </div>
     );
   },
 });

@@ -43,6 +43,8 @@ render(App, document.getElementById("app"));
 
 The site build prerenders every public route and generates canonical, social, sitemap, and robots metadata. Set `VITE_SITE_ORIGIN=https://your-domain.example` when deploying under a domain other than `https://svenjs.vercel.app`.
 
+The flagship [Mission Control](https://svenjs.vercel.app/demo/mission-control/) demo runs 100 synthetic units through shared state, keyed sorting, SVG telemetry, lifecycle cleanup, local preferences, and the offline one-file export.
+
 ## tsconfig
 
 ```json
