@@ -14,7 +14,9 @@ test("ships a crawlable deterministic Mission Control page", async ({ page, requ
   const socialImageResponse = await request.get(new URL(socialImage!).pathname);
   expect(socialImageResponse.ok()).toBeTruthy();
   expect(socialImageResponse.headers()["content-type"]).toContain("image/png");
-  expect(html).toContain('data-mission-control data-mission-theme="night" data-running="false"');
+  expect(html).toContain("data-mission-control");
+  expect(html).toContain('data-mission-theme="night"');
+  expect(html).toContain('data-running="false"');
   expect(html).toContain('aria-label="Fleet telemetry"');
   expect(html).toContain('[data-mission-theme="paper"]');
   expect(html).not.toContain("&quot;paper&quot;");

@@ -21,11 +21,13 @@ hydrate(<App initialUrl={location.pathname} />, document.getElementById("app"));
 
 Updates:
 
-1. `setState` clones (and in DEV, freezes) the next state
-2. The instance is queued
+1. `setState` records the next state (cloned and frozen in DEV)
+2. The instance is marked dirty and queued
 3. A microtask flushes the queue
-4. `render()` produces a new vnode
+4. `render()` produces a new vnode — children with the same props are skipped
 5. A keyed diff patches the previous tree
+
+`this.observe(store)` marks the instance dirty when the store changes, without a dummy `setState`.
 
 The 2.x renderer assigned `node.innerHTML = ""` on every update. That is gone on purpose.
 

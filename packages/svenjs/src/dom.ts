@@ -8,13 +8,8 @@ const LISTENER = "_svenL";
 
 type ListenerMap = Map<string, EventListener>;
 
-const EVENT_ALIASES: Record<string, string> = {
-  ondoubleclick: "dblclick",
-  ondblclick: "dblclick",
-};
-
 export function createDom(tag: string, svg: boolean): Element {
-  if (!validAttributeName(tag)) throw new TypeError("SvenJS: invalid tag name");
+  if (!validAttributeName(tag)) throw new TypeError("SvenJS: bad tag");
   if (svg || tag === "svg") return document.createElementNS(SVG_NS, tag);
   return document.createElement(tag);
 }
@@ -25,11 +20,7 @@ export function validAttributeName(name: string): boolean {
 
 function eventName(prop: string): string | null {
   if (prop.length < 3 || prop[0] !== "o" || prop[1] !== "n") return null;
-  if (prop[2] !== prop[2].toUpperCase() && prop[2] !== prop[2].toLowerCase()) return null;
-  const lower = prop.toLowerCase();
-  if (EVENT_ALIASES[lower]) return EVENT_ALIASES[lower];
-  if (lower.startsWith("on")) return lower.slice(2);
-  return null;
+  return prop.toLowerCase().slice(2);
 }
 
 function listeners(el: Element): ListenerMap {
@@ -127,6 +118,12 @@ export function setProp(el: Element, name: string, oldVal: unknown, newVal: unkn
 
   if (name === "htmlFor" || name === "for") {
     (el as HTMLLabelElement).htmlFor = newVal == null ? "" : String(newVal);
+    return;
+  }
+
+  if (name.startsWith("aria-") || name.startsWith("data-")) {
+    if (newVal == null) el.removeAttribute(name);
+    else el.setAttribute(name, newVal === true ? "true" : newVal === false ? "false" : String(newVal));
     return;
   }
 

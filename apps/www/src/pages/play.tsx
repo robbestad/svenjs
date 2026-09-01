@@ -92,19 +92,15 @@ function readHash() {
 }
 
 export const PlayPage = create({
-  initialState: {
-    source: MISSION_JS,
-    example: "mission",
-    error: "",
-    copied: "",
-  },
-  onBeforeMount() {
+  initialState() {
+    if (typeof location === "undefined") {
+      return { source: MISSION_JS, example: "mission", error: "", copied: "" };
+    }
     const shared = readHash();
     const requested = new URLSearchParams(location.search).get("example") ?? "mission";
     const example = EXAMPLES[requested] ? requested : "mission";
-    const source = shared?.source || EXAMPLES[example];
-    this.state = {
-      source,
+    return {
+      source: shared?.source || EXAMPLES[example],
       example: shared?.example ?? example,
       error: "",
       copied: "",

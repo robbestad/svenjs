@@ -1,6 +1,6 @@
 {
   "name": "svenjs",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A tiny UI runtime. One HTML file, a button, state. No npm required.",
   "keywords": [
     "ui",

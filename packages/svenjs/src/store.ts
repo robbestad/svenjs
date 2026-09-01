@@ -14,34 +14,30 @@ export type StoreSpec<S> = {
 };
 
 export function createStore<S = any>(spec: StoreSpec<S> = {}): Store<S> {
-  let state = freezeState((spec.state === undefined ? {} : spec.state) as S);
+  const initial = (spec.state === undefined ? {} : spec.state) as S;
+  let state = import.meta.env.DEV ? freezeState(initial) : initial;
   const listeners = new Set<(s: S) => void>();
 
-  const store: Store<S> = {
+  const store = {
     get() {
       return state;
     },
-    set(next) {
+    set(next: S | ((s: S) => S)) {
       const raw = typeof next === "function" ? (next as (s: S) => S)(state) : next;
       if (Object.is(raw, state)) return;
-      state = freezeState(raw);
+      state = import.meta.env.DEV ? freezeState(raw) : raw;
       const current = state;
       for (const fn of [...listeners]) fn(current);
     },
-    subscribe(fn) {
+    subscribe(fn: (state: S) => void) {
       listeners.add(fn);
       return () => {
         listeners.delete(fn);
       };
     },
-    listenTo(fn) {
-      return store.subscribe(fn);
-    },
-    emit(data) {
-      store.set(data);
-    },
-  };
-
+  } as Store<S>;
+  store.listenTo = store.subscribe;
+  store.emit = store.set;
   spec.init?.call(store);
   return store;
 }

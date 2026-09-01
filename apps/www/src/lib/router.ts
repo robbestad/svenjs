@@ -2,7 +2,8 @@ import type { SvenComponent } from "svenjs";
 
 export type Route = {
   path: string;
-  component: SvenComponent<any, any>;
+  component?: SvenComponent<any, any>;
+  load?: () => Promise<SvenComponent<any, any>>;
 };
 
 export type Match = {

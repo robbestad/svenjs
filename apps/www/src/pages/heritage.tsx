@@ -19,7 +19,7 @@ export const HeritagePage = create({
           <dt>2.x update</dt>
           <dd>Wipe the DOM, run render(), insert a new tree</dd>
           <dt>3.x update</dt>
-          <dd>Clone + freeze state, keyed vnode patch, batched microtask flush</dd>
+          <dd>DEV clone + freeze, observe(store), keyed vnode patch, skip unchanged children</dd>
           <dt>Lifecycle</dt>
           <dd>
             <code>_didMount</code> / <code>_didUpdate</code> / <code>_beforeMount</code> still work. Prefer{" "}

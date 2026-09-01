@@ -55,14 +55,44 @@ test("known routes ship crawlable HTML and sharing metadata", async ({ request }
   expect(html).toContain("<title>State — SvenJS 3</title>");
   expect(html).toContain('<meta property="og:title" content="State — SvenJS 3"');
   expect(html).toContain('<meta name="twitter:card" content="summary_large_image"');
+  expect(html).not.toContain("fonts.googleapis.com");
+  expect(html).not.toContain("mission-console");
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
   expect(canonical).toBeTruthy();
   expect(new URL(canonical!).pathname).toBe("/docs/state/");
+  const ld = html.match(/id="sven-jsonld"[^>]*>([^<]+)<\/script>/)?.[1];
+  expect(ld).toBeTruthy();
+  const parsed = JSON.parse(ld!);
+  const types = (Array.isArray(parsed) ? parsed : [parsed]).map((node) => node["@type"]);
+  expect(types).toEqual(expect.arrayContaining(["TechArticle", "BreadcrumbList"]));
 
   const sitemap = await (await request.get("/sitemap.xml")).text();
   expect(sitemap).toContain(`<loc>${canonical}</loc>`);
+  expect(sitemap).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
   const robots = await (await request.get("/robots.txt")).text();
   expect(robots).toContain("/sitemap.xml");
+});
+
+test("unknown routes are HTTP 404 and not indexed", async ({ request }) => {
+  const response = await request.get("/this-route-is-not-a-component/");
+  expect(response.status()).toBe(404);
+  const html = await response.text();
+  expect(html).toContain("noindex");
+  expect(html).not.toContain('rel="canonical"');
+  expect(html).toContain("Page not found");
+});
+
+test("home ships SoftwareApplication JSON-LD", async ({ request }) => {
+  const html = await (await request.get("/")).text();
+  expect(html).toContain('id="sven-jsonld"');
+  expect(html).toContain('"@type":"SoftwareApplication"');
+  expect(html).toContain('"@type":"WebSite"');
+});
+
+test("playground runtime is a production IIFE", async ({ request }) => {
+  const js = await (await request.get("/playground-svenjs.js")).text();
+  expect(js).not.toContain("duplicate key");
+  expect(js.length).toBeLessThan(20_000);
 });
 
 test("playground compiles the click example", async ({ page }) => {

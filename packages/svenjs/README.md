@@ -37,7 +37,7 @@ const markup = renderToString(<App url="/docs" />);
 hydrate(<App url={location.pathname} />, document.getElementById("app"));
 ```
 
-`initialState` accepts a value or `(props) => state`. State is cloned on every change and deep-frozen in development; non-cloneable values fail clearly instead of being silently discarded.
+`initialState` accepts a value or `(props) => state`. In development, state is cloned and deep-frozen; non-cloneable values fail clearly instead of being silently discarded. Production assigns the next value. `this.observe(store)` re-renders when a store changes.
 
 This is a rewrite of 2.x. Not drop-in compatible (`svenjsx-loader` is gone; `setState` still replaces, does not merge).
 

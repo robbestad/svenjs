@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -23,8 +23,23 @@ function routeFile(pathname) {
   return resolve(outputRoot, pathname.slice(1), "index.html");
 }
 
+const buildDay = new Date().toISOString().slice(0, 10);
+
+async function lastmodFor(pathname) {
+  const match = pathname.match(/^\/docs\/([^/]+)/);
+  if (match) {
+    try {
+      const file = await stat(resolve(appRoot, "docs", `${match[1]}.md`));
+      return file.mtime.toISOString().slice(0, 10);
+    } catch {
+      /* fall through */
+    }
+  }
+  return buildDay;
+}
+
 async function writeRoute(template, pathname, renderPath, destination = routeFile(pathname)) {
-  const result = renderPath(pathname);
+  const result = await renderPath(pathname);
   const { head, html } = result;
   const page = template.replace(headPattern, head).replace(bodyMarker, html);
   if (page === template || page.includes(bodyMarker) || headPattern.test(page)) {
@@ -42,14 +57,15 @@ try {
   }
 
   const server = await import(pathToFileURL(serverEntry).href);
-  const canonicalUrls = new Set();
+  const canonicalUrls = new Map();
 
   for (const pathname of server.staticPaths) {
     const { metadata } = await writeRoute(template, pathname, server.renderPath);
     if (!metadata.noIndex) {
       const canonicalPath = metadata.canonicalPath ?? metadata.path;
       const route = canonicalPath === "/" ? "/" : `${canonicalPath.replace(/\/+$/, "")}/`;
-      canonicalUrls.add(new URL(route, server.SITE_ORIGIN).href);
+      const href = new URL(route, server.SITE_ORIGIN).href;
+      if (!canonicalUrls.has(href)) canonicalUrls.set(href, await lastmodFor(canonicalPath ?? metadata.path));
     }
   }
 
@@ -58,7 +74,9 @@ try {
   const sitemap = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...[...canonicalUrls].map((url) => `  <url><loc>${xml(url)}</loc></url>`),
+    ...[...canonicalUrls].map(
+      ([url, lastmod]) => `  <url><loc>${xml(url)}</loc><lastmod>${lastmod}</lastmod></url>`,
+    ),
     "</urlset>",
     "",
   ].join("\n");

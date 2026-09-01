@@ -1,7 +1,7 @@
 import { applyRef, createDom, patchProps, styleText, SVG_NS, validAttributeName, VOID } from "./dom";
-import { freezeState, isDev } from "./freeze";
+import { freezeState } from "./freeze";
 import { normalizeRender } from "./h";
-import { FRAGMENT, SPEC, TEXT, type ComponentSpec, type Instance, type VNode } from "./types";
+import { FRAGMENT, SPEC, TEXT, type ComponentSpec, type Instance, type Observable, type VNode } from "./types";
 
 const queue = new Set<Instance>();
 let scheduled = false;
@@ -27,8 +27,10 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
     _mounted: false,
     _destroyed: false,
     _rendering: false,
+    _dirty: false,
     _placeholder: null,
     _svg: false,
+    _unsubs: null,
   } as Instance;
 
   for (const key of Object.keys(spec)) {
@@ -38,24 +40,42 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
   }
 
   inst.setState = (next) => setState(inst, next);
+  inst.observe = (store) => observe(inst, store);
   const initial = typeof spec.initialState === "function" ? spec.initialState(props) : spec.initialState;
-  inst.state = freezeState(initial !== undefined ? initial : {});
+  const state = initial !== undefined ? initial : {};
+  inst.state = import.meta.env.DEV ? freezeState(state) : state;
   return inst;
+}
+
+function observe(inst: Instance, store: Observable) {
+  const off = store.subscribe(() => schedule(inst));
+  (inst._unsubs ??= []).push(off);
+  return off;
+}
+
+function shallowEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
+  if (a === b) return true;
+  let n = 0;
+  for (const k in a) {
+    if (!Object.is(a[k], b[k])) return false;
+    n++;
+  }
+  for (const k in b) n--;
+  return n === 0;
 }
 
 export function setState(inst: Instance, next: unknown) {
   if (inst._destroyed) return;
   const raw = typeof next === "function" ? (next as (s: unknown) => unknown)(inst.state) : next;
   if (Object.is(raw, inst.state)) return;
-  inst.state = freezeState(raw);
-  if (inst._rendering) {
-    if (isDev()) console.warn("SvenJS: setState during render; update will flush after");
-  }
+  inst.state = import.meta.env.DEV ? freezeState(raw) : raw;
+  if (import.meta.env.DEV && inst._rendering) console.warn("SvenJS: setState during render; update will flush after");
   schedule(inst);
 }
 
 export function schedule(inst: Instance) {
   if (inst._destroyed) return;
+  inst._dirty = true;
   queue.add(inst);
   if (sync || flushing) return;
   if (!scheduled) {
@@ -141,7 +161,7 @@ function renderInstance(inst: Instance): VNode | null {
 }
 
 function warnKeys(children: VNode[]) {
-  if (!isDev() || children.length < 2) return;
+  if (children.length < 2) return;
   const keys = children.map((c) => c.key);
   const some = keys.some((k) => k != null);
   const all = keys.every((k) => k != null);
@@ -173,7 +193,7 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
     vnode._end = end;
     parent.insertBefore(start, anchor);
     parent.insertBefore(end, anchor);
-    warnKeys(vnode.children);
+    if (import.meta.env.DEV) warnKeys(vnode.children);
     for (const child of vnode.children) mount(child, parent, end, svg);
     return;
   }
@@ -189,7 +209,7 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   const el = createDom(tag, elementSvg);
   vnode._dom = el;
   patchProps(el, {}, vnode.props);
-  warnKeys(vnode.children);
+  if (import.meta.env.DEV) warnKeys(vnode.children);
   for (const child of vnode.children) mount(child, el, null, childSvg);
   if (tag === "select" && vnode.props.value != null) (el as HTMLSelectElement).value = String(vnode.props.value);
   parent.insertBefore(el, anchor);
@@ -225,6 +245,10 @@ function unmount(vnode: VNode | null | undefined, removeDom = true) {
     if (inst) {
       inst._destroyed = true;
       inst._mounted = false;
+      if (inst._unsubs) {
+        for (const off of inst._unsubs) off();
+        inst._unsubs = null;
+      }
       callHook(inst, "onDestroy", "_willUnmount");
       unmount(inst._vnode, removeDom);
       if (removeDom) inst._placeholder?.parentNode?.removeChild(inst._placeholder);
@@ -323,20 +347,33 @@ function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
   inst._vnode = rendered;
 }
 
+function assignBoundary(vnode: VNode, inst: Instance) {
+  const rendered = inst._vnode;
+  vnode._dom = rendered?._dom ?? inst._placeholder;
+  vnode._end = rendered?._end ?? null;
+}
+
 function patchComponent(oldV: VNode, newV: VNode, svg = false) {
   const inst = oldV._instance!;
   newV._instance = inst;
-  inst.props = newV.props ?? {};
+  const nextProps = newV.props ?? {};
+  const skip = !inst._dirty && shallowEqual(inst.props, nextProps);
+  inst.props = nextProps;
   inst._svg = svg;
+  if (skip) {
+    assignBoundary(newV, inst);
+    return;
+  }
+  inst._dirty = false;
   const rendered = renderInstance(inst);
   patchRendered(inst, rendered, svg);
-  newV._dom = rendered?._dom ?? inst._placeholder;
-  newV._end = rendered?._end ?? null;
+  assignBoundary(newV, inst);
   if (inst._mounted) callHook(inst, "onUpdate", "_didUpdate");
 }
 
 function updateInstance(inst: Instance) {
-  if (inst._destroyed || !inst._parent) return;
+  if (inst._destroyed || !inst._parent || !inst._dirty) return;
+  inst._dirty = false;
   const rendered = renderInstance(inst);
   patchRendered(inst, rendered, inst._svg);
   if (inst._mounted) callHook(inst, "onUpdate", "_didUpdate");
@@ -345,7 +382,7 @@ function updateInstance(inst: Instance) {
 function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false, boundary: Node | null = null) {
   const oldList = oldCh.filter(Boolean);
   const newList = newCh.filter(Boolean);
-  warnKeys(newList);
+  if (import.meta.env.DEV) warnKeys(newList);
 
   const oldByKey = new Map<string | number, VNode>();
   for (const o of oldList) {
@@ -525,6 +562,12 @@ function attrsToString(props: Record<string, any>): string {
       continue;
     }
     const val = props[name];
+    if (name.startsWith("aria-") || name.startsWith("data-")) {
+      if (val == null) continue;
+      const text = val === true ? "true" : val === false ? "false" : String(val);
+      out += ` ${name}="${escapeHtml(text)}"`;
+      continue;
+    }
     if (val == null || val === false || typeof val === "function") continue;
     if (name === "style") {
       const style = styleText(val);
@@ -555,7 +598,7 @@ function stringify(vnode: VNode | null): string {
     return stringify(rendered);
   }
   const tag = vnode.type as string;
-  if (!validAttributeName(tag)) throw new TypeError("SvenJS: invalid tag name");
+  if (!validAttributeName(tag)) throw new TypeError("SvenJS: bad tag");
   const inner = vnode.props.dangerouslySetInnerHTML?.__html;
   const open = `<${tag}${attrsToString(vnode.props)}>`;
   if (VOID.has(tag)) return open;

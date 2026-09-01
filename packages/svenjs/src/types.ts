@@ -2,10 +2,15 @@ export type Key = string | number;
 
 export type Props = Record<string, any>;
 
+export type Observable = {
+  subscribe(fn: (state: any) => void): () => void;
+};
+
 export type Component<P = any, S = any> = {
   props: P;
   state: S;
   setState(next: S | ((s: S) => S)): void;
+  observe(store: Observable): () => void;
 };
 
 export type Host<P = any, S = any> = Component<P, S> & Record<string, any>;
@@ -46,8 +51,10 @@ export type Instance = Component & {
   _mounted: boolean;
   _destroyed: boolean;
   _rendering: boolean;
+  _dirty: boolean;
   _placeholder: Comment | null;
   _svg: boolean;
+  _unsubs: Array<() => void> | null;
   [key: string]: any;
 };
 

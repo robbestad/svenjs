@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { existsSync, readFileSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
@@ -44,7 +44,7 @@ function compiledDocs(): Plugin {
 }
 
 function playgroundRuntime(): Plugin {
-  async function bundle() {
+  async function bundle(prod: boolean) {
     const esbuild = require("esbuild") as typeof import("esbuild");
     const result = await esbuild.build({
       entryPoints: [svenjsEntry],
@@ -55,10 +55,11 @@ function playgroundRuntime(): Plugin {
         js: "globalThis.Svenjs=Object.assign(Svenjs.default||{},Svenjs);",
       },
       write: false,
+      minify: prod,
       platform: "browser",
       target: "es2022",
       define: {
-        "import.meta.env.DEV": "true",
+        "import.meta.env.DEV": prod ? "false" : "true",
       },
     });
     return result.outputFiles[0].text;
@@ -70,7 +71,7 @@ function playgroundRuntime(): Plugin {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
         if (url !== "/playground-svenjs.js") return next();
-        const code = await bundle();
+        const code = await bundle(false);
         res.setHeader("Content-Type", "application/javascript; charset=utf-8");
         res.setHeader("Cache-Control", "no-cache");
         res.end(code);
@@ -80,7 +81,7 @@ function playgroundRuntime(): Plugin {
       this.emitFile({
         type: "asset",
         fileName: "playground-svenjs.js",
-        source: await bundle(),
+        source: await bundle(true),
       });
     },
   };
@@ -92,18 +93,45 @@ function previewRouteIndexes(): Plugin {
     configurePreviewServer(server) {
       server.middlewares.use((req, _res, next) => {
         const url = new URL(req.url ?? "/", "http://localhost");
-        const pathname = url.pathname;
-        if (pathname !== "/" && !pathname.endsWith("/") && !pathname.split("/").pop()?.includes(".")) {
+        let pathname = url.pathname;
+        if (pathname !== "/" && pathname.endsWith("/")) pathname = pathname.slice(0, -1);
+        if (pathname !== "/" && !pathname.split("/").pop()?.includes(".")) {
           const index = resolve(root, "dist", pathname.slice(1), "index.html");
-          if (existsSync(index)) req.url = `${pathname}/${url.search}`;
+          if (existsSync(index)) req.url = `${pathname}/index.html${url.search}`;
         }
         next();
       });
+      return () => {
+        server.middlewares.use((req, res, next) => {
+          if (res.headersSent) return next();
+          const url = new URL(req.url ?? "/", "http://localhost");
+          let pathname = url.pathname;
+          if (pathname !== "/" && pathname.endsWith("/")) pathname = pathname.slice(0, -1);
+          const page =
+            pathname === "/"
+              ? resolve(root, "dist", "index.html")
+              : resolve(root, "dist", pathname.slice(1), "index.html");
+          const direct = pathname === "/" ? page : resolve(root, "dist", pathname.slice(1));
+          const file = existsSync(page) ? page : existsSync(direct) ? direct : null;
+          if (file) {
+            res.statusCode = 200;
+            if (file.endsWith(".html")) res.setHeader("Content-Type", "text/html; charset=utf-8");
+            createReadStream(file).pipe(res);
+            return;
+          }
+          const dest = resolve(root, "dist", "404.html");
+          if (!existsSync(dest)) return next();
+          res.statusCode = 404;
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          createReadStream(dest).pipe(res);
+        });
+      };
     },
   };
 }
 
-export default defineConfig(({ isSsrBuild }) => ({
+export default defineConfig(({ isSsrBuild, isPreview, command, mode }) => ({
+  appType: isPreview || (command === "serve" && mode === "production") ? "mpa" : "spa",
   plugins: isSsrBuild ? [compiledDocs()] : [compiledDocs(), playgroundRuntime(), previewRouteIndexes()],
   resolve: {
     alias: [
@@ -128,6 +156,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     port: 5173,
   },
   build: {
+    target: "es2022",
     chunkSizeWarningLimit: 800,
     copyPublicDir: !isSsrBuild,
   },

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { create, flushSync, hydrate, render, renderToString, unmountRoot } from "svenjs";
+import { create, createStore, flushSync, hydrate, render, renderToString, unmountRoot } from "svenjs";
 
 function root() {
   const el = document.createElement("div");
@@ -329,8 +329,8 @@ describe("server rendering safety", () => {
   it("rejects invalid tag names", () => {
     const node = <div />;
     node.type = 'div><script>alert(1)</script><div';
-    expect(() => renderToString(node)).toThrow("SvenJS: invalid tag name");
-    expect(() => render(node, root())).toThrow("SvenJS: invalid tag name");
+    expect(() => renderToString(node)).toThrow("SvenJS: bad tag");
+    expect(() => render(node, root())).toThrow("SvenJS: bad tag");
   });
 });
 
@@ -380,5 +380,106 @@ describe("scheduler recovery", () => {
       }),
     ).toThrow("callback failed");
     expect(host.textContent).toBe("1");
+  });
+});
+
+describe("observe", () => {
+  it("re-renders from a store without setState", () => {
+    const store = createStore({ state: { n: 0 } });
+    const App = create({
+      onMount() {
+        this.observe(store);
+      },
+      render() {
+        return <span>{store.get().n}</span>;
+      },
+    });
+    const host = root();
+    render(App, host);
+    expect(host.textContent).toBe("0");
+    store.set({ n: 1 });
+    flushSync();
+    expect(host.textContent).toBe("1");
+  });
+
+  it("stops after unmount", () => {
+    const store = createStore({ state: { n: 0 } });
+    const App = create({
+      onMount() {
+        this.observe(store);
+      },
+      render() {
+        return <span>{store.get().n}</span>;
+      },
+    });
+    const host = root();
+    render(App, host);
+    unmountRoot(host);
+    store.set({ n: 2 });
+    flushSync();
+    expect(host.textContent).toBe("");
+  });
+
+  it("does not re-render when setState receives the current state", () => {
+    const renders: number[] = [];
+    const App = create({
+      initialState: { n: 1 },
+      onMount() {
+        this.setState(this.state);
+      },
+      render() {
+        renders.push(this.state.n);
+        return <span>{this.state.n}</span>;
+      },
+    });
+    const host = root();
+    render(App, host);
+    flushSync();
+    expect(renders).toEqual([1]);
+    expect(host.textContent).toBe("1");
+  });
+});
+
+describe("unchanged child bailout", () => {
+  it("skips render when props are shallow-equal and the child is not dirty", () => {
+    const renders: string[] = [];
+    const Child = create<{ n: number }>({
+      render() {
+        renders.push(`child:${this.props.n}`);
+        return <span>{this.props.n}</span>;
+      },
+    });
+    const Parent = create({
+      initialState: { n: 1, extra: 0 },
+      render() {
+        renders.push(`parent:${this.state.extra}`);
+        return (
+          <div>
+            <Child n={this.state.n} />
+            <button onClick={() => this.setState({ ...this.state, extra: this.state.extra + 1 })}>x</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(Parent, host);
+    expect(renders).toEqual(["parent:0", "child:1"]);
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    expect(renders).toEqual(["parent:0", "child:1", "parent:1"]);
+    expect(host.querySelector("span")?.textContent).toBe("1");
+  });
+});
+
+describe("aria and data booleans", () => {
+  it("serializes true and false as strings", () => {
+    expect(renderToString(<div aria-expanded={false} data-on={true} />)).toBe(
+      '<div aria-expanded="false" data-on="true"></div>',
+    );
+    const host = root();
+    render(<button aria-pressed={true} aria-expanded={false} />, host);
+    const button = host.querySelector("button")!;
+    expect(button.getAttribute("aria-pressed")).toBe("true");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
   });
 });

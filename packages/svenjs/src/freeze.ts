@@ -7,17 +7,13 @@ export function deepFreeze<T>(o: T): T {
   return o;
 }
 
-export function isDev(): boolean {
-  return import.meta.env?.DEV ?? true;
-}
-
 export function freezeState<T>(state: T): T {
+  if (!import.meta.env.DEV) return state;
   let cloned: T;
   try {
     cloned = structuredClone(state);
   } catch (cause) {
     throw new TypeError("SvenJS: state must be structured-cloneable", { cause });
   }
-  if (isDev()) deepFreeze(cloned);
-  return cloned;
+  return deepFreeze(cloned);
 }

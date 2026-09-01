@@ -281,12 +281,7 @@ export function createMissionControl({ create, createStore, html }) {
     store.set((state) => (state.selectedId === unitId ? state : { ...state, selectedId: unitId }));
   }
 
-  function subscribeRevision(component, store) {
-    return store.subscribe(() => component.setState({
-      ...component.state,
-      revision: component.state.revision + 1,
-    }));
-  }
+
 
   const DataStream = create({
     onMount() {
@@ -301,15 +296,14 @@ export function createMissionControl({ create, createStore, html }) {
   });
 
   const CommandBar = create({
-    initialState: { revision: 0, clock: "SYNC PENDING" },
+    initialState: { clock: "SYNC PENDING" },
     onMount() {
-      this._off = subscribeRevision(this, this.props.store);
+      this.observe(this.props.store);
       const sync = () => this.setState({ ...this.state, clock: formatClock() });
       sync();
       this._clock = setInterval(sync, 1000);
     },
     onDestroy() {
-      this._off?.();
       clearInterval(this._clock);
     },
     render() {
@@ -321,7 +315,7 @@ export function createMissionControl({ create, createStore, html }) {
             <h1>Mission Control <span>/ NORD-1</span></h1>
           </div>
           <div class="mission-command-state">
-            <span class="mission-live-dot" data-live=${String(state.running)} aria-hidden="true"></span>
+            <span class="mission-live-dot" data-live=${state.running} aria-hidden="true"></span>
             <span class="mission-status">
               <strong>${state.running ? "LIVE STREAM" : "READY"}</strong>
               <span>${state.running ? "8 Hz synthetic feed" : "Telemetry paused"}</span>
@@ -335,7 +329,7 @@ export function createMissionControl({ create, createStore, html }) {
             <button
               type="button"
               class="mission-primary"
-              aria-pressed=${String(state.running)}
+              aria-pressed=${state.running}
               onClick=${() => setRunning(this.props.store, !state.running)}
             >
               ${state.running ? "Pause stream" : "Start stream"}
@@ -355,12 +349,8 @@ export function createMissionControl({ create, createStore, html }) {
   });
 
   const MetricStrip = create({
-    initialState: { revision: 0 },
     onMount() {
-      this._off = subscribeRevision(this, this.props.store);
-    },
-    onDestroy() {
-      this._off?.();
+      this.observe(this.props.store);
     },
     render() {
       const state = this.props.store.get();
@@ -411,12 +401,9 @@ export function createMissionControl({ create, createStore, html }) {
   }
 
   const TelemetryPlot = create({
-    initialState: { revision: 0, metric: "packets" },
+    initialState: { metric: "packets" },
     onMount() {
-      this._off = subscribeRevision(this, this.props.store);
-    },
-    onDestroy() {
-      this._off?.();
+      this.observe(this.props.store);
     },
     render() {
       const state = this.props.store.get();
@@ -444,7 +431,7 @@ export function createMissionControl({ create, createStore, html }) {
               ${Object.entries(channels).map(([key, item]) => html`
                 <button
                   type="button"
-                  aria-pressed=${String(metric === key)}
+                  aria-pressed=${metric === key}
                   onClick=${() => this.setState({ ...this.state, metric: key })}
                 >${item.label.replace("Fleet ", "")}</button>
               `)}
@@ -485,7 +472,6 @@ export function createMissionControl({ create, createStore, html }) {
 
   const FleetLedger = create({
     initialState: {
-      revision: 0,
       query: "",
       status: "all",
       sort: "status",
@@ -529,13 +515,12 @@ export function createMissionControl({ create, createStore, html }) {
       this.update({ sort: key, direction });
     },
     onMount() {
-      this._off = subscribeRevision(this, this.props.store);
+      this.observe(this.props.store);
       this._focus = () => this._filter?.focus();
       window.addEventListener("mission:focus-filter", this._focus);
       this.readPreferences();
     },
     onDestroy() {
-      this._off?.();
       window.removeEventListener("mission:focus-filter", this._focus);
     },
     render() {
@@ -650,7 +635,6 @@ export function createMissionControl({ create, createStore, html }) {
       const state = props.store.get();
       const unit = state.units.find((item) => item.id === props.unitId);
       return {
-        revision: 0,
         tab: "telemetry",
         sampledTick: state.tick,
         history: signalHistory(unit.index, state.tick),
@@ -675,7 +659,6 @@ export function createMissionControl({ create, createStore, html }) {
             ].slice(-24);
         this.setState({
           ...this.state,
-          revision: this.state.revision + 1,
           sampledTick: state.tick,
           history,
         });
@@ -711,8 +694,8 @@ export function createMissionControl({ create, createStore, html }) {
               <polyline points=${miniPoints(this.state.history)} vector-effect="non-scaling-stroke"></polyline>
             </svg>
             <div class="mission-tabs" role="group" aria-label="Asset detail view">
-              <button type="button" aria-pressed=${String(this.state.tab === "telemetry")} onClick=${() => this.setState({ ...this.state, tab: "telemetry" })}>Telemetry</button>
-              <button type="button" aria-pressed=${String(this.state.tab === "orbit")} onClick=${() => this.setState({ ...this.state, tab: "orbit" })}>Orbit</button>
+              <button type="button" aria-pressed=${this.state.tab === "telemetry"} onClick=${() => this.setState({ ...this.state, tab: "telemetry" })}>Telemetry</button>
+              <button type="button" aria-pressed=${this.state.tab === "orbit"} onClick=${() => this.setState({ ...this.state, tab: "orbit" })}>Orbit</button>
             </div>
             <p class="mission-tab-copy">
               ${this.state.tab === "telemetry"
@@ -726,12 +709,9 @@ export function createMissionControl({ create, createStore, html }) {
   });
 
   const AlertCenter = create({
-    initialState: { revision: 0, severity: "all", expanded: false },
+    initialState: { severity: "all", expanded: false },
     onMount() {
-      this._off = subscribeRevision(this, this.props.store);
-    },
-    onDestroy() {
-      this._off?.();
+      this.observe(this.props.store);
     },
     render() {
       const state = this.props.store.get();
@@ -760,7 +740,7 @@ export function createMissionControl({ create, createStore, html }) {
           </div>
           <ul class="mission-alert-list">
             ${shown.map((alert) => html`
-              <li key=${alert.id} class="mission-alert" data-acknowledged=${String(alert.acknowledged)}>
+              <li key=${alert.id} class="mission-alert" data-acknowledged=${alert.acknowledged}>
                 <div class="mission-alert-top">
                   <span class="mission-badge" data-status=${alert.severity}>${alert.severity}</span>
                   <span class="mission-meta">MET ${formatMet(alert.tick)}</span>
@@ -771,7 +751,7 @@ export function createMissionControl({ create, createStore, html }) {
                   <button type="button" onClick=${(event) => this.props.onSelect(alert.unitId, event.currentTarget)}>${alert.unitId}</button>
                   <button
                     type="button"
-                    aria-disabled=${String(alert.acknowledged)}
+                    aria-disabled=${alert.acknowledged}
                     onClick=${() => {
                       if (!alert.acknowledged) acknowledge(this.props.store, alert.id);
                     }}
@@ -879,7 +859,7 @@ export function createMissionControl({ create, createStore, html }) {
             class="mission-console"
             data-mission-control
             data-mission-theme=${this.state.theme}
-            data-running=${String(this.state.running)}
+            data-running=${this.state.running}
             aria-label="SvenJS Mission Control"
           >
             <${CommandBar}

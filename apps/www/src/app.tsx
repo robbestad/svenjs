@@ -1,8 +1,10 @@
 import { create, flushSync } from "svenjs";
 import { isInternalLink, matchRoute, navigate } from "./lib/router";
-import { routes, syncDocumentMetadata } from "./lib/site";
+import { loadRoute, routes, syncDocumentMetadata } from "./lib/site";
 import { applyTheme, cycleTheme, readTheme, themeLabel, type Theme } from "./lib/theme";
 import { NotFoundPage } from "./pages/not-found";
+
+const EMPTY_PARAMS: Record<string, string> = {};
 
 type ShellProps = {
   initialUrl?: string;
@@ -33,7 +35,7 @@ export const App = create<ShellProps, ShellState>({
     if (theme !== this.state.theme || location.search !== this.state.search) {
       this.setState({ ...this.state, search: location.search, theme });
     }
-    this._onPop = () => {
+    this._applyLocation = () => {
       flushSync(() => {
         this.setState({
           ...this.state,
@@ -48,11 +50,15 @@ export const App = create<ShellProps, ShellState>({
       heading?.setAttribute("tabindex", "-1");
       heading?.focus();
     };
+    this._onPop = () => {
+      void loadRoute(location.pathname).then(() => this._applyLocation());
+    };
     this._onClick = (event: MouseEvent) => {
       const a = (event.target as Element | null)?.closest?.("a") as HTMLAnchorElement | null;
       if (!a || !isInternalLink(a, event) || !matchRoute(a.pathname, routes)) return;
       event.preventDefault();
-      navigate(a.pathname + a.search + a.hash);
+      const to = a.pathname + a.search + a.hash;
+      void loadRoute(a.pathname).then(() => navigate(to));
     };
     window.addEventListener("popstate", this._onPop);
     this._root?.addEventListener("click", this._onClick);
@@ -64,7 +70,11 @@ export const App = create<ShellProps, ShellState>({
   render() {
     const matched = matchRoute(this.state.path, routes);
     const Page = matched?.route.component ?? NotFoundPage;
-    const params = matched?.params ?? {};
+    if (this._matchPath !== this.state.path) {
+      this._matchPath = this.state.path;
+      this._params = matched?.params ?? EMPTY_PARAMS;
+    }
+    const params = this._params ?? EMPTY_PARAMS;
     const path = this.state.path;
 
     return (
@@ -80,7 +90,7 @@ export const App = create<ShellProps, ShellState>({
             className="icon-btn menu-btn"
             type="button"
             aria-expanded={this.state.menu}
-            aria-label="Open menu"
+            aria-label={this.state.menu ? "Close menu" : "Open menu"}
             onClick={() => this.setState({ ...this.state, menu: !this.state.menu })}
           >
             ☰

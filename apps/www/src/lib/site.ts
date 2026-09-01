@@ -1,6 +1,6 @@
 import type { Route } from "./router";
+import { matchRoute } from "./router";
 import { docs, getDoc } from "./docs";
-import { ClickPage, ComposePage, MissionControlPage, TodoPage } from "../pages/demos";
 import { DocsPage } from "../pages/docs";
 import { HeritagePage } from "../pages/heritage";
 import { HomePage } from "../pages/home";
@@ -25,10 +25,13 @@ export const SOCIAL_IMAGE_ALT = "SvenJS 3 — one HTML file, a button, and state
 export const routes: Route[] = [
   { path: "/", component: HomePage },
   { path: "/play", component: PlayGate },
-  { path: "/demo/mission-control", component: MissionControlPage },
-  { path: "/demo/todo", component: TodoPage },
-  { path: "/demo/click", component: ClickPage },
-  { path: "/demo/compose", component: ComposePage },
+  {
+    path: "/demo/mission-control",
+    load: () => import("../pages/demo-mission-control").then((m) => m.MissionControlPage),
+  },
+  { path: "/demo/todo", load: () => import("../pages/demo-todo").then((m) => m.TodoPage) },
+  { path: "/demo/click", load: () => import("../pages/demo-click").then((m) => m.ClickPage) },
+  { path: "/demo/compose", load: () => import("../pages/demo-compose").then((m) => m.ComposePage) },
   { path: "/docs", component: DocsPage },
   { path: "/docs/:slug", component: DocsPage },
   { path: "/heritage", component: HeritagePage },
@@ -45,6 +48,15 @@ export const staticPaths = [
   ...docs.map((doc) => `/docs/${doc.slug}`),
   "/heritage",
 ];
+
+export async function loadRoute(pathname: string) {
+  const matched = matchRoute(pathname, routes);
+  if (!matched) return null;
+  if (!matched.route.component && matched.route.load) {
+    matched.route.component = await matched.route.load();
+  }
+  return matched;
+}
 
 export type PageMetadata = {
   title: string;
@@ -140,29 +152,117 @@ export function canonicalUrl(metadata: PageMetadata) {
   return new URL(route, SITE_ORIGIN).href;
 }
 
+export function jsonLdFor(metadata: PageMetadata): unknown {
+  if (metadata.noIndex) return null;
+  const url = canonicalUrl(metadata);
+  const path = normalizePath(metadata.canonicalPath ?? metadata.path);
+
+  if (path === "/") {
+    return [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: SITE_ORIGIN,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "SvenJS",
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Web",
+        url: SITE_ORIGIN,
+        description: metadata.description,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        license: "https://opensource.org/licenses/ISC",
+      },
+    ];
+  }
+
+  if (path.startsWith("/docs")) {
+    const slug = path === "/docs" ? docs[0]?.slug : path.slice("/docs/".length);
+    const doc = getDoc(slug);
+    const docsUrl = new URL("/docs/", SITE_ORIGIN).href;
+    return [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        headline: doc?.title ?? metadata.title,
+        description: metadata.description,
+        mainEntityOfPage: url,
+        url,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Docs", item: docsUrl },
+          { "@type": "ListItem", position: 2, name: doc?.title ?? metadata.title, item: url },
+        ],
+      },
+    ];
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: metadata.title,
+    description: metadata.description,
+    url,
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_ORIGIN },
+  };
+}
+
+export function jsonLdScript(metadata: PageMetadata) {
+  const data = jsonLdFor(metadata);
+  if (data == null) return "";
+  return `<script id="sven-jsonld" type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
+}
+
 function setMeta(selector: string, attribute: string, value: string) {
   const element = document.head.querySelector(selector);
   element?.setAttribute(attribute, value);
 }
 
+function syncJsonLd(metadata: PageMetadata) {
+  const existing = document.getElementById("sven-jsonld");
+  const markup = jsonLdScript(metadata);
+  if (!markup) {
+    existing?.remove();
+    return;
+  }
+  const next = markup.slice(markup.indexOf(">") + 1, markup.lastIndexOf("<"));
+  if (existing) {
+    existing.textContent = next;
+    return;
+  }
+  document.head.insertAdjacentHTML("beforeend", markup);
+}
+
 export function syncDocumentMetadata(pathname: string) {
   if (typeof document === "undefined") return;
   const metadata = metadataForPath(pathname);
-  const canonical = canonicalUrl(metadata);
   const socialImage = metadata.socialImage ?? SOCIAL_IMAGE;
   const socialImageAlt = metadata.socialImageAlt ?? SOCIAL_IMAGE_ALT;
 
   document.title = metadata.title;
   setMeta('meta[name="description"]', "content", metadata.description);
   setMeta('meta[name="robots"]', "content", metadata.noIndex ? "noindex, nofollow" : "index, follow");
-  setMeta('link[rel="canonical"]', "href", canonical);
+  if (metadata.noIndex) {
+    document.head.querySelector('link[rel="canonical"]')?.remove();
+  } else {
+    const canonical = canonicalUrl(metadata);
+    const link = document.head.querySelector('link[rel="canonical"]');
+    if (link) link.setAttribute("href", canonical);
+    setMeta('meta[property="og:url"]', "content", canonical);
+  }
   setMeta('meta[property="og:title"]', "content", metadata.title);
   setMeta('meta[property="og:description"]', "content", metadata.description);
-  setMeta('meta[property="og:url"]', "content", canonical);
   setMeta('meta[property="og:image"]', "content", socialImage);
   setMeta('meta[property="og:image:alt"]', "content", socialImageAlt);
   setMeta('meta[name="twitter:title"]', "content", metadata.title);
   setMeta('meta[name="twitter:description"]', "content", metadata.description);
   setMeta('meta[name="twitter:image"]', "content", socialImage);
   setMeta('meta[name="twitter:image:alt"]', "content", socialImageAlt);
+  syncJsonLd(metadata);
 }

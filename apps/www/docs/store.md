@@ -19,12 +19,21 @@ const store = createStore({
   },
 });
 
-const off = store.subscribe((state) => {
-  // attach to a component with setState if you want a re-render
-});
 store.get();
 store.set((s) => ({ ...s, posts: [] }));
-off();
 ```
 
-`listenTo` is an alias for `subscribe`. `emit(data)` is an alias for `set(data)`.
+A component that should re-render when the store changes calls `this.observe(store)` in `onMount`. That schedules a patch without touching component state, and unsubscribes on destroy.
+
+```js
+const List = create({
+  onMount() {
+    this.observe(store);
+  },
+  render() {
+    return html`<ul>${store.get().posts.map((p) => html`<li key=${p.id}>${p.title}</li>`)}</ul>`;
+  },
+});
+```
+
+`listenTo` is an alias for `subscribe`. `emit(data)` is an alias for `set(data)`. Use `subscribe` yourself when the store update should derive local state, not just re-render.
