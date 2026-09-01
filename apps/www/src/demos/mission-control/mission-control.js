@@ -7,7 +7,7 @@ export function createMissionControl({ create, createStore, html }) {
   const STATUS_ORDER = { critical: 0, watch: 1, nominal: 2 };
 
   const MISSION_CSS = `
-.mission-console{--mc-bg:#10100e;--mc-surface:#181713;--mc-surface-2:#201e19;--mc-ink:#f3eee6;--mc-muted:#aaa194;--mc-rule:#38342c;--mc-accent:#ed7d3a;--mc-accent-ink:#211b15;--mc-accent-soft:#f0b27a;--mc-ok:#70c9a5;--mc-warn:#e5b65b;--mc-info:#74abc1;--mc-critical:#ff8a80;color-scheme:dark;color:var(--mc-ink);background:var(--mc-bg);border:1px solid var(--mc-rule);border-radius:16px;overflow:hidden;font:14px/1.45 var(--font-ui,system-ui,sans-serif);box-shadow:0 24px 70px rgb(0 0 0/.2);position:relative}
+.mission-console{--mc-bg:#10100e;--mc-surface:#181713;--mc-surface-2:#201e19;--mc-ink:#f3eee6;--mc-muted:#aaa194;--mc-rule:#38342c;--mc-accent:#ed7d3a;--mc-accent-ink:#211b15;--mc-accent-soft:#f0b27a;--mc-ok:#70c9a5;--mc-warn:#e5b65b;--mc-info:#74abc1;--mc-critical:#ff8a80;--mc-log-height:29rem;color-scheme:dark;color:var(--mc-ink);background:var(--mc-bg);border:1px solid var(--mc-rule);border-radius:16px;overflow:hidden;font:14px/1.45 var(--font-ui,system-ui,sans-serif);box-shadow:0 24px 70px rgb(0 0 0/.2);position:relative}
 .mission-console[data-mission-theme="paper"]{--mc-bg:#f2ede4;--mc-surface:#fffaf2;--mc-surface-2:#e8e0d4;--mc-ink:#211b15;--mc-muted:#6d6256;--mc-rule:#cfc3b3;--mc-accent:#b94f18;--mc-accent-ink:#fffaf2;--mc-accent-soft:#8d4a24;--mc-ok:#24735b;--mc-warn:#8a5c08;--mc-info:#32667c;--mc-critical:#b42318;color-scheme:light;box-shadow:0 24px 70px rgb(55 40 25/.12)}
 .mission-console:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(var(--mc-rule) 1px,transparent 1px),linear-gradient(90deg,var(--mc-rule) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,transparent,black 12rem,transparent 80%)}
 .mission-console *{box-sizing:border-box}
@@ -61,7 +61,7 @@ export function createMissionControl({ create, createStore, html }) {
 .mission-field{display:grid;gap:.25rem}
 .mission-field label,.mission-field>span{color:var(--mc-muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em}
 .mission-field input,.mission-field select{min-height:2.5rem;width:100%;border:1px solid var(--mc-rule);border-radius:7px;background:var(--mc-bg);color:var(--mc-ink);padding:.45rem .65rem}
-.mission-table-wrap{overflow:auto;max-height:29rem}
+.mission-table-wrap{overflow:auto;max-height:var(--mc-log-height)}
 .mission-table{width:100%;border-collapse:collapse;min-width:42rem}
 .mission-table th{position:sticky;top:0;z-index:2;background:var(--mc-surface-2);color:var(--mc-muted);font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;text-align:right;border-bottom:1px solid var(--mc-rule);padding:.5rem .7rem}
 .mission-table th:first-child,.mission-table td:first-child{text-align:left;position:sticky;left:0}
@@ -99,7 +99,7 @@ export function createMissionControl({ create, createStore, html }) {
 .mission-tab-copy{min-height:3.5rem;color:var(--mc-muted);font-size:.8rem}
 .mission-alert-tools{display:flex;gap:.5rem;padding:.7rem 1rem;border-bottom:1px solid var(--mc-rule)}
 .mission-alert-tools select{min-height:2.25rem;border:1px solid var(--mc-rule);border-radius:6px;background:var(--mc-bg);color:var(--mc-ink);padding:.3rem .5rem}
-.mission-alert-list{list-style:none;margin:0;padding:0}
+.mission-alert-list{list-style:none;margin:0;padding:0;max-height:var(--mc-log-height);overflow:auto;overscroll-behavior:contain}
 .mission-alert{padding:.72rem 1rem;border-bottom:1px solid color-mix(in srgb,var(--mc-rule) 72%,transparent)}
 .mission-alert:last-child{border-bottom:0}
 .mission-alert[data-acknowledged="true"]{opacity:.58}
@@ -114,7 +114,7 @@ export function createMissionControl({ create, createStore, html }) {
 .mission-footnote{position:relative;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.75rem 1rem;border-top:1px solid var(--mc-rule);color:var(--mc-muted);font-size:.65rem;background:var(--mc-surface)}
 .mission-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:860px){.mission-command{grid-template-columns:1fr auto}.mission-clock{grid-column:1/-1;text-align:left}.mission-metrics{grid-template-columns:repeat(2,1fr)}.mission-metric:nth-child(2){border-right:0}.mission-metric:nth-child(-n+2){border-bottom:1px solid var(--mc-rule)}.mission-workspace{grid-template-columns:1fr}.mission-primary-column{border-right:0}.mission-rail{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mc-rule)}.mission-detail,.mission-detail-empty{border-right:1px solid var(--mc-rule)}}
-@media(max-width:640px){.mission-command{display:flex;align-items:flex-start;flex-wrap:wrap}.mission-command-state{margin-left:auto}.mission-clock{width:100%}.mission-actions{width:100%}.mission-actions button,.mission-actions a{min-height:2.75rem;flex:1}.mission-filter-row{grid-template-columns:1fr 1fr}.mission-filter-row .mission-field:first-child{grid-column:1/-1}.mission-table-wrap{max-height:32rem}.mission-rail{grid-template-columns:1fr}.mission-detail,.mission-detail-empty{border-right:0}.mission-chart{aspect-ratio:4/2.2}.mission-chart-legend{flex-wrap:wrap}.mission-footnote{display:block}.mission-footnote span{display:block;margin:.2rem 0}}
+@media(max-width:640px){.mission-console{--mc-log-height:32rem}.mission-command{display:flex;align-items:flex-start;flex-wrap:wrap}.mission-command-state{margin-left:auto}.mission-clock{width:100%}.mission-actions{width:100%}.mission-actions button,.mission-actions a{min-height:2.75rem;flex:1}.mission-filter-row{grid-template-columns:1fr 1fr}.mission-filter-row .mission-field:first-child{grid-column:1/-1}.mission-rail{grid-template-columns:1fr}.mission-detail,.mission-detail-empty{border-right:0}.mission-chart{aspect-ratio:4/2.2}.mission-chart-legend{flex-wrap:wrap}.mission-footnote{display:block}.mission-footnote span{display:block;margin:.2rem 0}}
 @media(prefers-reduced-motion:reduce){.mission-console *{scroll-behavior:auto!important}}
 `;
 
