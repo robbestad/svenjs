@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter www build",
+  "outputDirectory": "apps/www/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

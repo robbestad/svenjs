@@ -17,3 +17,5 @@ home-desktop.png
 home-mobile.png
 home-dark.png
 playground.png
+.vercel
+.env*
