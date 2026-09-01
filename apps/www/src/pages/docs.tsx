@@ -10,7 +10,7 @@ export const DocsPage = create<{ params?: { slug?: string } }, Record<string, ne
         <div className="not-found">
           <h1 className="page-title">Missing page</h1>
           <p>
-            No doc named <code>{slug}</code>. <a href="/docs">Back to docs</a>.
+            No doc named <code>{slug}</code>. <a href="/docs/one-file/">Back to docs</a>.
           </p>
         </div>
       );
@@ -19,7 +19,7 @@ export const DocsPage = create<{ params?: { slug?: string } }, Record<string, ne
       <div className="docs">
         <nav className="docs-nav" aria-label="Documentation">
           {docs.map((d) => (
-            <a key={d.slug} href={`/docs/${d.slug}`} aria-current={d.slug === doc.slug ? "page" : undefined}>
+            <a key={d.slug} href={`/docs/${d.slug}/`} aria-current={d.slug === doc.slug ? "page" : undefined}>
               {d.nav}
             </a>
           ))}

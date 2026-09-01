@@ -8,13 +8,13 @@ const DemoNav = create<{ current: string }, Record<string, never>>({
     const current = this.props.current;
     return (
       <nav className="subnav" aria-label="Demos">
-        <a href="/demo/todo" aria-current={current === "todo" ? "page" : undefined}>
+        <a href="/demo/todo/" aria-current={current === "todo" ? "page" : undefined}>
           Todo
         </a>
-        <a href="/demo/click" aria-current={current === "click" ? "page" : undefined}>
+        <a href="/demo/click/" aria-current={current === "click" ? "page" : undefined}>
           Click
         </a>
-        <a href="/demo/compose" aria-current={current === "compose" ? "page" : undefined}>
+        <a href="/demo/compose/" aria-current={current === "compose" ? "page" : undefined}>
           Composition
         </a>
       </nav>

@@ -38,6 +38,7 @@ export function h(type: VNode["type"], props: Props | null | undefined, ...kids:
   const key = p.key as Key | undefined;
   const fromProps = p.children;
   const raw = kids.length ? kids : fromProps !== undefined ? [].concat(fromProps as never) : [];
+  if (kids.length) p.children = kids.length === 1 ? kids[0] : kids;
   return vnode(type, p, flatten(raw), key);
 }
 

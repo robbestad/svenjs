@@ -1,5 +1,5 @@
-import { render } from "svenjs";
+import { hydrate } from "svenjs";
 import { App } from "./app";
 import "./styles/app.css";
 
-render(App, document.getElementById("app"));
+hydrate(<App initialUrl={location.pathname} />, document.getElementById("app"));

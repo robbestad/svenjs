@@ -14,7 +14,7 @@ export type StoreSpec<S> = {
 };
 
 export function createStore<S = any>(spec: StoreSpec<S> = {}): Store<S> {
-  let state = freezeState((spec.state ?? {}) as S);
+  let state = freezeState((spec.state === undefined ? {} : spec.state) as S);
   const listeners = new Set<(s: S) => void>();
 
   const store: Store<S> = {
@@ -23,8 +23,10 @@ export function createStore<S = any>(spec: StoreSpec<S> = {}): Store<S> {
     },
     set(next) {
       const raw = typeof next === "function" ? (next as (s: S) => S)(state) : next;
+      if (Object.is(raw, state)) return;
       state = freezeState(raw);
-      listeners.forEach((fn) => fn(state));
+      const current = state;
+      for (const fn of [...listeners]) fn(current);
     },
     subscribe(fn) {
       listeners.add(fn);

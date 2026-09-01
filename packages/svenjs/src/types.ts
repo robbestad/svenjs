@@ -12,7 +12,7 @@ export type Host<P = any, S = any> = Component<P, S> & Record<string, any>;
 
 export type ComponentSpec<P = any, S = any> = {
   displayName?: string;
-  initialState?: S;
+  initialState?: S | ((props: P) => S);
   render(this: Host<P, S>): unknown;
   onBeforeMount?(this: Host<P, S>): void;
   onMount?(this: Host<P, S>): void;
@@ -46,6 +46,8 @@ export type Instance = Component & {
   _mounted: boolean;
   _destroyed: boolean;
   _rendering: boolean;
+  _placeholder: Comment | null;
+  _svg: boolean;
   [key: string]: any;
 };
 

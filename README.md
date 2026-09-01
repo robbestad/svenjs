@@ -28,7 +28,7 @@ render(App, document.getElementById("app"));
 
 ## Packages
 
-- `packages/svenjs` — runtime (`create`, `render`, `createStore`, JSX runtime)
+- `packages/svenjs` — runtime (`create`, `render`, `hydrate`, `renderToString`, state, JSX)
 - `apps/www` — docs, demos, and live playground (dogfoods the runtime)
 
 ## Scripts
@@ -39,7 +39,9 @@ render(App, document.getElementById("app"));
 | `pnpm test` | Runtime tests (Vitest) |
 | `pnpm test:e2e` | Playwright smoke tests for the site |
 | `pnpm build` | Library + site |
-| `pnpm --filter svenjs size` | Gzip size of the ESM build |
+| `pnpm --filter svenjs size` | Raw + gzip size of the ESM and script-tag builds |
+
+The site build prerenders every public route and generates canonical, social, sitemap, and robots metadata. Set `VITE_SITE_ORIGIN=https://your-domain.example` when deploying under a domain other than `https://svenjs.vercel.app`.
 
 ## tsconfig
 

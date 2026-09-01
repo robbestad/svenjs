@@ -145,8 +145,8 @@ export const PlayPage = create({
   },
   share() {
     const packed = LZString.compressToEncodedURIComponent(this.state.source);
-    const url = `${location.origin}/play#code=${packed}`;
-    history.replaceState({}, "", `/play#code=${packed}`);
+    const url = `${location.origin}/play/#code=${packed}`;
+    history.replaceState({}, "", `/play/#code=${packed}`);
     navigator.clipboard?.writeText(url);
     this.setState({ ...this.state, copied: "link" });
   },

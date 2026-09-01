@@ -1,10 +1,11 @@
 ---
 title: Using a bundler
 nav: Bundler
+description: Install SvenJS from npm and configure Vite, TypeScript, or another JSX-capable bundler.
 order: 10
 ---
 
-Most people should start with [a page in one file](/docs/one-file). If you already have Vite, you can import SvenJS like any ESM package.
+Most people should start with [a page in one file](/docs/one-file/). If you already have Vite, you can import SvenJS like any ESM package.
 
 ```bash
 npm install svenjs

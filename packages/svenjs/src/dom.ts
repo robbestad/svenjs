@@ -1,29 +1,8 @@
 import type { Props } from "./types";
 
-const SVG_NS = "http://www.w3.org/2000/svg";
-const SVG_TAGS = new Set([
-  "svg",
-  "path",
-  "circle",
-  "rect",
-  "g",
-  "line",
-  "polyline",
-  "polygon",
-  "text",
-  "defs",
-  "clipPath",
-  "use",
-  "mask",
-  "linearGradient",
-  "radialGradient",
-  "stop",
-  "ellipse",
-  "tspan",
-  "foreignObject",
-]);
-
+export const SVG_NS = "http://www.w3.org/2000/svg";
 const SKIP = new Set(["key", "children", "ref"]);
+const INVALID_ATTRIBUTE = /[\s"'<>/=`]/;
 
 const LISTENER = "_svenL";
 
@@ -34,13 +13,14 @@ const EVENT_ALIASES: Record<string, string> = {
   ondblclick: "dblclick",
 };
 
-export function isSvgTag(tag: string): boolean {
-  return SVG_TAGS.has(tag);
+export function createDom(tag: string, svg: boolean): Element {
+  if (!validAttributeName(tag)) throw new TypeError("SvenJS: invalid tag name");
+  if (svg || tag === "svg") return document.createElementNS(SVG_NS, tag);
+  return document.createElement(tag);
 }
 
-export function createDom(tag: string, svg: boolean): Element {
-  if (svg || isSvgTag(tag)) return document.createElementNS(SVG_NS, tag);
-  return document.createElement(tag);
+export function validAttributeName(name: string): boolean {
+  return Boolean(name) && !INVALID_ATTRIBUTE.test(name);
 }
 
 function eventName(prop: string): string | null {
@@ -68,6 +48,23 @@ function applyClass(el: Element, value: string) {
   else (el as HTMLElement).className = value;
 }
 
+function styleName(name: string): string {
+  if (name.startsWith("--")) return name;
+  return name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`).replace(/^ms-/, "-ms-");
+}
+
+export function styleText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return "";
+  let declarations = "";
+  for (const name in value) {
+    const entry = (value as Record<string, unknown>)[name];
+    if (entry == null || entry === false || entry === "") continue;
+    declarations += `${declarations ? ";" : ""}${styleName(name)}:${String(entry)}`;
+  }
+  return declarations;
+}
+
 function applyStyle(el: Element, oldVal: unknown, newVal: unknown) {
   const style = (el as HTMLElement).style;
   if (style == null) {
@@ -86,19 +83,25 @@ function applyStyle(el: Element, oldVal: unknown, newVal: unknown) {
     el.setAttribute("style", newVal);
     return;
   }
+  if (typeof oldVal === "string") el.removeAttribute("style");
   if (typeof oldVal === "object" && oldVal) {
     for (const k of Object.keys(oldVal as object)) {
-      if (!(newVal as Record<string, unknown>)[k]) style.removeProperty(k);
+      if (!(k in (newVal as Record<string, unknown>))) style.removeProperty(styleName(k));
     }
   }
-  Object.assign(style, newVal);
+  for (const k of Object.keys(newVal as object)) {
+    const value = (newVal as Record<string, unknown>)[k];
+    if (value == null || value === false || value === "") style.removeProperty(styleName(k));
+    else style.setProperty(styleName(k), String(value));
+  }
 }
 
 export function setProp(el: Element, name: string, oldVal: unknown, newVal: unknown, props?: Props) {
-  if (SKIP.has(name) || name === "class" || name === "className") return;
+  if (!validAttributeName(name) || SKIP.has(name) || name === "class" || name === "className") return;
 
   const ev = eventName(name);
   if (ev) {
+    el.removeAttribute(name);
     const map = listeners(el);
     const prev = map.get(ev);
     if (prev) el.removeEventListener(ev, prev);

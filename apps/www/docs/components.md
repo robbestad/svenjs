@@ -1,6 +1,7 @@
 ---
 title: Components and props
 nav: Components
+description: Compose SvenJS component specs and pass props with tagged templates or compiled JSX.
 order: 4
 ---
 

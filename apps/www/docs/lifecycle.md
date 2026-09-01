@@ -1,6 +1,7 @@
 ---
 title: Lifecycle
 nav: Lifecycle
+description: Use SvenJS mount, update, and destroy lifecycle hooks for DOM integrations and cleanup.
 order: 12
 ---
 

@@ -22,9 +22,6 @@ importers:
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
-      markdown-it:
-        specifier: ^14.1.0
-        version: 14.3.1
       sucrase:
         specifier: ^3.35.0
         version: 3.35.1
@@ -41,6 +38,9 @@ importers:
       esbuild:
         specifier: ^0.25.1
         version: 0.25.12
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.3.1
       typescript:
         specifier: ^5.8.2
         version: 5.9.3

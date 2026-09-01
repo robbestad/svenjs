@@ -1,23 +1,12 @@
 import { create, flushSync } from "svenjs";
-import { isInternalLink, matchRoute, navigate, type Route } from "./lib/router";
+import { isInternalLink, matchRoute, navigate } from "./lib/router";
+import { routes, syncDocumentMetadata } from "./lib/site";
 import { applyTheme, cycleTheme, readTheme, themeLabel, type Theme } from "./lib/theme";
-import { ClickPage, ComposePage, TodoPage } from "./pages/demos";
-import { DocsPage } from "./pages/docs";
-import { HeritagePage } from "./pages/heritage";
-import { HomePage } from "./pages/home";
 import { NotFoundPage } from "./pages/not-found";
-import { PlayGate } from "./pages/play-gate";
 
-const routes: Route[] = [
-  { path: "/", component: HomePage },
-  { path: "/play", component: PlayGate },
-  { path: "/demo/todo", component: TodoPage },
-  { path: "/demo/click", component: ClickPage },
-  { path: "/demo/compose", component: ComposePage },
-  { path: "/docs", component: DocsPage },
-  { path: "/docs/:slug", component: DocsPage },
-  { path: "/heritage", component: HeritagePage },
-];
+type ShellProps = {
+  initialUrl?: string;
+};
 
 type ShellState = {
   path: string;
@@ -26,23 +15,24 @@ type ShellState = {
   theme: Theme;
 };
 
-export const App = create<Record<string, never>, ShellState>({
-  initialState: {
-    path: "/",
-    search: "",
-    menu: false,
-    theme: "system",
-  },
-  onBeforeMount() {
-    this.state = {
-      path: location.pathname,
-      search: location.search,
+export const App = create<ShellProps, ShellState>({
+  initialState(props) {
+    const initialUrl = props.initialUrl ?? (typeof location === "undefined" ? "/" : location.href);
+    const url = new URL(initialUrl, "https://svenjs.local");
+    return {
+      path: url.pathname,
+      search: url.search,
       menu: false,
-      theme: readTheme(),
+      theme: "system",
     };
-    applyTheme(this.state.theme);
   },
   onMount() {
+    const theme = readTheme();
+    applyTheme(theme);
+    syncDocumentMetadata(location.pathname);
+    if (theme !== this.state.theme || location.search !== this.state.search) {
+      this.setState({ ...this.state, search: location.search, theme });
+    }
     this._onPop = () => {
       flushSync(() => {
         this.setState({
@@ -52,6 +42,7 @@ export const App = create<Record<string, never>, ShellState>({
           menu: false,
         });
       });
+      syncDocumentMetadata(location.pathname);
       const main = document.getElementById("main");
       const heading = main?.querySelector("h1");
       heading?.setAttribute("tabindex", "-1");
@@ -59,7 +50,7 @@ export const App = create<Record<string, never>, ShellState>({
     };
     this._onClick = (event: MouseEvent) => {
       const a = (event.target as Element | null)?.closest?.("a") as HTMLAnchorElement | null;
-      if (!a || !isInternalLink(a, event)) return;
+      if (!a || !isInternalLink(a, event) || !matchRoute(a.pathname, routes)) return;
       event.preventDefault();
       navigate(a.pathname + a.search + a.hash);
     };
@@ -95,16 +86,16 @@ export const App = create<Record<string, never>, ShellState>({
             ☰
           </button>
           <nav className={this.state.menu ? "nav open" : "nav"} aria-label="Primary">
-            <a href="/play" aria-current={path.startsWith("/play") ? "page" : undefined}>
+            <a href="/play/" aria-current={path.startsWith("/play") ? "page" : undefined}>
               Playground
             </a>
-            <a href="/demo/todo" aria-current={path.startsWith("/demo") ? "page" : undefined}>
+            <a href="/demo/todo/" aria-current={path.startsWith("/demo") ? "page" : undefined}>
               Demos
             </a>
-            <a href="/docs" aria-current={path.startsWith("/docs") ? "page" : undefined}>
+            <a href="/docs/one-file/" aria-current={path.startsWith("/docs") ? "page" : undefined}>
               Docs
             </a>
-            <a href="/heritage" aria-current={path.startsWith("/heritage") ? "page" : undefined}>
+            <a href="/heritage/" aria-current={path.startsWith("/heritage") ? "page" : undefined}>
               Heritage
             </a>
           </nav>
@@ -123,7 +114,7 @@ export const App = create<Record<string, never>, ShellState>({
         </main>
         <footer className="foot">
           <span>
-            SvenJS 3 · ISC · <a href="/heritage">Heritage</a>
+            SvenJS 3 · ISC · <a href="/heritage/">Heritage</a>
           </span>
           <span>
             <a href="https://github.com/svenanders/svenjs">GitHub</a>

@@ -1,6 +1,7 @@
 ---
 title: A page in one file
 nav: One file
+description: Build a complete stateful SvenJS page in one HTML file, with no npm, compiler, or build step.
 order: 1
 ---
 
@@ -34,6 +35,6 @@ You do not need npm. Save this as `hello.html`, open it in a browser, click the 
 
 `html\`...\`` is a tagged template. It builds the same tree JSX would, without a compiler. `${value}` interpolates. `onClick=${fn}` binds an event.
 
-The [playground](/play) edits this kind of file and has **Copy HTML** / **Download .html**.
+The [playground](/play/) edits this kind of file and has **Copy HTML** / **Download .html**.
 
-Using a bundler and JSX instead? See [Bundler](/docs/install).
+Using a bundler and JSX instead? See [Bundler](/docs/install/).

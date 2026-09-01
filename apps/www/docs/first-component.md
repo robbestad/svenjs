@@ -1,6 +1,7 @@
 ---
 title: Your first component
 nav: First component
+description: Create and render a first SvenJS component with local state and an event handler.
 order: 11
 ---
 

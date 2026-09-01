@@ -38,10 +38,10 @@ export const HomePage = create({
               save the file and double-click it.
             </p>
             <div className="cta-row">
-              <a className="btn primary" href="/play">
+              <a className="btn primary" href="/play/">
                 Open playground
               </a>
-              <a className="btn" href="/docs/one-file">
+              <a className="btn" href="/docs/one-file/">
                 The one-file recipe
               </a>
             </div>
@@ -82,11 +82,11 @@ export const HomePage = create({
         <section>
           <p className="kicker">Demos</p>
           <div className="demo-links">
-            <a href="/demo/todo">
+            <a href="/demo/todo/">
               <h3>Todo</h3>
               <p>Add, complete, filter. Same app as the playground export.</p>
             </a>
-            <a href="/play">
+            <a href="/play/">
               <h3>Playground</h3>
               <p>Edit and download a single HTML file.</p>
             </a>

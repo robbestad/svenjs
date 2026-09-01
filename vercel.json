@@ -4,5 +4,5 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter www build",
   "outputDirectory": "apps/www/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "trailingSlash": true
 }

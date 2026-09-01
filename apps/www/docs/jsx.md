@@ -1,6 +1,7 @@
 ---
 title: JSX
 nav: JSX
+description: Configure and use the SvenJS automatic JSX runtime, fragments, attributes, events, and refs.
 order: 13
 ---
 

@@ -8,8 +8,7 @@ export type { JSX } from "./types";
 export function jsx(type: VNode["type"], props: Record<string, unknown> | null, key?: string | number): VNode {
   const p = props ? { ...props } : {};
   if (key !== undefined) p.key = key;
-  const { children, ...rest } = p;
-  return h(type, rest, children);
+  return h(type, p);
 }
 
 export const jsxs = jsx;

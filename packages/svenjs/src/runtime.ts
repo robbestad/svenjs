@@ -1,4 +1,4 @@
-import { applyRef, createDom, isSvgTag, patchProps, VOID } from "./dom";
+import { applyRef, createDom, patchProps, styleText, SVG_NS, validAttributeName, VOID } from "./dom";
 import { freezeState, isDev } from "./freeze";
 import { normalizeRender } from "./h";
 import { FRAGMENT, SPEC, TEXT, type ComponentSpec, type Instance, type VNode } from "./types";
@@ -27,6 +27,8 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
     _mounted: false,
     _destroyed: false,
     _rendering: false,
+    _placeholder: null,
+    _svg: false,
   } as Instance;
 
   for (const key of Object.keys(spec)) {
@@ -36,13 +38,15 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
   }
 
   inst.setState = (next) => setState(inst, next);
-  inst.state = freezeState(spec.initialState !== undefined ? spec.initialState : {});
+  const initial = typeof spec.initialState === "function" ? spec.initialState(props) : spec.initialState;
+  inst.state = freezeState(initial !== undefined ? initial : {});
   return inst;
 }
 
 export function setState(inst: Instance, next: unknown) {
   if (inst._destroyed) return;
   const raw = typeof next === "function" ? (next as (s: unknown) => unknown)(inst.state) : next;
+  if (Object.is(raw, inst.state)) return;
   inst.state = freezeState(raw);
   if (inst._rendering) {
     if (isDev()) console.warn("SvenJS: setState during render; update will flush after");
@@ -63,32 +67,60 @@ export function schedule(inst: Instance) {
 export function flush() {
   scheduled = false;
   flushing = true;
-  const list = [...queue];
-  queue.clear();
-  for (const inst of list) {
-    if (!inst._destroyed && inst._mounted) updateInstance(inst);
+  let failed = false;
+  let failure: unknown;
+  try {
+    const list = [...queue];
+    queue.clear();
+    for (const inst of list) {
+      if (inst._destroyed || !inst._mounted) continue;
+      try {
+        updateInstance(inst);
+      } catch (error) {
+        if (!failed) failure = error;
+        failed = true;
+      }
+    }
+  } finally {
+    flushing = false;
+    if (queue.size && !scheduled) {
+      scheduled = true;
+      queueMicrotask(flush);
+    }
   }
-  flushing = false;
-  if (queue.size) {
-    scheduled = true;
-    queueMicrotask(flush);
-  }
+  if (failed) throw failure;
 }
 
 export function flushSync(fn?: () => void) {
   const was = sync;
   sync = true;
+  let failed = false;
+  let failure: unknown;
   try {
-    fn?.();
-    flush();
+    try {
+      fn?.();
+    } catch (error) {
+      failed = true;
+      failure = error;
+    }
+    try {
+      flush();
+    } catch (error) {
+      if (!failed) failure = error;
+      failed = true;
+    }
   } finally {
     sync = was;
   }
+  if (failed) throw failure;
 }
 
 function collectDom(vnode: VNode | null | undefined): Node[] {
   if (!vnode) return [];
-  if (isSpec(vnode.type) && vnode._instance?._vnode) return collectDom(vnode._instance._vnode);
+  if (isSpec(vnode.type) && vnode._instance) {
+    if (vnode._instance._vnode) return collectDom(vnode._instance._vnode);
+    return vnode._instance._placeholder ? [vnode._instance._placeholder] : [];
+  }
   if (vnode.type === FRAGMENT) {
     const out: Node[] = [];
     if (vnode._dom) out.push(vnode._dom);
@@ -97,6 +129,15 @@ function collectDom(vnode: VNode | null | undefined): Node[] {
     return out;
   }
   return vnode._dom ? [vnode._dom] : [];
+}
+
+function renderInstance(inst: Instance): VNode | null {
+  inst._rendering = true;
+  try {
+    return normalizeRender(inst.render());
+  } finally {
+    inst._rendering = false;
+  }
 }
 
 function warnKeys(children: VNode[]) {
@@ -126,8 +167,8 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   }
 
   if (vnode.type === FRAGMENT) {
-    const start = document.createComment("sven");
-    const end = document.createComment("/sven");
+    const start = document.createComment("");
+    const end = document.createComment("");
     vnode._dom = start;
     vnode._end = end;
     parent.insertBefore(start, anchor);
@@ -143,8 +184,9 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   }
 
   const tag = vnode.type as string;
-  const childSvg = svg || tag === "svg" || isSvgTag(tag);
-  const el = createDom(tag, childSvg);
+  const elementSvg = svg || tag === "svg";
+  const childSvg = elementSvg && tag !== "foreignObject";
+  const el = createDom(tag, elementSvg);
   vnode._dom = el;
   patchProps(el, {}, vnode.props);
   warnKeys(vnode.children);
@@ -158,14 +200,18 @@ function mountComponent(vnode: VNode, parent: Node, anchor: Node | null, svg = f
   const inst = makeInstance(spec, vnode.props);
   vnode._instance = inst;
   inst._parent = parent;
+  inst._svg = svg;
   callHook(inst, "onBeforeMount", "_beforeMount");
-  inst._rendering = true;
-  const rendered = normalizeRender(inst.render());
-  inst._rendering = false;
+  const rendered = renderInstance(inst);
   inst._vnode = rendered;
-  if (rendered) mount(rendered, parent, anchor, svg);
+  if (rendered) {
+    mount(rendered, parent, anchor, svg);
+  } else {
+    inst._placeholder = document.createComment("");
+    parent.insertBefore(inst._placeholder, anchor);
+  }
   inst._mounted = true;
-  vnode._dom = rendered?._dom ?? null;
+  vnode._dom = rendered?._dom ?? inst._placeholder;
   vnode._end = rendered?._end ?? null;
   callHook(inst, "onMount", "_didMount");
 }
@@ -180,7 +226,9 @@ function unmount(vnode: VNode | null | undefined, removeDom = true) {
       inst._mounted = false;
       callHook(inst, "onDestroy", "_willUnmount");
       unmount(inst._vnode, removeDom);
+      if (removeDom) inst._placeholder?.parentNode?.removeChild(inst._placeholder);
       inst._vnode = null;
+      inst._placeholder = null;
     }
     return;
   }
@@ -216,8 +264,8 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
   }
   if (oldV.type !== newV.type) {
     const anchor = collectDom(oldV).pop()?.nextSibling ?? null;
-    mount(newV, parent, anchor, svg);
     unmount(oldV);
+    mount(newV, parent, anchor, svg);
     return;
   }
 
@@ -232,7 +280,7 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
   if (newV.type === FRAGMENT) {
     newV._dom = oldV._dom;
     newV._end = oldV._end;
-    patchChildren(parent, oldV.children, newV.children, svg);
+    patchChildren(parent, oldV.children, newV.children, svg, newV._end ?? null);
     return;
   }
 
@@ -243,36 +291,54 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
 
   const el = oldV._dom as Element;
   newV._dom = el;
-  const childSvg = svg || newV.type === "svg" || isSvgTag(newV.type as string);
+  const elementSvg = svg || newV.type === "svg";
+  const childSvg = elementSvg && newV.type !== "foreignObject";
   patchProps(el, oldV.props, newV.props);
   patchChildren(el, oldV.children, newV.children, childSvg);
+  if (oldV.props.ref !== newV.props.ref) {
+    applyRef(oldV.props, null);
+    applyRef(newV.props, el);
+  }
+}
+
+function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
+  const old = inst._vnode;
+  const parent = inst._parent!;
+  if (!old && rendered) {
+    mount(rendered, parent, inst._placeholder, svg);
+    inst._placeholder?.parentNode?.removeChild(inst._placeholder);
+    inst._placeholder = null;
+  } else if (old && !rendered) {
+    const anchor = collectDom(old).pop()?.nextSibling ?? null;
+    unmount(old);
+    inst._placeholder = document.createComment("");
+    parent.insertBefore(inst._placeholder, anchor);
+  } else if (old && rendered) {
+    patch(parent, old, rendered, svg);
+  }
+  inst._vnode = rendered;
 }
 
 function patchComponent(oldV: VNode, newV: VNode, svg = false) {
   const inst = oldV._instance!;
   newV._instance = inst;
   inst.props = newV.props ?? {};
-  inst._rendering = true;
-  const rendered = normalizeRender(inst.render());
-  inst._rendering = false;
-  patch(inst._parent!, inst._vnode, rendered, svg);
-  inst._vnode = rendered;
-  newV._dom = rendered?._dom ?? null;
+  inst._svg = svg;
+  const rendered = renderInstance(inst);
+  patchRendered(inst, rendered, svg);
+  newV._dom = rendered?._dom ?? inst._placeholder;
   newV._end = rendered?._end ?? null;
   if (inst._mounted) callHook(inst, "onUpdate", "_didUpdate");
 }
 
 function updateInstance(inst: Instance) {
   if (inst._destroyed || !inst._parent) return;
-  inst._rendering = true;
-  const rendered = normalizeRender(inst.render());
-  inst._rendering = false;
-  patch(inst._parent, inst._vnode, rendered);
-  inst._vnode = rendered;
+  const rendered = renderInstance(inst);
+  patchRendered(inst, rendered, inst._svg);
   if (inst._mounted) callHook(inst, "onUpdate", "_didUpdate");
 }
 
-function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false) {
+function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false, boundary: Node | null = null) {
   const oldList = oldCh.filter(Boolean);
   const newList = newCh.filter(Boolean);
   warnKeys(newList);
@@ -297,7 +363,7 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
       used.add(match);
       patch(parent, match, n, svg);
     } else {
-      mount(n, parent, null, svg);
+      mount(n, parent, boundary, svg);
     }
   }
 
@@ -305,7 +371,7 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
     if (!used.has(o)) unmount(o);
   }
 
-  let next: Node | null = null;
+  let next = boundary;
   for (let i = newList.length - 1; i >= 0; i--) {
     const nodes = collectDom(newList[i]);
     if (!nodes.length) continue;
@@ -319,19 +385,113 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
 
 const ROOTS = new WeakMap<Element, VNode>();
 
+function asRootVNode(spec: ComponentSpec | VNode): VNode {
+  if (isSpec(spec)) return { type: spec, props: {}, children: [], key: undefined };
+  return spec;
+}
+
+function propsFromDom(el: Element): Record<string, unknown> {
+  const props: Record<string, unknown> = {};
+  for (const attr of el.attributes) props[attr.name] = attr.value;
+  return props;
+}
+
+function hydrateVNode(vnode: VNode, parent: Node, node: Node | null, svg = false): Node | null {
+  if (vnode.type === TEXT) {
+    if (node?.nodeType !== 3) {
+      mount(vnode, parent, node, svg);
+      return node;
+    }
+    vnode._dom = node;
+    const value = String(vnode.props.nodeValue ?? "");
+    if (node.nodeValue !== value) node.nodeValue = value;
+    return node.nextSibling;
+  }
+
+  if (vnode.type === FRAGMENT) {
+    const start = document.createComment("");
+    parent.insertBefore(start, node);
+    vnode._dom = start;
+    let cursor = node;
+    for (const child of vnode.children) cursor = hydrateVNode(child, parent, cursor, svg);
+    const end = document.createComment("");
+    parent.insertBefore(end, cursor);
+    vnode._end = end;
+    return cursor;
+  }
+
+  if (isSpec(vnode.type)) {
+    const inst = makeInstance(vnode.type, vnode.props);
+    vnode._instance = inst;
+    inst._parent = parent;
+    inst._svg = svg;
+    callHook(inst, "onBeforeMount", "_beforeMount");
+    const rendered = renderInstance(inst);
+    inst._vnode = rendered;
+    let cursor = node;
+    if (rendered) {
+      cursor = hydrateVNode(rendered, parent, node, svg);
+    } else {
+      inst._placeholder = document.createComment("");
+      parent.insertBefore(inst._placeholder, node);
+    }
+    inst._mounted = true;
+    vnode._dom = rendered?._dom ?? inst._placeholder;
+    vnode._end = rendered?._end ?? null;
+    callHook(inst, "onMount", "_didMount");
+    return cursor;
+  }
+
+  const tag = vnode.type as string;
+  const elementSvg = svg || tag === "svg";
+  if (
+    node?.nodeType !== 1 ||
+    (node as Element).localName !== tag ||
+    ((node as Element).namespaceURI === SVG_NS) !== elementSvg
+  ) {
+    mount(vnode, parent, node, svg);
+    return node;
+  }
+
+  const el = node as Element;
+  vnode._dom = el;
+  const childSvg = elementSvg && tag !== "foreignObject";
+  patchProps(el, propsFromDom(el), vnode.props);
+  if (!vnode.props.dangerouslySetInnerHTML) {
+    let cursor: Node | null = el.firstChild;
+    for (const child of vnode.children) cursor = hydrateVNode(child, el, cursor, childSvg);
+    while (cursor) {
+      const next = cursor.nextSibling;
+      el.removeChild(cursor);
+      cursor = next;
+    }
+  }
+  applyRef(vnode.props, el);
+  return el.nextSibling;
+}
+
 export function render(spec: ComponentSpec | VNode, container: Element | null): string | void {
   if (!container) return "Error: No node to attach";
 
-  let next: VNode;
-  if (isSpec(spec)) {
-    next = { type: spec, props: {}, children: [], key: undefined };
-  } else {
-    next = spec;
-  }
+  const next = asRootVNode(spec);
 
   const prev = ROOTS.get(container);
   if (prev) patch(container, prev, next);
   else mount(next, container, null);
+  ROOTS.set(container, next);
+}
+
+export function hydrate(spec: ComponentSpec | VNode, container: Element | null): string | void {
+  if (!container) return "Error: No node to attach";
+  if (ROOTS.has(container)) return render(spec, container);
+
+  const next = asRootVNode(spec);
+  let cursor = hydrateVNode(next, container, container.firstChild);
+  while (cursor) {
+    const following = cursor.nextSibling;
+    container.removeChild(cursor);
+    cursor = following;
+  }
   ROOTS.set(container, next);
 }
 
@@ -350,6 +510,7 @@ function escapeHtml(s: string): string {
 function attrsToString(props: Record<string, any>): string {
   let out = "";
   for (const name in props) {
+    if (!validAttributeName(name)) continue;
     if (name === "key" || name === "children" || name === "ref" || name === "dangerouslySetInnerHTML") continue;
     if (name[0] === "o" && name[1] === "n") continue;
     if (name === "className" || name === "class") {
@@ -360,6 +521,11 @@ function attrsToString(props: Record<string, any>): string {
     }
     const val = props[name];
     if (val == null || val === false || typeof val === "function") continue;
+    if (name === "style") {
+      const style = styleText(val);
+      if (style) out += ` style="${escapeHtml(style)}"`;
+      continue;
+    }
     if (name === "htmlFor") {
       out += ` for="${escapeHtml(String(val))}"`;
       continue;
@@ -380,12 +546,11 @@ function stringify(vnode: VNode | null): string {
   if (isSpec(vnode.type)) {
     const inst = makeInstance(vnode.type, vnode.props);
     callHook(inst, "onBeforeMount", "_beforeMount");
-    inst._rendering = true;
-    const rendered = normalizeRender(inst.render());
-    inst._rendering = false;
+    const rendered = renderInstance(inst);
     return stringify(rendered);
   }
   const tag = vnode.type as string;
+  if (!validAttributeName(tag)) throw new TypeError("SvenJS: invalid tag name");
   const inner = vnode.props.dangerouslySetInnerHTML?.__html;
   const open = `<${tag}${attrsToString(vnode.props)}>`;
   if (VOID.has(tag)) return open;
@@ -397,12 +562,8 @@ export function renderToString(spec: ComponentSpec | VNode): string {
   if (isSpec(spec)) {
     const inst = makeInstance(spec, {});
     callHook(inst, "onBeforeMount", "_beforeMount");
-    inst._rendering = true;
-    const rendered = normalizeRender(inst.render());
-    inst._rendering = false;
+    const rendered = renderInstance(inst);
     return stringify(rendered);
   }
   return stringify(spec);
 }
-
-

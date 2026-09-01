@@ -1,6 +1,6 @@
 {
   "name": "svenjs",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "A tiny UI runtime. One HTML file, a button, state. No npm required.",
   "keywords": [
     "ui",
@@ -49,10 +49,11 @@
   ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node ./scripts/jsx-entries.mjs",
-    "prepublishOnly": "pnpm test && pnpm build",
+    "prepublishOnly": "pnpm test && pnpm typecheck && pnpm build && pnpm check:dist && pnpm size",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "check:dist": "tsc -p tests/fixtures/nodenext/tsconfig.json",
     "size": "node ../../scripts/size.mjs"
   },
   "devDependencies": {

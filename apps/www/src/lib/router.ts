@@ -48,5 +48,6 @@ export function isInternalLink(a: HTMLAnchorElement, event: MouseEvent) {
   if (a.target && a.target !== "_self") return false;
   if (a.hasAttribute("download")) return false;
   if (a.origin !== location.origin) return false;
+  if (a.hash && a.pathname === location.pathname && a.search === location.search) return false;
   return true;
 }

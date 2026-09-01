@@ -1,6 +1,7 @@
 ---
 title: Store
 nav: Store
+description: Share state through the tiny SvenJS publish-and-subscribe store without adding a state library.
 order: 14
 ---
 

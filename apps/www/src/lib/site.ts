@@ -1,0 +1,149 @@
+import type { Route } from "./router";
+import { docs, getDoc } from "./docs";
+import { ClickPage, ComposePage, TodoPage } from "../pages/demos";
+import { DocsPage } from "../pages/docs";
+import { HeritagePage } from "../pages/heritage";
+import { HomePage } from "../pages/home";
+import { PlayGate } from "../pages/play-gate";
+
+const FALLBACK_ORIGIN = "https://svenjs.vercel.app";
+
+function configuredOrigin() {
+  const value = import.meta.env.VITE_SITE_ORIGIN?.trim() || FALLBACK_ORIGIN;
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error("VITE_SITE_ORIGIN must be an http(s) URL");
+  }
+  return url.origin;
+}
+
+export const SITE_ORIGIN = configuredOrigin();
+export const SITE_NAME = "SvenJS 3";
+export const SOCIAL_IMAGE = new URL("/og.png", SITE_ORIGIN).href;
+
+export const routes: Route[] = [
+  { path: "/", component: HomePage },
+  { path: "/play", component: PlayGate },
+  { path: "/demo/todo", component: TodoPage },
+  { path: "/demo/click", component: ClickPage },
+  { path: "/demo/compose", component: ComposePage },
+  { path: "/docs", component: DocsPage },
+  { path: "/docs/:slug", component: DocsPage },
+  { path: "/heritage", component: HeritagePage },
+];
+
+export const staticPaths = [
+  "/",
+  "/play",
+  "/demo/todo",
+  "/demo/click",
+  "/demo/compose",
+  "/docs",
+  ...docs.map((doc) => `/docs/${doc.slug}`),
+  "/heritage",
+];
+
+export type PageMetadata = {
+  title: string;
+  description: string;
+  path: string;
+  canonicalPath?: string;
+  noIndex?: boolean;
+};
+
+const pageMetadata: Record<string, Pick<PageMetadata, "title" | "description">> = {
+  "/": {
+    title: "SvenJS 3 — A tiny UI runtime with state",
+    description: "Build small interactive pages with components, immutable state, and a keyed DOM patch — with or without a build step.",
+  },
+  "/play": {
+    title: "Playground — SvenJS 3",
+    description: "Edit a SvenJS app in the browser, share it, or download it as one self-contained HTML file.",
+  },
+  "/demo/todo": {
+    title: "Todo demo — SvenJS 3",
+    description: "A small SvenJS todo app with editing, filters, immutable state, keyed lists, and local persistence.",
+  },
+  "/demo/click": {
+    title: "Click demo — SvenJS 3",
+    description: "The smallest SvenJS state example: one component, one counter, and one button.",
+  },
+  "/demo/compose": {
+    title: "Component composition — SvenJS 3",
+    description: "See SvenJS parent and child components compose while each child keeps independent state.",
+  },
+  "/docs": {
+    title: "Documentation — SvenJS 3",
+    description: "Learn SvenJS from a one-file page through components, state, lifecycle, stores, JSX, and rendering.",
+  },
+  "/heritage": {
+    title: "Heritage — SvenJS 3",
+    description: "How SvenJS evolved from its Webpack-era 2.x implementation into the small modern version 3 runtime.",
+  },
+};
+
+export function normalizePath(pathname: string) {
+  const path = pathname.split(/[?#]/, 1)[0] || "/";
+  return path === "/" ? "/" : path.replace(/\/+$/, "") || "/";
+}
+
+export function metadataForPath(pathname: string): PageMetadata {
+  const path = normalizePath(pathname);
+
+  if (path.startsWith("/docs/")) {
+    const slug = decodeURIComponent(path.slice("/docs/".length));
+    const doc = getDoc(slug);
+    if (doc) {
+      return {
+        path,
+        title: `${doc.title} — SvenJS 3`,
+        description: doc.description,
+      };
+    }
+  }
+
+  const known = pageMetadata[path];
+  if (known) {
+    return {
+      path,
+      ...known,
+      canonicalPath: path === "/docs" && docs[0] ? `/docs/${docs[0].slug}` : undefined,
+    };
+  }
+
+  return {
+    path,
+    title: "Page not found — SvenJS 3",
+    description: "This SvenJS page does not exist.",
+    noIndex: true,
+  };
+}
+
+export function canonicalUrl(metadata: PageMetadata) {
+  const path = normalizePath(metadata.canonicalPath ?? metadata.path);
+  const route = path === "/" ? "/" : `${path}/`;
+  return new URL(route, SITE_ORIGIN).href;
+}
+
+function setMeta(selector: string, attribute: string, value: string) {
+  const element = document.head.querySelector(selector);
+  element?.setAttribute(attribute, value);
+}
+
+export function syncDocumentMetadata(pathname: string) {
+  if (typeof document === "undefined") return;
+  const metadata = metadataForPath(pathname);
+  const canonical = canonicalUrl(metadata);
+
+  document.title = metadata.title;
+  setMeta('meta[name="description"]', "content", metadata.description);
+  setMeta('meta[name="robots"]', "content", metadata.noIndex ? "noindex, nofollow" : "index, follow");
+  setMeta('link[rel="canonical"]', "href", canonical);
+  setMeta('meta[property="og:title"]', "content", metadata.title);
+  setMeta('meta[property="og:description"]', "content", metadata.description);
+  setMeta('meta[property="og:url"]', "content", canonical);
+  setMeta('meta[property="og:image"]', "content", SOCIAL_IMAGE);
+  setMeta('meta[name="twitter:title"]', "content", metadata.title);
+  setMeta('meta[name="twitter:description"]', "content", metadata.description);
+  setMeta('meta[name="twitter:image"]', "content", SOCIAL_IMAGE);
+}

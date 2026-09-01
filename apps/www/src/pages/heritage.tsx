@@ -35,7 +35,7 @@ export const HeritagePage = create({
           and no promise that old examples compile unchanged. The demos were ported by hand.
         </p>
         <p>
-          <a href="/docs/first-component">Write a component</a> or <a href="/play">open the playground</a>.
+          <a href="/docs/first-component/">Write a component</a> or <a href="/play/">open the playground</a>.
         </p>
       </article>
     );

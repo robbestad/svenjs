@@ -4,19 +4,18 @@ export type Filter = "all" | "active" | "completed";
 type Todo = { id: number; message: string; complete: boolean; editing: boolean };
 
 const STORAGE = "svenjs-todos";
+const DEFAULT_ITEMS: Todo[] = [
+  { id: 1, message: "Answer all the mail", complete: false, editing: false },
+  { id: 2, message: "Get a cup of coffee", complete: false, editing: false },
+];
 
 function load(): Todo[] {
   try {
     const raw = localStorage.getItem(STORAGE);
-    if (!raw) {
-      return [
-        { id: 1, message: "Answer all the mail", complete: false, editing: false },
-        { id: 2, message: "Get a cup of coffee", complete: false, editing: false },
-      ];
-    }
+    if (!raw) return DEFAULT_ITEMS;
     return JSON.parse(raw) as Todo[];
   } catch {
-    return [];
+    return DEFAULT_ITEMS;
   }
 }
 
@@ -31,9 +30,9 @@ function readFilter(search: string): Filter {
 }
 
 export const TodoDemo = create<{ search?: string }, { items: Todo[]; draft: string; editText: string }>({
-  initialState: { items: [], draft: "", editText: "" },
-  onBeforeMount() {
-    this.state = { items: load(), draft: "", editText: "" };
+  initialState: { items: DEFAULT_ITEMS, draft: "", editText: "" },
+  onMount() {
+    this.setState({ ...this.state, items: load() });
   },
   filter(): Filter {
     return readFilter(this.props.search ?? location.search);
@@ -154,18 +153,18 @@ export const TodoDemo = create<{ search?: string }, { items: Todo[]; draft: stri
                 {remaining} {remaining === 1 ? "item" : "items"} left
               </span>
               <nav className="todo-filters subnav">
-                <a href="/demo/todo" className={filter === "all" ? "selected" : ""} aria-current={filter === "all" ? "page" : undefined}>
+                <a href="/demo/todo/" className={filter === "all" ? "selected" : ""} aria-current={filter === "all" ? "page" : undefined}>
                   All
                 </a>
                 <a
-                  href="/demo/todo?filter=active"
+                  href="/demo/todo/?filter=active"
                   className={filter === "active" ? "selected" : ""}
                   aria-current={filter === "active" ? "page" : undefined}
                 >
                   Active
                 </a>
                 <a
-                  href="/demo/todo?filter=completed"
+                  href="/demo/todo/?filter=completed"
                   className={filter === "completed" ? "selected" : ""}
                   aria-current={filter === "completed" ? "page" : undefined}
                 >

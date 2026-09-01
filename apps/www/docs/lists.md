@@ -1,6 +1,7 @@
 ---
 title: Lists
 nav: Lists
+description: Render and update SvenJS lists with stable keys so DOM nodes and component state follow each item.
 order: 3
 ---
 
