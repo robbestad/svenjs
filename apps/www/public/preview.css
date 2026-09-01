@@ -1,0 +1,102 @@
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f7f1ea, #141210);
+  --fg: light-dark(#1c1712, #f2ebe3);
+  --muted: light-dark(#6b6158, #a3988c);
+  --line: light-dark(color-mix(in oklab, #1c1712 12%, transparent), color-mix(in oklab, #f2ebe3 14%, transparent));
+  --accent: light-dark(#c45c20, #e07a3d);
+  --accent-fg: #fff;
+  --card: light-dark(#fffdf9, #1c1915);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+#app { min-height: 100%; padding: 1.25rem; }
+
+button, input, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  border-radius: 8px;
+  padding: 0.55rem 0.95rem;
+}
+
+button:hover { filter: brightness(1.05); }
+
+input[type="text"] {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+.demo-card {
+  max-width: 28rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+}
+
+.demo-card h1, .demo-card h2, .demo-card h3 {
+  font-family: Newsreader, Georgia, serif;
+  font-weight: 650;
+  margin: 0 0 0.75rem;
+}
+
+.demo-card p { color: var(--muted); margin: 0.75rem 0 0; }
+
+.todo-app { max-width: 32rem; margin: 0 auto; }
+.todo-app h1 {
+  font-family: Newsreader, Georgia, serif;
+  font-weight: 650;
+  font-size: 2.4rem;
+  margin: 0 0 1rem;
+  letter-spacing: -0.03em;
+}
+.todo-list { list-style: none; margin: 1rem 0; padding: 0; }
+.todo-list li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.todo-list li.done label { color: var(--muted); text-decoration: line-through; }
+.todo-list .destroy {
+  margin-left: auto;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.2rem 0.45rem;
+}
+.todo-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.todo-filters a {
+  color: var(--fg);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.85rem;
+}
+.todo-filters a.selected { border-color: var(--accent); color: var(--accent); }
+.compose-grid { display: grid; gap: 0.75rem; }
+.compose-grid > * {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}

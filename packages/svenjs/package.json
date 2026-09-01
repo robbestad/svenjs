@@ -1,0 +1,56 @@
+{
+  "name": "svenjs",
+  "version": "3.0.0",
+  "description": "A tiny JavaScript framework for composable web apps",
+  "type": "module",
+  "license": "ISC",
+  "author": "Sven Anders Robbestad",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robbestad/svenjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/robbestad/svenjs/issues"
+  },
+  "homepage": "https://github.com/robbestad/svenjs#readme",
+  "sideEffects": false,
+  "main": "./dist/svenjs.js",
+  "module": "./dist/svenjs.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/svenjs.iife.js",
+  "jsdelivr": "./dist/svenjs.iife.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/svenjs.js",
+      "default": "./dist/svenjs.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx-dev-runtime.d.ts",
+      "import": "./dist/jsx-dev-runtime.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node ./scripts/jsx-entries.mjs",
+    "prepublishOnly": "pnpm test && pnpm build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "size": "node ../../scripts/size.mjs"
+  },
+  "devDependencies": {
+    "happy-dom": "^17.4.4",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.4",
+    "vitest": "^3.0.9"
+  }
+}

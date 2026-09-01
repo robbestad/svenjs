@@ -1,43 +1,19 @@
 {
-  "name": "svenjs",
-  "version": "2.0.2",
-  "description": "A micro javascript framework for creating composable web apps",
+  "name": "svenjs-workspace",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "tape tests/*",
-    "build": "NODE_ENV=production webpack -p && npx rollup --config rollup.config.js",
-    "postbuild": "cp dist/index.js npmbuild && cp dist/*.js assets/",
-    "build:watch": "sane 'NODE_ENV=development npm run build'  --glob='src/**/*.js' --watchman",
-    "watch": "sane 'npm run build'  --glob='src/**/*.js' --watchman"
+    "dev": "pnpm --filter www dev",
+    "build": "pnpm --filter svenjs build && pnpm --filter www build",
+    "test": "pnpm --filter svenjs test",
+    "test:e2e": "pnpm --filter www test:e2e",
+    "typecheck": "pnpm -r typecheck"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/svenanders/svenjs.git"
+  "engines": {
+    "node": ">=20"
   },
-  "main": "dist/index.js",
-  "directories": {
-    "example": "example"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.0.0-rc.1",
-    "@babel/preset-env": "^7.0.0-rc.1",
-    "@babel/preset-react": "^7.0.0-rc.1",
-    "babel-eslint": "^8.2.6",
-    "babel-loader": "^8.0.0-beta.4",
-    "eslint": "^5.4.0",
-    "jsdom": "^12.0.0",
-    "jstransform": "^11.0.3",
-    "rimraf": "^2.3.4",
-    "rollup": "^0.64.1",
-    "sane": "^3.0.0",
-    "tape": "~4.9.1",
-    "webpack": "^4.17.0",
-    "webpack-cli": "^3.1.0",
-    "webpack-serve": "^2.0.2"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "svenjsx": "^0.3.1",
-    "svenjsx-loader": "^0.3.1"
+  "packageManager": "pnpm@10.9.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "svenjs",
+    "strict": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "paths": {
+      "svenjs": ["./src/index.ts"],
+      "svenjs/jsx-runtime": ["./src/jsx-runtime.ts"],
+      "svenjs/jsx-dev-runtime": ["./src/jsx-runtime.ts"]
+    }
+  },
+  "include": ["src", "tests"]
+}

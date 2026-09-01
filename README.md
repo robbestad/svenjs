@@ -1,78 +1,59 @@
-# SvenJS
+# SvenJS 3
 
-A JavaScript framework for composable web apps
+A tiny JavaScript framework for composable web apps. JSX, immutable state, keyed DOM patch. No compiler.
 
-# Demos
-
-  - [TodoMVC](http://svenanders.github.io/svenjs-todomvc/) ([Source](https://github.com/svenanders/svenjs-todomvc))
-
-# Releases
-
- - 2.0.2: ES modules, bug fixes and more!
- - 0.3.2: Added *_beforeMount* life cycle method. 
- - 0.3.1: Added composition (importing components and referencing them in JSX by name). For instance: _const SecondComponent = require("SecondComponent")_. Referenced in _render_ like this: _<SecondComponent />_
- - 0.3.0: Renamed life cycle methods. New names: *_didMount* & *_didUpdate*
-
-# Features
-
- - Enforced state immutability
-
- - Minimal file size
-
-# Goals
-
- - Can be used in a browser script tag (almost there)
-
- - A web library that enables you to write code that can be accessed both serverside and clientside
-
- - Built in store implementation (todo)
-
-# Install
-
-Use the npm version:
+This is a rewrite of SvenJS 2: same `create` / `setState` mental model, TypeScript runtime, Vite playground.
 
 ```bash
-  npm install svenjs
+pnpm install
+pnpm dev
 ```
 
-Build youself. Clone this repo and run
+```jsx
+import { create, render } from "svenjs";
 
-```bash
-  npm run build
-```
-
-# How to use 
-
-```html
-import SvenJs from "svenjs";
-
-SvenJs.create({
-    initialState: {
-        clicks: 0
-    },
-    render() {
-    const clickFunc = () =>{
-      let clicks=this.state.clicks;
-      this.setState({clicks: ++clicks });
-    }
-    return (<div id="row">
-            <h3>The Click App</h3>
-            <div>
-              <button onClick={clickFunc}>Click me?</button>
-            </div>
-        <div>
-            <h3>Click stats</h3>
-          <p>You have clicked on the button {this.state.clicks} times</p>
-        </div>
-    </div>)
-    }
+const App = create({
+  initialState: { clicks: 0 },
+  render() {
+    return (
+      <button onClick={() => this.setState({ clicks: this.state.clicks + 1 })}>
+        {this.state.clicks}
+      </button>
+    );
+  },
 });
-SvenJs.render(App, document.getElementById("app"))
+
+render(App, document.getElementById("app"));
 ```
 
-## Related Modules
+## Packages
 
-* [svenjsx](https://github.com/svenanders/svenjsx) - JSX as used by SvenJS.
+- `packages/svenjs` — runtime (`create`, `render`, `createStore`, JSX runtime)
+- `apps/www` — docs, demos, and live playground (dogfoods the runtime)
 
-* [svenjsx-loader](https://github.com/svenanders/svenjsx-loader) - Webpack loader for SvenJS.
+## Scripts
 
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Playground + docs at http://localhost:5173 |
+| `pnpm test` | Runtime tests (Vitest) |
+| `pnpm test:e2e` | Playwright smoke tests for the site |
+| `pnpm build` | Library + site |
+| `pnpm --filter svenjs size` | Gzip size of the ESM build |
+
+## tsconfig
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "svenjs"
+  }
+}
+```
+
+See [Heritage](apps/www/src/pages/heritage.tsx) for 2.x → 3.x. 2.0.2 is not drop-in compatible.
+
+## License
+
+ISC

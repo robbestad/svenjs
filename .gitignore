@@ -3,3 +3,17 @@
 dist
 build
 node_modules
+.vite
+.turbo
+test-results
+playwright-report
+apps/www/test-results
+apps/www/playwright-report
+playwright/.cache
+*.log
+.pnpm-store
+.playwright-mcp
+home-desktop.png
+home-mobile.png
+home-dark.png
+playground.png

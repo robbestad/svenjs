@@ -1,0 +1,29 @@
+{
+  "name": "www",
+  "private": true,
+  "version": "3.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.3",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "codemirror": "^6.0.1",
+    "lz-string": "^1.5.0",
+    "markdown-it": "^14.1.0",
+    "sucrase": "^3.35.0",
+    "svenjs": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/markdown-it": "^14.1.2",
+    "esbuild": "^0.25.1",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.4"
+  }
+}
