@@ -1,7 +1,15 @@
 {
   "name": "svenjs",
-  "version": "3.0.0",
-  "description": "A tiny JavaScript framework for composable web apps",
+  "version": "3.0.1",
+  "description": "A tiny UI runtime. One HTML file, a button, state. No npm required.",
+  "keywords": [
+    "ui",
+    "jsx",
+    "htm",
+    "no-build",
+    "components",
+    "vdom"
+  ],
   "type": "module",
   "license": "ISC",
   "author": "Sven Anders Robbestad",
@@ -52,5 +60,8 @@
     "typescript": "^5.8.2",
     "vite": "^6.2.4",
     "vitest": "^3.0.9"
+  },
+  "dependencies": {
+    "htm": "^3.1.1"
   }
 }

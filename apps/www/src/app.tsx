@@ -122,7 +122,9 @@ export const App = create<Record<string, never>, ShellState>({
           <Page params={params} search={this.state.search} />
         </main>
         <footer className="foot">
-          <span>SvenJS 3 · ISC</span>
+          <span>
+            SvenJS 3 · ISC · <a href="/heritage">Heritage</a>
+          </span>
           <span>
             <a href="https://github.com/svenanders/svenjs">GitHub</a>
           </span>

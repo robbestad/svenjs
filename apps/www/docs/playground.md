@@ -1,19 +1,13 @@
 ---
 title: Playground
 nav: Playground
-order: 9
+order: 5
 ---
 
-The [playground](/play) compiles what you type with Sucrase (`jsx` + TypeScript) and loads it in an iframe with `sandbox="allow-scripts"`.
+The [playground](/play) runs your script against a local IIFE build in a sandboxed iframe.
 
-Examples are written as real modules:
-
-```jsx
-import { create, render } from "svenjs";
-```
-
-Those imports are rewritten to the IIFE build before the iframe runs, so a unique-origin sandbox can still load the runtime (module scripts from `origin: null` are blocked by CORS).
+**Copy HTML** and **Download .html** wrap the editor in a file that loads `https://unpkg.com/svenjs@3`. Open that file from disk. No npm.
 
 Share links store a compressed copy of the source in the URL hash. Nothing is uploaded.
 
-The iframe cannot see the parent page. Do not paste secrets into it anyway.
+The iframe cannot see the parent page. Do not paste secrets into it.

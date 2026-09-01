@@ -1,7 +1,7 @@
 ---
 title: Your first component
 nav: First component
-order: 2
+order: 11
 ---
 
 A component is a spec object. `create()` tags it; `render()` mounts it.

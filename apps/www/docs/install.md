@@ -1,10 +1,10 @@
 ---
-title: Install
-nav: Install
-order: 1
+title: Using a bundler
+nav: Bundler
+order: 10
 ---
 
-SvenJS 3 is a single ESM package. Use it with Vite (this site does) or any bundler that understands the automatic JSX runtime.
+Most people should start with [a page in one file](/docs/one-file). If you already have Vite, you can import SvenJS like any ESM package.
 
 ```bash
 npm install svenjs

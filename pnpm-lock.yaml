@@ -49,6 +49,10 @@ importers:
         version: 6.4.3
 
   packages/svenjs:
+    dependencies:
+      htm:
+        specifier: ^3.1.1
+        version: 3.1.1
     devDependencies:
       happy-dom:
         specifier: ^17.4.4
@@ -545,6 +549,9 @@ packages:
   happy-dom@17.6.3:
     resolution: {integrity: sha512-UVIHeVhxmxedbWPCfgS55Jg2rDfwf2BCKeylcPSqazLz5w3Kri7Q4xdBJubsr/+VUzFLh0VjIvh13RaDA2/Xug==}
     engines: {node: '>=20.0.0'}
+
+  htm@3.1.1:
+    resolution: {integrity: sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ==}
 
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
@@ -1189,6 +1196,8 @@ snapshots:
     dependencies:
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
+
+  htm@3.1.1: {}
 
   js-tokens@9.0.1: {}
 

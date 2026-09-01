@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SvenJS — hello</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script src="https://unpkg.com/svenjs@3"></script>
+  <script>
+    const { create, render, html } = Svenjs;
+
+    const App = create({
+      initialState: { clicks: 0 },
+      render() {
+        return html`
+          <div>
+            <h1>The Click App</h1>
+            <button onClick=${() => this.setState({ clicks: this.state.clicks + 1 })}>
+              Why not click me?
+            </button>
+            <p>You have clicked ${this.state.clicks} times.</p>
+          </div>
+        `;
+      },
+    });
+
+    render(App, document.getElementById("app"));
+  </script>
+</body>
+</html>

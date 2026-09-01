@@ -4,27 +4,21 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import LZString from "lz-string";
 import { transform } from "sucrase";
 import { create } from "svenjs";
-import blank from "../playground/examples/blank.jsx?raw";
-import click from "../playground/examples/click.jsx?raw";
-import compose from "../playground/examples/compose.jsx?raw";
-import todo from "../playground/examples/todo.jsx?raw";
+import {
+  BLANK_JS,
+  CDN,
+  COMPOSE_JS,
+  HELLO_JS,
+  TODO_JS,
+  wrapHtmlFile,
+} from "../lib/one-file";
 
 const EXAMPLES: Record<string, string> = {
-  click,
-  todo,
-  compose,
-  blank,
+  click: HELLO_JS,
+  todo: TODO_JS,
+  compose: COMPOSE_JS,
+  blank: BLANK_JS,
 };
-
-function compile(source: string) {
-  const { code } = transform(source, {
-    transforms: ["jsx", "typescript"],
-    jsxRuntime: "automatic",
-    jsxImportSource: "svenjs",
-    production: true,
-  });
-  return code;
-}
 
 function rewriteImports(code: string) {
   return code.replace(
@@ -40,12 +34,23 @@ function rewriteImports(code: string) {
   );
 }
 
-function previewDoc(code: string, error: string) {
+function toIframeScript(source: string) {
+  if (!/from\s+["']svenjs/.test(source)) return source;
+  const { code } = transform(source, {
+    transforms: ["jsx", "typescript"],
+    jsxRuntime: "automatic",
+    jsxImportSource: "svenjs",
+    production: true,
+  });
+  return rewriteImports(code);
+}
+
+function previewDoc(source: string, error: string) {
   if (error) {
     return `<!DOCTYPE html><html><body style="font:14px/1.4 ui-monospace,monospace;color:#ff8a80;padding:1rem;white-space:pre-wrap">${escapeHtml(error)}</body></html>`;
   }
   const runtime = `${location.origin}/playground-svenjs.js`;
-  const safe = rewriteImports(code).replace(/<\/script/gi, "<\\/script");
+  const safe = toIframeScript(source).replace(/<\/script/gi, "<\\/script");
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,28 +83,19 @@ function readHash() {
 
 export const PlayPage = create({
   initialState: {
-    source: click,
+    source: HELLO_JS,
     example: "click",
-    compiled: "",
     error: "",
-    copied: false,
+    copied: "",
   },
   onBeforeMount() {
     const shared = readHash();
     const source = shared || this.state.source;
-    let compiled = "";
-    let error = "";
-    try {
-      compiled = compile(source);
-    } catch (err) {
-      error = err instanceof Error ? err.message : String(err);
-    }
     this.state = {
       source,
       example: shared ? "shared" : "click",
-      compiled,
-      error,
-      copied: false,
+      error: "",
+      copied: "",
     };
   },
   attach(el: HTMLElement | null) {
@@ -128,20 +124,20 @@ export const PlayPage = create({
   },
   applySource(source: string, example: string) {
     try {
-      const compiled = compile(source);
-      this.setState({ ...this.state, source, example, compiled, error: "", copied: false });
+      toIframeScript(source);
+      this.setState({ ...this.state, source, example, error: "", copied: "" });
     } catch (err) {
       this.setState({
         ...this.state,
         source,
         example,
         error: err instanceof Error ? err.message : String(err),
-        copied: false,
+        copied: "",
       });
     }
   },
   loadExample(name: string) {
-    const source = EXAMPLES[name] ?? blank;
+    const source = EXAMPLES[name] ?? BLANK_JS;
     this.view?.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: source },
     });
@@ -152,7 +148,27 @@ export const PlayPage = create({
     const url = `${location.origin}/play#code=${packed}`;
     history.replaceState({}, "", `/play#code=${packed}`);
     navigator.clipboard?.writeText(url);
-    this.setState({ ...this.state, copied: true });
+    this.setState({ ...this.state, copied: "link" });
+  },
+  async fileHtml() {
+    const runtime = await fetch(`${location.origin}/playground-svenjs.js`).then((r) => r.text());
+    return wrapHtmlFile(this.state.source, CDN, runtime);
+  },
+  copyHtml() {
+    this.fileHtml().then((html: string) => {
+      navigator.clipboard?.writeText(html);
+      this.setState({ ...this.state, copied: "html" });
+    });
+  },
+  downloadHtml() {
+    this.fileHtml().then((html: string) => {
+      const blob = new Blob([html], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "svenjs-app.html";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
   },
   onDestroy() {
     clearTimeout(this._timer);
@@ -163,7 +179,9 @@ export const PlayPage = create({
       <div className="play">
         <div>
           <h1 className="page-title">Playground</h1>
-          <p className="page-lede">Edit JSX in the browser. It compiles with Sucrase and runs in a sandboxed iframe against the SvenJS 3 runtime.</p>
+          <p className="page-lede">
+            Edit in the browser. Download a single HTML file — open it locally, no npm.
+          </p>
         </div>
         <div className="play-toolbar">
           <label>
@@ -178,8 +196,14 @@ export const PlayPage = create({
               <option value="blank">Blank</option>
             </select>
           </label>
+          <button type="button" onClick={() => this.copyHtml()}>
+            {this.state.copied === "html" ? "Copied HTML" : "Copy HTML"}
+          </button>
+          <button type="button" onClick={() => this.downloadHtml()}>
+            Download .html
+          </button>
           <button type="button" onClick={() => this.share()}>
-            {this.state.copied ? "Copied link" : "Copy share link"}
+            {this.state.copied === "link" ? "Copied link" : "Copy share link"}
           </button>
         </div>
         {this.state.error ? <p className="play-error">{this.state.error}</p> : null}
@@ -189,7 +213,7 @@ export const PlayPage = create({
             className="play-preview"
             title="Playground preview"
             sandbox="allow-scripts"
-            srcdoc={previewDoc(this.state.compiled, this.state.error)}
+            srcdoc={previewDoc(this.state.source, this.state.error)}
           />
         </div>
       </div>

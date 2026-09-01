@@ -1,21 +1,21 @@
 ---
 title: Components and props
 nav: Components
-order: 6
+order: 4
 ---
 
-Nest specs by using them as JSX tags.
+Nest specs with `<${Child} />` in a template (or `<Child />` if you compile JSX).
 
-```jsx
+```js
 const Welcome = create({
   render() {
-    return <p>{this.props.greeting ?? "Hello"}</p>;
+    return html`<p>${this.props.greeting ?? "Hello"}</p>`;
   },
 });
 
 const Page = create({
   render() {
-    return <Welcome greeting="We meet again." />;
+    return html`<${Welcome} greeting="We meet again." />`;
   },
 });
 ```

@@ -504,6 +504,39 @@ a:hover { color: var(--accent-2); }
 
 .not-found { text-align: center; padding: 4rem 1rem; }
 
+.recipe {
+  margin: 0 0 3rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-sunken);
+}
+.recipe-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.recipe-bar .btn { padding: 0.35rem 0.75rem; font-size: 0.88rem; }
+.recipe pre {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  overflow: auto;
+  max-height: 22rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.recipe code { background: none; padding: 0; color: var(--fg); }
+
+.size-badge { text-decoration: none; }
+
 @media (max-width: 860px) {
   .hero, .features, .demo-links, .docs, .play-grid {
     grid-template-columns: 1fr;

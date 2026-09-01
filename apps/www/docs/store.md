@@ -1,7 +1,7 @@
 ---
 title: Store
 nav: Store
-order: 7
+order: 14
 ---
 
 `createStore` is a tiny pub/sub. It is not Redux.

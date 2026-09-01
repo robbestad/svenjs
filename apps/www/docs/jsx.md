@@ -1,7 +1,7 @@
 ---
 title: JSX
 nav: JSX
-order: 4
+order: 13
 ---
 
 JSX compiles to `h()` via the automatic runtime (`jsx` / `jsxs` / `Fragment`).

@@ -1,8 +1,8 @@
 # SvenJS 3
 
-A tiny JavaScript framework for composable web apps. JSX, immutable state, keyed DOM patch. No compiler.
+A tiny JavaScript framework for composable web apps. One HTML file, a button, state. No npm required.
 
-This is a rewrite of SvenJS 2: same `create` / `setState` mental model, TypeScript runtime, Vite playground.
+`html\`...\`` tagged templates in a script tag, or JSX if you already have Vite.
 
 ```bash
 pnpm install

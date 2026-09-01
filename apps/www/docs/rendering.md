@@ -1,7 +1,7 @@
 ---
 title: Rendering
 nav: Rendering
-order: 8
+order: 15
 ---
 
 `render(App, element)` mounts a spec (or a vnode) into a DOM node. Calling it again on the same node patches instead of wiping.

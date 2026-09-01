@@ -20,7 +20,7 @@ test("todo add and complete", async ({ page }) => {
 
 test("docs render", async ({ page }) => {
   await page.goto("/docs");
-  await expect(page.getByRole("heading", { name: "Install" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "A page in one file" })).toBeVisible();
   await page.getByRole("link", { name: "State" }).click();
   await expect(page.getByRole("heading", { name: "State" })).toBeVisible();
 });

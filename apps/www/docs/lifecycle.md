@@ -1,7 +1,7 @@
 ---
 title: Lifecycle
 nav: Lifecycle
-order: 5
+order: 12
 ---
 
 Preferred names:

@@ -1,7 +1,7 @@
 ---
 title: State
 nav: State
-order: 3
+order: 2
 ---
 
 `setState` **replaces** state. It does not merge. That is the 2.x contract.
