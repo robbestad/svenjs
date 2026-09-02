@@ -7,7 +7,7 @@ export function createMissionControl({ create, createStore, html }) {
   const STATUS_ORDER = { critical: 0, watch: 1, nominal: 2 };
 
   const MISSION_CSS = `
-.mission-console{--mc-bg:#10100e;--mc-surface:#181713;--mc-surface-2:#201e19;--mc-ink:#f3eee6;--mc-muted:#aaa194;--mc-rule:#38342c;--mc-accent:#ed7d3a;--mc-accent-ink:#211b15;--mc-accent-soft:#f0b27a;--mc-ok:#70c9a5;--mc-warn:#e5b65b;--mc-info:#74abc1;--mc-critical:#ff8a80;--mc-log-height:29rem;color-scheme:dark;color:var(--mc-ink);background:var(--mc-bg);border:1px solid var(--mc-rule);border-radius:16px;overflow:hidden;font:14px/1.45 var(--font-ui,system-ui,sans-serif);box-shadow:0 24px 70px rgb(0 0 0/.2);position:relative}
+.mission-console{--mc-bg:#10100e;--mc-surface:#181713;--mc-surface-2:#201e19;--mc-ink:#f3eee6;--mc-muted:#aaa194;--mc-rule:#38342c;--mc-accent:#ed7d3a;--mc-accent-ink:#211b15;--mc-accent-soft:#f0b27a;--mc-ok:#70c9a5;--mc-warn:#e5b65b;--mc-info:#74abc1;--mc-critical:#ff8a80;--mc-log-height:29rem;--mc-alerts-height:34rem;color-scheme:dark;color:var(--mc-ink);background:var(--mc-bg);border:1px solid var(--mc-rule);border-radius:16px;overflow:hidden;font:14px/1.45 var(--font-ui,system-ui,sans-serif);box-shadow:0 24px 70px rgb(0 0 0/.2);position:relative}
 .mission-console[data-mission-theme="paper"]{--mc-bg:#f2ede4;--mc-surface:#fffaf2;--mc-surface-2:#e8e0d4;--mc-ink:#211b15;--mc-muted:#6d6256;--mc-rule:#cfc3b3;--mc-accent:#b94f18;--mc-accent-ink:#fffaf2;--mc-accent-soft:#8d4a24;--mc-ok:#24735b;--mc-warn:#8a5c08;--mc-info:#32667c;--mc-critical:#b42318;color-scheme:light;box-shadow:0 24px 70px rgb(55 40 25/.12)}
 .mission-console:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(var(--mc-rule) 1px,transparent 1px),linear-gradient(90deg,var(--mc-rule) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,transparent,black 12rem,transparent 80%)}
 .mission-console *{box-sizing:border-box}
@@ -97,7 +97,7 @@ export function createMissionControl({ create, createStore, html }) {
 .mission-tabs button{min-height:2rem;padding:.25rem .55rem}
 .mission-tabs button[aria-pressed="true"]{border-color:var(--mc-accent);color:var(--mc-accent)}
 .mission-tab-copy{min-height:3.5rem;color:var(--mc-muted);font-size:.8rem}
-.mission-alerts{min-height:0;flex:1;display:flex;flex-direction:column;max-height:var(--mc-log-height)}
+.mission-alerts{min-height:0;flex:1;display:flex;flex-direction:column;max-height:var(--mc-alerts-height)}
 .mission-alert-tools{display:flex;gap:.5rem;padding:.7rem 1rem;border-bottom:1px solid var(--mc-rule)}
 .mission-alert-tools select{min-height:2.25rem;border:1px solid var(--mc-rule);border-radius:6px;background:var(--mc-bg);color:var(--mc-ink);padding:.3rem .5rem}
 .mission-alert-list{list-style:none;margin:0;padding:0;min-height:0;flex:1;overflow:auto;overscroll-behavior:contain}
