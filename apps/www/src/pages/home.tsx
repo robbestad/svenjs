@@ -94,6 +94,10 @@ export const HomePage = create({
               <h3>hello.html</h3>
               <p>The recipe, served as a page. View source.</p>
             </a>
+            <a href="https://robbestad-blog-archive.vercel.app">
+              <h3>Robbestad Blog Archive</h3>
+              <p>A complete SvenJS application built as a searchable blog archive.</p>
+            </a>
           </div>
         </section>
       </div>
