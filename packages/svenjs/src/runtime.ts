@@ -135,20 +135,22 @@ export function flushSync(fn?: () => void) {
   if (failed) throw failure;
 }
 
-function collectDom(vnode: VNode | null | undefined): Node[] {
-  if (!vnode) return [];
-  if (isSpec(vnode.type) && vnode._instance) {
-    if (vnode._instance._vnode) return collectDom(vnode._instance._vnode);
-    return vnode._instance._placeholder ? [vnode._instance._placeholder] : [];
+function lastNode(vnode: VNode | null | undefined): Node | null {
+  return vnode?._end ?? vnode?._dom ?? null;
+}
+
+function moveVNode(parent: Node, vnode: VNode, next: Node | null) {
+  const start = vnode._dom;
+  if (!start) return;
+  const end = vnode._end ?? start;
+  if (end.nextSibling === next) return;
+  let node: Node | null = start;
+  while (node) {
+    const following: Node | null = node.nextSibling;
+    parent.insertBefore(node, next);
+    if (node === end) break;
+    node = following;
   }
-  if (vnode.type === FRAGMENT) {
-    const out: Node[] = [];
-    if (vnode._dom) out.push(vnode._dom);
-    for (const c of vnode.children) out.push(...collectDom(c));
-    if (vnode._end) out.push(vnode._end);
-    return out;
-  }
-  return vnode._dom ? [vnode._dom] : [];
 }
 
 function renderInstance(inst: Instance): VNode | null {
@@ -288,7 +290,7 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
     return;
   }
   if (oldV.type !== newV.type) {
-    const anchor = collectDom(oldV).pop()?.nextSibling ?? null;
+    const anchor = lastNode(oldV)?.nextSibling ?? null;
     unmount(oldV);
     mount(newV, parent, anchor, svg);
     return;
@@ -337,7 +339,7 @@ function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
     inst._placeholder?.parentNode?.removeChild(inst._placeholder);
     inst._placeholder = null;
   } else if (old && !rendered) {
-    const anchor = collectDom(old).pop()?.nextSibling ?? null;
+    const anchor = lastNode(old)?.nextSibling ?? null;
     unmount(old);
     inst._placeholder = document.createComment("");
     parent.insertBefore(inst._placeholder, anchor);
@@ -380,25 +382,33 @@ function updateInstance(inst: Instance) {
 }
 
 function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false, boundary: Node | null = null) {
-  const oldList = oldCh.filter(Boolean);
-  const newList = newCh.filter(Boolean);
-  if (import.meta.env.DEV) warnKeys(newList);
+  if (import.meta.env.DEV) warnKeys(newCh);
+
+  const oldLen = oldCh.length;
+  const newLen = newCh.length;
+  if (oldLen === newLen && oldLen) {
+    let i = 0;
+    for (; i < oldLen; i++) if (oldCh[i].key == null || oldCh[i].key !== newCh[i].key) break;
+    if (i === oldLen) {
+      for (let j = 0; j < newLen; j++) patch(parent, oldCh[j], newCh[j], svg);
+      return;
+    }
+  }
 
   const oldByKey = new Map<string | number, VNode>();
-  for (const o of oldList) {
+  for (const o of oldCh) {
     if (o.key != null) oldByKey.set(o.key, o);
   }
 
   const used = new Set<VNode>();
 
-  for (const n of newList) {
+  for (const n of newCh) {
     let match: VNode | undefined;
     if (n.key != null) {
       const keyed = oldByKey.get(n.key);
       if (keyed && keyed.type === n.type) match = keyed;
-    }
-    if (!match) {
-      match = oldList.find((o) => !used.has(o) && o.key == null && o.type === n.type);
+    } else {
+      match = oldCh.find((o) => !used.has(o) && o.key == null && o.type === n.type);
     }
     if (match) {
       used.add(match);
@@ -408,19 +418,15 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
     }
   }
 
-  for (const o of oldList) {
+  for (const o of oldCh) {
     if (!used.has(o)) unmount(o);
   }
 
   let next = boundary;
-  for (let i = newList.length - 1; i >= 0; i--) {
-    const nodes = collectDom(newList[i]);
-    if (!nodes.length) continue;
-    const first = nodes[0];
-    if (nodes[nodes.length - 1].nextSibling !== next) {
-      for (const node of nodes) parent.insertBefore(node, next);
-    }
-    next = first;
+  for (let i = newLen - 1; i >= 0; i--) {
+    const vnode = newCh[i];
+    moveVNode(parent, vnode, next);
+    if (vnode._dom) next = vnode._dom;
   }
 }
 
@@ -546,7 +552,7 @@ export function unmountRoot(container: Element) {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s.replace(/[&<>"]/g, (ch) => (ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : "&quot;"));
 }
 
 function attrsToString(props: Record<string, any>): string {
@@ -590,19 +596,24 @@ function attrsToString(props: Record<string, any>): string {
 function stringify(vnode: VNode | null): string {
   if (!vnode) return "";
   if (vnode.type === TEXT) return escapeHtml(String(vnode.props.nodeValue ?? ""));
-  if (vnode.type === FRAGMENT) return vnode.children.map(stringify).join("");
+  if (vnode.type === FRAGMENT) {
+    let out = "";
+    for (const c of vnode.children) out += stringify(c);
+    return out;
+  }
   if (isSpec(vnode.type)) {
     const inst = makeInstance(vnode.type, vnode.props);
     callHook(inst, "onBeforeMount", "_beforeMount");
-    const rendered = renderInstance(inst);
-    return stringify(rendered);
+    return stringify(renderInstance(inst));
   }
   const tag = vnode.type as string;
   if (!validAttributeName(tag)) throw new TypeError("SvenJS: bad tag");
   const inner = vnode.props.dangerouslySetInnerHTML?.__html;
   const open = `<${tag}${attrsToString(vnode.props)}>`;
   if (VOID.has(tag)) return open;
-  const body = inner != null ? String(inner) : vnode.children.map(stringify).join("");
+  if (inner != null) return `${open}${String(inner)}</${tag}>`;
+  let body = "";
+  for (const c of vnode.children) body += stringify(c);
   return `${open}${body}</${tag}>`;
 }
 

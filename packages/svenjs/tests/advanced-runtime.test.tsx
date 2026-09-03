@@ -193,6 +193,31 @@ describe("DOM patch details", () => {
   });
 });
 
+describe("svg attributes", () => {
+  it("patches polyline points through the attribute, not the SVGPointList", () => {
+    const App = create({
+      initialState: { points: "0,0 10,10" },
+      render() {
+        return (
+          <div>
+            <svg>
+              <polyline className="line" points={this.state.points} />
+            </svg>
+            <button onClick={() => this.setState({ points: "0,0 20,5" })}>go</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(App, host);
+    const line = host.querySelector(".line")!;
+    expect(line.getAttribute("points")).toBe("0,0 10,10");
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    expect(line.getAttribute("points")).toBe("0,0 20,5");
+  });
+});
+
 describe("hydration", () => {
   it("restores a controlled select value after adopting its options", () => {
     const node = (
@@ -437,6 +462,115 @@ describe("observe", () => {
     flushSync();
     expect(renders).toEqual([1]);
     expect(host.textContent).toBe("1");
+  });
+});
+
+describe("keyed patch throughput", () => {
+  it("does not move keyed children that kept their order", () => {
+    const App = create({
+      initialState: { ids: ["a", "b", "c"], n: 0 },
+      render() {
+        return (
+          <div>
+            <ul>
+              {this.state.ids.map((id: string) => (
+                <li key={id}>
+                  {id}:{this.state.n}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => this.setState({ ...this.state, n: 1 })}>go</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(App, host);
+    const ul = host.querySelector("ul")!;
+    const spy = vi.spyOn(ul, "insertBefore");
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    expect(spy).not.toHaveBeenCalled();
+    expect([...ul.querySelectorAll("li")].map((n) => n.textContent)).toEqual(["a:1", "b:1", "c:1"]);
+  });
+
+  it("moves a fragment component as a contiguous range", () => {
+    const Pair = create<{ id: string }>({
+      render() {
+        return (
+          <>
+            <i data-pair={this.props.id}>{this.props.id}</i>
+            <b data-pair={this.props.id}>{this.props.id}</b>
+          </>
+        );
+      },
+    });
+    const App = create({
+      initialState: { ids: ["a", "b"] },
+      render() {
+        return (
+          <div>
+            <span>
+              {this.state.ids.map((id: string) => (
+                <Pair key={id} id={id} />
+              ))}
+            </span>
+            <button onClick={() => this.setState({ ids: ["b", "a"] })}>go</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(App, host);
+    const aI = host.querySelector('i[data-pair="a"]')!;
+    const aB = host.querySelector('b[data-pair="a"]')!;
+    const bI = host.querySelector('i[data-pair="b"]')!;
+    const bB = host.querySelector('b[data-pair="b"]')!;
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    const nodes = [...host.querySelector("span")!.childNodes].filter((n) => n.nodeType === 1);
+    expect(nodes.map((n) => `${(n as Element).tagName}:${(n as Element).textContent}`)).toEqual([
+      "I:b",
+      "B:b",
+      "I:a",
+      "B:a",
+    ]);
+    expect(host.querySelector('i[data-pair="a"]')).toBe(aI);
+    expect(host.querySelector('b[data-pair="a"]')).toBe(aB);
+    expect(host.querySelector('i[data-pair="b"]')).toBe(bI);
+    expect(host.querySelector('b[data-pair="b"]')).toBe(bB);
+    expect(bI.nextSibling).toBe(bB);
+    expect(aI.nextSibling).toBe(aB);
+  });
+
+  it("mounts a keyed node instead of stealing an unkeyed node of the same type", () => {
+    const mounts: string[] = [];
+    const Item = create<{ id: string }>({
+      onMount() {
+        mounts.push(this.props.id);
+      },
+      render() {
+        return <span data-id={this.props.id}>{this.props.id}</span>;
+      },
+    });
+    const App = create({
+      initialState: { keyed: false },
+      render() {
+        return (
+          <div>
+            <p>{this.state.keyed ? <Item key="x" id="x" /> : <Item id="old" />}</p>
+            <button onClick={() => this.setState({ keyed: true })}>go</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(App, host);
+    expect(mounts).toEqual(["old"]);
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    expect(mounts).toEqual(["old", "x"]);
+    expect(host.querySelector("span")?.textContent).toBe("x");
   });
 });
 

@@ -1,7 +1,7 @@
 import type { Props } from "./types";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
-const SKIP = new Set(["key", "children", "ref"]);
+const SKIP = new Set(["key", "children", "ref", "class", "className"]);
 const INVALID_ATTRIBUTE = /[\s"'<>/=`]/;
 
 const LISTENER = "_svenL";
@@ -75,20 +75,21 @@ function applyStyle(el: Element, oldVal: unknown, newVal: unknown) {
     return;
   }
   if (typeof oldVal === "string") el.removeAttribute("style");
-  if (typeof oldVal === "object" && oldVal) {
-    for (const k of Object.keys(oldVal as object)) {
+  const prev = typeof oldVal === "object" && oldVal ? (oldVal as Record<string, unknown>) : null;
+  if (prev) {
+    for (const k in prev) {
       if (!(k in (newVal as Record<string, unknown>))) style.removeProperty(styleName(k));
     }
   }
-  for (const k of Object.keys(newVal as object)) {
+  for (const k in newVal as object) {
     const value = (newVal as Record<string, unknown>)[k];
     if (value == null || value === false || value === "") style.removeProperty(styleName(k));
-    else style.setProperty(styleName(k), String(value));
+    else if (!Object.is(prev?.[k], value)) style.setProperty(styleName(k), String(value));
   }
 }
 
-export function setProp(el: Element, name: string, oldVal: unknown, newVal: unknown, props?: Props) {
-  if (!validAttributeName(name) || SKIP.has(name) || name === "class" || name === "className") return;
+export function setProp(el: Element, name: string, oldVal: unknown, newVal: unknown) {
+  if (!validAttributeName(name) || SKIP.has(name)) return;
 
   const ev = eventName(name);
   if (ev) {
@@ -129,7 +130,8 @@ export function setProp(el: Element, name: string, oldVal: unknown, newVal: unkn
 
   if (name in el && name !== "list" && name !== "type" && name !== "size") {
     try {
-      (el as any)[name] = newVal ?? "";
+      const next = newVal ?? "";
+      if ((el as any)[name] !== next) (el as any)[name] = next;
     } catch {
       /* readonly */
     }
@@ -153,10 +155,10 @@ export function patchProps(el: Element, oldP: Props, newP: Props) {
   if (oldClass !== newClass) applyClass(el, newClass);
 
   for (const k in old) {
-    if (!(k in next)) setProp(el, k, old[k], undefined, next);
+    if (!(k in next)) setProp(el, k, old[k], undefined);
   }
   for (const k in next) {
-    if (old[k] !== next[k]) setProp(el, k, old[k], next[k], next);
+    if (old[k] !== next[k]) setProp(el, k, old[k], next[k]);
   }
 }
 

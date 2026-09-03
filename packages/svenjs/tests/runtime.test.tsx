@@ -283,6 +283,27 @@ describe("events + attrs", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps the caret when a controlled value is unchanged", () => {
+    const App = create({
+      initialState: { n: 0 },
+      render() {
+        return (
+          <div>
+            <input value="same" />
+            <button onClick={() => this.setState({ n: this.state.n + 1 })}>x</button>
+          </div>
+        );
+      },
+    });
+    const rootEl = mount(App);
+    const input = rootEl.querySelector("input") as HTMLInputElement;
+    input.setSelectionRange(2, 2);
+    (rootEl.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    expect(input.value).toBe("same");
+    expect(input.selectionStart).toBe(2);
+  });
+
   it("updates checked and value", () => {
     const App = create({
       initialState: { on: false, text: "a" },

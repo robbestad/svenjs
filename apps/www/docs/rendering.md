@@ -25,9 +25,11 @@ Updates:
 2. The instance is marked dirty and queued
 3. A microtask flushes the queue
 4. `render()` produces a new vnode — children with the same props are skipped
-5. A keyed diff patches the previous tree
+5. A keyed diff patches the previous tree. Same-order keyed children patch in place; fragments move as the contiguous range between their marker comments
 
 `this.observe(store)` marks the instance dirty when the store changes, without a dummy `setState`.
+
+DOM writes follow the tree, not the other way around. Unchanged style keys are not rewritten. A controlled `value` that already matches the input is left alone so the caret stays put. SVG attributes such as `points` still go through `setAttribute` — the animated `SVGPointList` property is not a string.
 
 The 2.x renderer assigned `node.innerHTML = ""` on every update. That is gone on purpose.
 

@@ -515,6 +515,12 @@ export function createMissionControl({ create, createStore, html }) {
         : "ascending";
       this.update({ sort: key, direction });
     },
+    selectRow(event) {
+      const button = event.target.closest(".mission-callsign");
+      if (!button || !event.currentTarget.contains(button)) return;
+      const id = button.closest("[data-unit-id]")?.getAttribute("data-unit-id");
+      if (id) this.props.onSelect(id, button);
+    },
     onMount() {
       this.observe(this.props.store);
       this._focus = () => this._filter?.focus();
@@ -527,15 +533,21 @@ export function createMissionControl({ create, createStore, html }) {
     render() {
       const state = this.props.store.get();
       const needle = this.state.query.trim().toLowerCase();
-      const visible = state.units
-        .filter((unit) => this.state.status === "all" || unit.status === this.state.status)
-        .filter((unit) => !needle || unit.id.toLowerCase().includes(needle) || unit.sector.toLowerCase().includes(needle));
+      const status = this.state.status;
+      const visible = [];
+      for (const unit of state.units) {
+        if (status !== "all" && unit.status !== status) continue;
+        if (needle && !unit.id.toLowerCase().includes(needle) && !unit.sector.toLowerCase().includes(needle)) continue;
+        visible.push(unit);
+      }
       const direction = this.state.direction === "ascending" ? 1 : -1;
-      const sorted = [...visible].sort((left, right) => {
-        const a = this.state.sort === "status" ? STATUS_ORDER[left.status] : left[this.state.sort];
-        const b = this.state.sort === "status" ? STATUS_ORDER[right.status] : right[this.state.sort];
+      const sortKey = this.state.sort;
+      visible.sort((left, right) => {
+        const a = sortKey === "status" ? STATUS_ORDER[left.status] : left[sortKey];
+        const b = sortKey === "status" ? STATUS_ORDER[right.status] : right[sortKey];
         return (typeof a === "string" ? a.localeCompare(b) : a - b) * direction;
       });
+      const sorted = visible;
       const ariaSort = (key) => this.state.sort === key ? this.state.direction : "none";
       return html`
         <section class="mission-panel mission-fleet">
@@ -584,7 +596,7 @@ export function createMissionControl({ create, createStore, html }) {
                   <th scope="col" aria-sort=${ariaSort("latency")}><button type="button" onClick=${() => this.sortBy("latency")}>Latency</button></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody onClick=${this.selectRow}>
                 ${sorted.map((unit) => html`
                   <tr key=${unit.id} data-unit-id=${unit.id} data-reading=${unit.signal}>
                     <td>
@@ -592,7 +604,6 @@ export function createMissionControl({ create, createStore, html }) {
                         type="button"
                         class="mission-callsign"
                         aria-label=${`Inspect ${unit.id}`}
-                        onClick=${(event) => this.props.onSelect(unit.id, event.currentTarget)}
                       >
                         ${unit.id}<small>${unit.sector}</small>
                       </button>
