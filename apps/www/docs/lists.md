@@ -19,4 +19,8 @@ render() {
 }
 ```
 
-Duplicate or missing keys on a dynamic list warn in development.
+Keys are the identity of a row. Same key and type keeps the DOM node and any child component state. When every child has a key and the keys stay in the same order, the patcher updates text and attributes in place and does not call `insertBefore`.
+
+A new keyed node does not reuse an unkeyed sibling of the same type. Mix keys on a dynamic list only if you mean it — development warns when some children have keys and others do not.
+
+Mixed or duplicate keys on a dynamic list warn in development.

@@ -6,6 +6,42 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+Throughput work in the 3.2 runtime. Public API and observable semantics are unchanged aside from the mixed-key correction noted below.
+
+### Keyed patch
+
+- Same-order keyed children patch in place. No `Map`/`Set`, `insertBefore`, or per-child node arrays are allocated.
+- The renderer resolves live nested-component boundaries before moving nodes, so a fragment stays together when it is reordered even if an inner component independently changed its root.
+- A new keyed node no longer steals an unkeyed sibling of the same type. This was a correctness hole; mixed keys already warn in development.
+
+### VNode creation
+
+- `jsx`, `jsxs`, and `jsxDEV` build a vnode directly. They snapshot props once instead of copying them and then calling `h`, which copied them again.
+- `h` keeps its one props snapshot for public hyperscript semantics.
+- `flatten` no longer wraps every item in `normalizeChild` after it has already dropped `null`, `true`, and `false`.
+- An array returned from `render()` becomes a fragment without spreading into `h`.
+
+### DOM writes
+
+- Style object keys that did not change skip `setProperty`.
+- A DOM property is not assigned when it already matches, so controlled inputs keep the caret when `value` is unchanged.
+- String values still use `setAttribute`, including SVG `points`; this preserves polyline updates because `el.points` is an `SVGPointList`, not a string.
+
+### SSR
+
+- `escapeHtml` now runs one `/[&<>"]/` pass instead of four replacements.
+- `stringify` concatenates in a loop instead of using `map` and `join`.
+
+### Mission Control
+
+- Fleet filtering uses one pass over the 100 units followed by an in-place sort.
+- Callsign clicks are delegated on `tbody`, replacing the per-row handler that closed over `unit.id` and rebound 100 listeners on every tick.
+
+### Size
+
+- IIFE gzip: 5,267 bytes (budget: 5,632 bytes).
+- ESM gzip: 5,826 bytes.
+
 ### Fixed
 
 - Fixed the Mission Control alert layout and maximum height.
