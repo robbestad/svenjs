@@ -84,7 +84,10 @@ export const App = create<ShellProps, ShellState>({
         </a>
         <header className="top">
           <a className="wordmark" href="/">
-            SvenJS <span className="badge">3</span>
+            <img className="mark" src="/favicon.svg" width="28" height="28" alt="" />
+            <span className="wordmark-name">
+              SvenJS <span className="badge">3</span>
+            </span>
           </a>
           <button
             className="icon-btn menu-btn"

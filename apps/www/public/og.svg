@@ -15,8 +15,15 @@
   <rect width="1200" height="630" fill="url(#glow)" />
   <circle cx="1060" cy="100" r="260" fill="none" stroke="#f2ebe3" stroke-opacity=".055" stroke-width="2" />
   <circle cx="1060" cy="100" r="190" fill="none" stroke="#f2ebe3" stroke-opacity=".05" stroke-width="2" />
-  <rect x="80" y="144" width="176" height="176" rx="44" fill="#161410" stroke="#f2ebe3" stroke-opacity=".14" stroke-width="2" />
-  <path d="M10 11.5c0-2 1.8-3.5 6-3.5 3.8 0 5.7 1.4 6.2 3.6h-3.3c-.3-1-.9-1.6-2.9-1.6-1.8 0-2.6.6-2.6 1.4 0 2.2 8.6.4 8.6 5.4 0 2.2-2 3.8-6.3 3.8-4.2 0-6.3-1.7-6.6-4h3.4c.3 1.1 1.2 1.9 3.2 1.9 2 0 2.9-.6 2.9-1.6 0-2.3-8.6-.3-8.6-5.4z" fill="#e07a3d" transform="translate(80 144) scale(5.5)" />
+  <g transform="translate(80 144) scale(0.539877)">
+    <rect width="326" height="326" rx="72" fill="#312725" stroke="#f2ebe3" stroke-opacity=".14" stroke-width="4" />
+    <g fill="#e07a3d" transform="translate(0 4)">
+      <polygon points="127,73 258,73 204,130 78,129"/>
+      <polygon points="78,129 121,129 172,184 131,184"/>
+      <polygon points="154,139 198,139 249,195 205,195"/>
+      <polygon points="116,193 249,195 199,250 66,250"/>
+    </g>
+  </g>
   <text x="312" y="220" fill="#e07a3d" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="24" font-weight="500" letter-spacing="5">SVENJS 3</text>
   <text x="312" y="292" fill="#f2ebe3" font-family="Georgia, Times New Roman, serif" font-size="55" font-weight="600">Small UI. Real state.</text>
   <text x="82" y="430" fill="#a3988c" font-family="Arial, Helvetica, sans-serif" font-size="31">One HTML file. A button. State. That’s it.</text>

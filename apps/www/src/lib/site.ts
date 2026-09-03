@@ -20,7 +20,7 @@ function configuredOrigin() {
 export const SITE_ORIGIN = configuredOrigin();
 export const SITE_NAME = "SvenJS 3";
 export const SOCIAL_IMAGE = new URL("/og.png", SITE_ORIGIN).href;
-export const SOCIAL_IMAGE_ALT = "SvenJS 3 — one HTML file, a button, and state";
+export const SOCIAL_IMAGE_ALT = "SvenJS — one file, real state";
 
 export const routes: Route[] = [
   { path: "/", component: HomePage },

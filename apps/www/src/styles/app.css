@@ -117,8 +117,8 @@ a:hover { color: var(--accent-2); }
 
 .wordmark {
   display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.55rem;
   color: var(--fg);
   text-decoration: none;
   font-family: var(--font-display);
@@ -127,6 +127,18 @@ a:hover { color: var(--accent-2); }
   letter-spacing: -0.03em;
 }
 .wordmark:hover { color: var(--fg); }
+.mark {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: block;
+  flex: none;
+  border-radius: 0.4rem;
+}
+.wordmark-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
 .badge {
   font-family: var(--font-mono);
   font-size: 0.68rem;

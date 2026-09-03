@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/svenjs-lockup.png" alt="SvenJS — one file, real state" width="720">
+</p>
+
 # SvenJS
 
 **A tiny JavaScript UI runtime for composable web apps.** Start with one HTML file, then grow into JSX, SSR, and hydration without changing your mental model.
