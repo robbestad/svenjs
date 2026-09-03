@@ -15,7 +15,7 @@ export function textVNode(value: string): VNode {
 
 export function normalizeChild(child: unknown): VNode | null {
   if (child == null || child === false || child === true) return null;
-  if (typeof child === "object" && child !== null && "type" in (child as VNode)) {
+  if (typeof child === "object" && "type" in (child as VNode)) {
     return child as VNode;
   }
   return textVNode(String(child));
@@ -25,24 +25,29 @@ export function flatten(list: unknown[], out: VNode[] = []): VNode[] {
   for (const item of list) {
     if (item == null || item === false || item === true) continue;
     if (Array.isArray(item)) flatten(item, out);
-    else {
-      const n = normalizeChild(item);
-      if (n) out.push(n);
-    }
+    else if (typeof item === "object" && "type" in (item as VNode)) out.push(item as VNode);
+    else out.push(textVNode(String(item)));
   }
   return out;
+}
+
+export function childVNodes(fromProps: unknown): VNode[] {
+  if (fromProps === undefined) return [];
+  if (Array.isArray(fromProps)) return flatten(fromProps);
+  const n = normalizeChild(fromProps);
+  return n ? [n] : [];
 }
 
 export function h(type: VNode["type"], props: Props | null | undefined, ...kids: unknown[]): VNode {
   const p = props ? { ...props } : {};
   const key = p.key as Key | undefined;
-  const fromProps = p.children;
-  const raw = kids.length ? kids : fromProps !== undefined ? [].concat(fromProps as never) : [];
-  if (kids.length) p.children = kids.length === 1 ? kids[0] : kids;
-  return vnode(type, p, flatten(raw), key);
+  if (kids.length) {
+    p.children = kids.length === 1 ? kids[0] : kids;
+  }
+  return vnode(type, p, kids.length ? flatten(kids) : childVNodes(p.children), key);
 }
 
 export function normalizeRender(output: unknown): VNode | null {
-  if (Array.isArray(output)) return h(FRAGMENT, {}, ...output);
+  if (Array.isArray(output)) return vnode(FRAGMENT, {}, flatten(output), undefined);
   return normalizeChild(output);
 }
