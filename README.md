@@ -66,7 +66,7 @@ Make the result polished, responsive, and fully functional when opened directly 
 ## Why SvenJS
 
 - **Start small.** A script tag and a single HTML file are enough for an interactive page. The playground can export the result as a self-contained `.html` file.
-- **Keep the model simple.** Components own state; `setState` replaces it; composition is plain JavaScript. In development, state is cloned and deep-frozen to surface accidental mutation.
+- **Keep the model simple.** Components own state; `setState` replaces the object rather than merging it; composition is plain JavaScript. Treat state as immutable and copy the fields you keep.
 - **Make updates count.** Keyed DOM patching preserves identity in dynamic lists, while unchanged child components and unchanged DOM properties are skipped.
 - **Use the platform.** JSX or tagged templates, DOM events, SVG, `data-*` and `aria-*` attributes, refs, and ordinary browser APIs all work directly.
 - **Grow without a rewrite.** Use the same component tree in a Vite app, render it to HTML on the server, and hydrate it in the browser.
