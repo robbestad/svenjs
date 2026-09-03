@@ -12,9 +12,9 @@ Throughput work in the 3.2 runtime. Public API and observable semantics are unch
 
 ### Vnode create
 
-- `jsx` / `jsxs` / `jsxDEV` build a vnode directly. They no longer copy props and then call `h`, which copied them again.
-- `h` copies props only when rest children have to be written back onto the object (the `html` / hyperscript path).
-- Empty child lists and text nodes share one empty array. `flatten` no longer wraps every item in `normalizeChild` after it has already dropped `null` / `true` / `false`.
+- `jsx` / `jsxs` / `jsxDEV` build a vnode directly. They snapshot props once instead of copying them and then calling `h`, which copied them again.
+- `h` keeps its one props snapshot for public hyperscript semantics.
+- `flatten` no longer wraps every item in `normalizeChild` after it has already dropped `null` / `true` / `false`.
 - An array returned from `render()` becomes a fragment without spreading into `h`.
 
 ### DOM writes
@@ -35,4 +35,4 @@ Throughput work in the 3.2 runtime. Public API and observable semantics are unch
 
 ### Size
 
-IIFE gzip 5279 bytes (budget 5632). ESM gzip 5844 bytes.
+IIFE gzip 5267 bytes (budget 5632). ESM gzip 5826 bytes.

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { create, createStore, flushSync, h, render, renderToString, unmountRoot } from "svenjs";
+import { create, createStore, flushSync, h, jsx, render, renderToString, unmountRoot } from "svenjs";
 
 function mount(spec: Parameters<typeof render>[0]) {
   const root = document.createElement("div");
@@ -285,18 +285,19 @@ describe("events + attrs", () => {
 
   it("keeps the caret when a controlled value is unchanged", () => {
     const App = create({
-      initialState: { n: 0 },
+      initialState: { value: "before" },
       render() {
         return (
           <div>
-            <input value="same" />
-            <button onClick={() => this.setState({ n: this.state.n + 1 })}>x</button>
+            <input value={this.state.value} />
+            <button onClick={() => this.setState({ value: "same" })}>x</button>
           </div>
         );
       },
     });
     const rootEl = mount(App);
     const input = rootEl.querySelector("input") as HTMLInputElement;
+    input.value = "same";
     input.setSelectionRange(2, 2);
     (rootEl.querySelector("button") as HTMLButtonElement).click();
     flushSync();
@@ -403,5 +404,50 @@ describe("h hyperscript", () => {
     });
     const root = mount(App);
     expect(root.querySelector("#x")?.textContent).toBe("abc");
+  });
+
+  it("snapshots a reused props object between renders", () => {
+    const props = { id: "first" };
+    let instance: { setState(next: { id: string }): void } | undefined;
+    const App = create<Record<string, never>, { id: string }>({
+      initialState: { id: "first" },
+      onMount() {
+        instance = this;
+      },
+      render() {
+        props.id = this.state.id;
+        return h("div", props);
+      },
+    });
+    const root = mount(App);
+    expect(root.querySelector("div")?.id).toBe("first");
+
+    instance!.setState({ id: "second" });
+    flushSync();
+    expect(root.querySelector("div")?.id).toBe("second");
+  });
+
+  it("keeps empty child arrays isolated", () => {
+    const first = h("div", null);
+    const second = h("div", null);
+    first.children.push(h("span", null, "added"));
+    expect(second.children).toEqual([]);
+  });
+
+  it("keeps the automatic-runtime key on component props", () => {
+    const Item = create<{ key: string }>({
+      render() {
+        return <span>{this.props.key}</span>;
+      },
+    });
+    const root = mount(jsx(Item, {}, "row"));
+    expect(root.textContent).toBe("row");
+  });
+
+  it("snapshots props in the automatic JSX runtime", () => {
+    const props = { id: "first" };
+    const node = jsx("div", props);
+    props.id = "second";
+    expect(node.props.id).toBe("first");
   });
 });

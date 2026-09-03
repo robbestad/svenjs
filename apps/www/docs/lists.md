@@ -23,4 +23,4 @@ Keys are the identity of a row. Same key and type keeps the DOM node and any chi
 
 A new keyed node does not reuse an unkeyed sibling of the same type. Mix keys on a dynamic list only if you mean it — development warns when some children have keys and others do not.
 
-Duplicate or missing keys on a dynamic list warn in development.
+Mixed or duplicate keys on a dynamic list warn in development.
