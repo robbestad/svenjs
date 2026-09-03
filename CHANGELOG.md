@@ -30,6 +30,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 - Boolean `aria-*` and `data-*` attributes are serialized correctly.
 - Event-name handling and tag-name validation are more predictable.
+- Updated `happy-dom` to address security vulnerabilities.
 
 ## [3.1.0] – 2026-09-01
 
@@ -49,7 +50,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ### Operations
 
-- Added npm publishing through GitHub Actions, pinned pnpm, and updated vulnerable `happy-dom` dependencies.
+- Added npm publishing through GitHub Actions and pinned pnpm.
 
 ## [3.0.1] – 2026-09-01
 
