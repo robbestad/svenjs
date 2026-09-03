@@ -7,7 +7,7 @@ Throughput work in the 3.2 runtime. Public API and observable semantics are unch
 ### Keyed patch
 
 - Same-order keyed children patch in place. No `Map`/`Set`, no `insertBefore`, no per-child node arrays.
-- `collectDom` is gone. Moves use `_dom`…`_end` as a contiguous range, so a fragment (or a component whose root is a fragment) stays together when it is reordered.
+- `collectDom` is gone. Moves walk the live instance tree (`_dom`…`_end`, through nested components) as a contiguous range, so a fragment stays together when it is reordered even if an inner component independently changed its root.
 - A new keyed node no longer steals an unkeyed sibling of the same type. That was a correctness hole; mixed keys already warn in development.
 
 ### Vnode create
@@ -35,4 +35,4 @@ Throughput work in the 3.2 runtime. Public API and observable semantics are unch
 
 ### Size
 
-IIFE gzip 5212 bytes (budget 5632). ESM gzip 5759 bytes.
+IIFE gzip 5279 bytes (budget 5632). ESM gzip 5844 bytes.

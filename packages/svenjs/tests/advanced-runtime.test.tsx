@@ -543,6 +543,68 @@ describe("keyed patch throughput", () => {
     expect(aI.nextSibling).toBe(aB);
   });
 
+  it("moves a nested component after it independently changes its root", () => {
+    const inners: Array<{ props: { id: string }; setState: (s: { split: boolean }) => void }> = [];
+    const Inner = create<{ id: string }, { split: boolean }>({
+      initialState: { split: false },
+      onMount() {
+        inners.push(this);
+      },
+      render() {
+        return this.state.split ? (
+          <>
+            <i data-id={this.props.id}>{this.props.id}</i>
+            <b data-id={this.props.id}>{this.props.id}</b>
+          </>
+        ) : (
+          <span data-id={this.props.id}>{this.props.id}</span>
+        );
+      },
+    });
+    const Wrap = create<{ id: string }>({
+      render() {
+        return <Inner id={this.props.id} />;
+      },
+    });
+    const App = create({
+      initialState: { ids: ["a", "b"] },
+      render() {
+        return (
+          <div>
+            <p>
+              {this.state.ids.map((id: string) => (
+                <Wrap key={id} id={id} />
+              ))}
+            </p>
+            <button onClick={() => this.setState({ ids: ["b", "a"] })}>go</button>
+          </div>
+        );
+      },
+    });
+    const host = root();
+    render(App, host);
+    inners.find((item) => item.props.id === "a")!.setState({ split: true });
+    flushSync();
+    const aI = host.querySelector('i[data-id="a"]')!;
+    const aB = host.querySelector('b[data-id="a"]')!;
+    const bSpan = host.querySelector('span[data-id="b"]')!;
+    expect(host.querySelector("span[data-id='a']")).toBeNull();
+    (host.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    const nodes = [...host.querySelector("p")!.childNodes].filter((n) => n.nodeType === 1);
+    expect(nodes.map((n) => `${(n as Element).tagName}:${(n as Element).textContent}`)).toEqual([
+      "SPAN:b",
+      "I:a",
+      "B:a",
+    ]);
+    expect(host.querySelector('i[data-id="a"]')).toBe(aI);
+    expect(host.querySelector('b[data-id="a"]')).toBe(aB);
+    expect(host.querySelector('span[data-id="b"]')).toBe(bSpan);
+    expect(aI.nextSibling).toBe(aB);
+    expect(aI.isConnected).toBe(true);
+    expect(bSpan.isConnected).toBe(true);
+  });
+
   it("mounts a keyed node instead of stealing an unkeyed node of the same type", () => {
     const mounts: string[] = [];
     const Item = create<{ id: string }>({

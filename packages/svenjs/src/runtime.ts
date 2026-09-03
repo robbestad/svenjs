@@ -135,14 +135,28 @@ export function flushSync(fn?: () => void) {
   if (failed) throw failure;
 }
 
-function lastNode(vnode: VNode | null | undefined): Node | null {
-  return vnode?._end ?? vnode?._dom ?? null;
+function liveStart(vnode: VNode | null | undefined): Node | null {
+  if (!vnode) return null;
+  if (isSpec(vnode.type) && vnode._instance) {
+    const inst = vnode._instance;
+    return inst._vnode ? liveStart(inst._vnode) : inst._placeholder;
+  }
+  return vnode._dom ?? null;
+}
+
+function liveEnd(vnode: VNode | null | undefined): Node | null {
+  if (!vnode) return null;
+  if (isSpec(vnode.type) && vnode._instance) {
+    const inst = vnode._instance;
+    return inst._vnode ? liveEnd(inst._vnode) : inst._placeholder;
+  }
+  return vnode._end ?? vnode._dom ?? null;
 }
 
 function moveVNode(parent: Node, vnode: VNode, next: Node | null) {
-  const start = vnode._dom;
+  const start = liveStart(vnode);
   if (!start) return;
-  const end = vnode._end ?? start;
+  const end = liveEnd(vnode) ?? start;
   if (end.nextSibling === next) return;
   let node: Node | null = start;
   while (node) {
@@ -290,7 +304,7 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
     return;
   }
   if (oldV.type !== newV.type) {
-    const anchor = lastNode(oldV)?.nextSibling ?? null;
+    const anchor = liveEnd(oldV)?.nextSibling ?? null;
     unmount(oldV);
     mount(newV, parent, anchor, svg);
     return;
@@ -339,7 +353,7 @@ function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
     inst._placeholder?.parentNode?.removeChild(inst._placeholder);
     inst._placeholder = null;
   } else if (old && !rendered) {
-    const anchor = lastNode(old)?.nextSibling ?? null;
+    const anchor = liveEnd(old)?.nextSibling ?? null;
     unmount(old);
     inst._placeholder = document.createComment("");
     parent.insertBefore(inst._placeholder, anchor);
@@ -351,6 +365,9 @@ function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
 
 function assignBoundary(vnode: VNode, inst: Instance) {
   const rendered = inst._vnode;
+  if (rendered && isSpec(rendered.type) && rendered._instance) {
+    assignBoundary(rendered, rendered._instance);
+  }
   vnode._dom = rendered?._dom ?? inst._placeholder;
   vnode._end = rendered?._end ?? null;
 }
@@ -426,7 +443,8 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
   for (let i = newLen - 1; i >= 0; i--) {
     const vnode = newCh[i];
     moveVNode(parent, vnode, next);
-    if (vnode._dom) next = vnode._dom;
+    const start = liveStart(vnode);
+    if (start) next = start;
   }
 }
 
