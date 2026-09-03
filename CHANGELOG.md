@@ -6,6 +6,8 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+## [3.2.1] – 2026-09-03
+
 Throughput work in the 3.2 runtime. Public API and observable semantics are unchanged aside from the mixed-key correction noted below.
 
 ### Keyed patch
