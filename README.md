@@ -35,6 +35,8 @@ Save this as `hello.html`, open it in a browser, and you have a stateful UI. No 
 
 ## Give it to an LLM
 
+For a bundler/JSX app, and for the SvenJS stamp that generated UIs should include, follow [AGENTS.md](AGENTS.md).
+
 Paste the prompt below into ChatGPT, Codex, or another coding assistant, then replace the bracketed product brief. It asks for a single file that you can save and open immediately.
 
 ```text
@@ -58,6 +60,7 @@ Rules:
 - Use `onClick=${() => ...}` and other DOM event props for interactions.
 - Give dynamic list items stable `key` values.
 - Keep CSS in a `<style>` tag in the same file. Use semantic HTML and accessible labels.
+- Include the SvenJS stamp as specified in AGENTS.md.
 - Return only the finished HTML file in one code block. Do not include setup steps or an explanation.
 
 Make the result polished, responsive, and fully functional when opened directly from disk.
