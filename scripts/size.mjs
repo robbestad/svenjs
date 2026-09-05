@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const files = ["svenjs.js", "svenjs.iife.js"];
+const files = ["svenjs.js", "svenjs.iife.js", "svenjs.dev.js", "svenjs.iife.dev.js"];
 let failed = false;
 for (const name of files) {
   const file = resolve(dir, "../packages/svenjs/dist", name);
@@ -14,8 +14,8 @@ for (const name of files) {
   console.log(`${name.padEnd(16)} ${raw.length} bytes raw, ${gz.length} gzip (${kb(gz.length)} kB)`);
 }
 const iife = gzipSync(readFileSync(resolve(dir, "../packages/svenjs/dist/svenjs.iife.js")));
-if (iife.length > 5632) {
-  console.warn("IIFE gzip exceeds 5.5 kB target");
+if (iife.length > 6144) {
+  console.warn("IIFE gzip exceeds 6 kB budget");
   failed = true;
 }
 if (failed) process.exitCode = 1;

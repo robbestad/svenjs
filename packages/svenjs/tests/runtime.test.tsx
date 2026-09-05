@@ -36,8 +36,8 @@ describe("setState", () => {
       render() {
         return (
           <button
-            ref={(el: HTMLElement | null) => {
-              if (el) host = el;
+            ref={(el: Element | null) => {
+              if (el) host = el as HTMLElement;
             }}
             onClick={() => this.setState({ clicks: this.state.clicks + 1 })}
           >

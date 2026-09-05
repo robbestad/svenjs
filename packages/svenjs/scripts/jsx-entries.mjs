@@ -3,9 +3,10 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dist = resolve(dirname(fileURLToPath(import.meta.url)), "../dist");
-const src = `export { Fragment, jsx, jsxDEV, jsxs } from "./svenjs.js";\n`;
-writeFileSync(resolve(dist, "jsx-runtime.js"), src);
-writeFileSync(resolve(dist, "jsx-dev-runtime.js"), src);
+writeFileSync(resolve(dist, "jsx-runtime.js"), `export { Fragment, jsx, jsxDEV, jsxs } from "./svenjs.js";\n`);
+writeFileSync(resolve(dist, "jsx-dev-runtime.js"), `export { Fragment, jsx, jsxDEV, jsxs } from "./svenjs.js";\n`);
+writeFileSync(resolve(dist, "jsx-runtime.dev.js"), `export { Fragment, jsx, jsxDEV, jsxs } from "./svenjs.dev.js";\n`);
+writeFileSync(resolve(dist, "jsx-dev-runtime.dev.js"), `export { Fragment, jsx, jsxDEV, jsxs } from "./svenjs.dev.js";\n`);
 
 // TypeScript emits the source's extensionless imports verbatim. They are valid
 // with "bundler" resolution, but not in ESM projects using NodeNext/Node16.
