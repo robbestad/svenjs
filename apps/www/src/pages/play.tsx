@@ -66,6 +66,14 @@ function previewDoc(source: string, error: string) {
 </head>
 <body>
   <div id="app"></div>
+  <script>
+    window.addEventListener("error", function (event) {
+      parent.postMessage({ type: "sven-preview-error", message: String(event.message || event.error || "Preview error") }, "*");
+    });
+    window.addEventListener("unhandledrejection", function (event) {
+      parent.postMessage({ type: "sven-preview-error", message: String(event.reason) }, "*");
+    });
+  </script>
   <script src="${runtime}"></script>
   <script>${safe}</script>
 </body>
@@ -94,11 +102,11 @@ function readHash() {
 export const PlayPage = create({
   initialState() {
     if (typeof location === "undefined") {
-      return { source: MISSION_JS, example: "mission", error: "", copied: "" };
+      return { source: HELLO_JS, example: "click", error: "", copied: "" };
     }
     const shared = readHash();
-    const requested = new URLSearchParams(location.search).get("example") ?? "mission";
-    const example = EXAMPLES[requested] ? requested : "mission";
+    const requested = new URLSearchParams(location.search).get("example") ?? "click";
+    const example = EXAMPLES[requested] ? requested : "click";
     return {
       source: shared?.source || EXAMPLES[example],
       example: shared?.example ?? example,
@@ -151,41 +159,88 @@ export const PlayPage = create({
     });
     this.applySource(source, name);
   },
+  sourceSnapshot() {
+    return this.view ? this.view.state.doc.toString() : this.state.source;
+  },
+  bindFrame(el: HTMLIFrameElement | null) {
+    this._iframe = el;
+  },
+  onPreviewMessage(event: MessageEvent) {
+    if (event.source !== this._iframe?.contentWindow) return;
+    const data = event.data;
+    if (!data || data.type !== "sven-preview-error") return;
+    this.setState({ ...this.state, error: String(data.message ?? "Preview error"), copied: "" });
+  },
+  onMount() {
+    this._onMessage = (event: MessageEvent) => this.onPreviewMessage(event);
+    window.addEventListener("message", this._onMessage);
+  },
   share() {
-    const params = new URLSearchParams({ example: this.state.example });
-    if (EXAMPLES[this.state.example] !== this.state.source) {
-      params.set("code", LZString.compressToEncodedURIComponent(this.state.source));
+    const source = this.sourceSnapshot();
+    const example = this.state.example;
+    const params = new URLSearchParams({ example });
+    if (EXAMPLES[example] !== source) {
+      params.set("code", LZString.compressToEncodedURIComponent(source));
     }
     const hash = params.toString();
     const url = `${location.origin}/play/#${hash}`;
     history.replaceState({}, "", `/play/#${hash}`);
-    navigator.clipboard?.writeText(url);
-    this.setState({ ...this.state, copied: "link" });
+    const write = navigator.clipboard?.writeText(url);
+    if (!write) {
+      this.setState({ ...this.state, source, example, copied: "", error: "Clipboard is not available." });
+      return;
+    }
+    write.then(
+      () => this.setState({ ...this.state, source, example, copied: "link", error: "" }),
+      () => this.setState({ ...this.state, source, example, copied: "", error: "Could not copy the share link." }),
+    );
   },
   async fileHtml() {
-    const runtime = await fetch(`${location.origin}/playground-svenjs.js`).then((r) => r.text());
-    const script = toIframeScript(this.state.source);
+    const source = this.sourceSnapshot();
+    const res = await fetch(`${location.origin}/playground-svenjs.prod.js`);
+    if (!res.ok) throw new Error(`Could not load the SvenJS runtime (${res.status}).`);
+    const runtime = await res.text();
+    const script = toIframeScript(source);
     const title = this.state.example === "mission" ? "SvenJS Mission Control" : "SvenJS";
     return wrapHtmlFile(script, CDN, runtime, title);
   },
   copyHtml() {
-    this.fileHtml().then((html: string) => {
-      navigator.clipboard?.writeText(html);
-      this.setState({ ...this.state, copied: "html" });
-    });
+    this.fileHtml().then(
+      (html: string) =>
+        navigator.clipboard.writeText(html).then(
+          () => this.setState({ ...this.state, copied: "html", error: "" }),
+          () => this.setState({ ...this.state, copied: "", error: "Could not copy HTML." }),
+        ),
+      (err: unknown) =>
+        this.setState({
+          ...this.state,
+          copied: "",
+          error: err instanceof Error ? err.message : String(err),
+        }),
+    );
   },
   downloadHtml() {
-    this.fileHtml().then((html: string) => {
-      const blob = new Blob([html], { type: "text/html" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "svenjs-app.html";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
+    this.fileHtml().then(
+      (html: string) => {
+        const blob = new Blob([html], { type: "text/html" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "svenjs-app.html";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        this.setState({ ...this.state, copied: "", error: "" });
+      },
+      (err: unknown) =>
+        this.setState({
+          ...this.state,
+          copied: "",
+          error: err instanceof Error ? err.message : String(err),
+        }),
+    );
   },
   onDestroy() {
     clearTimeout(this._timer);
+    if (this._onMessage) window.removeEventListener("message", this._onMessage);
     this.view?.destroy();
   },
   render() {
@@ -229,6 +284,7 @@ export const PlayPage = create({
             className="play-preview"
             title="Playground preview"
             sandbox="allow-scripts"
+            ref={this.bindFrame}
             srcdoc={previewDoc(this.state.source, this.state.error)}
           />
         </div>

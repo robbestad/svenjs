@@ -147,7 +147,6 @@ test("round-trips an edited built-in example through the share hash", async ({ p
   await page.keyboard.press("Control+End");
   await page.keyboard.insertText("\n// shared edit marker");
   await expect(editor).toContainText("shared edit marker");
-  await page.waitForTimeout(250);
 
   await page.getByRole("button", { name: "Copy share link" }).click();
   await expect(page).toHaveURL(/#example=click&code=/);

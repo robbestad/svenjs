@@ -100,3 +100,40 @@ input[type="text"] {
   border-radius: 12px;
   padding: 1rem 1.1rem;
 }
+
+.svenjs-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink, #312725);
+  background: var(--field, #fffdf8);
+  border: 1px solid var(--rule, #d9d0c0);
+  padding: 6px 14px 6px 6px;
+  margin-top: 1.5rem;
+}
+.svenjs-credit:hover {
+  border-color: var(--accent, #e07a3d);
+}
+.svenjs-mark {
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+.svenjs-credit-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.15;
+}
+.svenjs-credit-kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted, #6a5e50);
+}
+.svenjs-credit-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}

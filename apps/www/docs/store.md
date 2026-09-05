@@ -36,4 +36,8 @@ const List = create({
 });
 ```
 
+Store `set` notifies subscribers **synchronously**. Component `setState` still batches into a microtask. If a listener throws, later listeners still receive the update and the first error is rethrown afterwards.
+
+Nested `set` during a notification applies immediately for `get()`, then notifies every listener for each state in order. Nobody receives an older snapshot after a newer one.
+
 `listenTo` is an alias for `subscribe`. `emit(data)` is an alias for `set(data)`. Use `subscribe` yourself when the store update should derive local state, not just re-render.
