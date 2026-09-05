@@ -51,3 +51,16 @@ export function normalizeRender(output: unknown): VNode | null {
   if (Array.isArray(output)) return vnode(FRAGMENT, {}, flatten(output), undefined);
   return normalizeChild(output);
 }
+
+/** Copy a vnode tree without mount fields so cached `html` / reused `h` trees do not share `_dom`. */
+export function adopt(node: VNode | null): VNode | null {
+  if (!node) return null;
+  const from = node.children;
+  const n = from.length;
+  let children = from;
+  if (n) {
+    children = [];
+    for (let i = 0; i < n; i++) children[i] = adopt(from[i])!;
+  }
+  return vnode(node.type, node.props, children, node.key);
+}

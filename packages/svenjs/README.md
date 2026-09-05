@@ -25,6 +25,8 @@ Save as `hello.html` and open it. No npm.
 
 With a bundler: `npm install svenjs`, then JSX via `"jsxImportSource": "svenjs"`.
 
+Production files omit development checks. Bundlers that honor the `"development"` export condition load `svenjs.dev.js` automatically. A script tag that wants warnings should use `svenjs.iife.dev.js`; `NODE_ENV=development` cannot restore code already removed from the production build.
+
 For static HTML, render the same tree on both sides and hydrate it in the browser:
 
 ```jsx

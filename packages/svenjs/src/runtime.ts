@@ -1,6 +1,6 @@
-import { applyRef, createDom, patchProps, styleText, SVG_NS, validAttributeName, VOID } from "./dom";
+import { applyRef, createDom, eventName, patchProps, styleText, SVG_NS, validAttributeName, VOID } from "./dom";
 import { freezeState } from "./freeze";
-import { normalizeRender } from "./h";
+import { adopt, normalizeRender } from "./h";
 import { FRAGMENT, SPEC, TEXT, type ComponentSpec, type Instance, type Observable, type VNode } from "./types";
 
 const queue = new Set<Instance>();
@@ -11,6 +11,49 @@ let sync = false;
 function callHook(inst: Instance, modern: string, legacy: string) {
   const fn = inst[modern] || inst[legacy];
   if (typeof fn === "function") fn.call(inst);
+}
+
+function runUser(fn: () => void, errors: unknown[]) {
+  try {
+    fn();
+  } catch (error) {
+    errors.push(error);
+  }
+}
+
+function raise(errors: unknown[]) {
+  if (!errors.length) return;
+  for (let i = 1; i < errors.length; i++) console.error(errors[i]);
+  throw errors[0];
+}
+
+const mountQueue: Instance[] = [];
+let commitDepth = 0;
+
+function beginCommit() {
+  commitDepth++;
+}
+
+function abortCommit() {
+  mountQueue.length = 0;
+  commitDepth = 0;
+}
+
+function endCommit() {
+  if (--commitDepth !== 0) return;
+  const mounts = mountQueue.splice(0);
+  const errors: unknown[] = [];
+  for (let i = 0; i < mounts.length; i++) {
+    const inst = mounts[i];
+    if (inst._destroyed || !inst._mounted) continue;
+    runUser(() => callHook(inst, "onMount", "_didMount"), errors);
+  }
+  raise(errors);
+}
+
+function queueMount(inst: Instance) {
+  if (commitDepth) mountQueue.push(inst);
+  else callHook(inst, "onMount", "_didMount");
 }
 
 export function isSpec(value: unknown): value is ComponentSpec {
@@ -35,7 +78,7 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
 
   for (const key of Object.keys(spec)) {
     if (key === "initialState" || key === "props") continue;
-    const val = spec[key];
+    const val = (spec as Record<string, unknown>)[key];
     (inst as any)[key] = typeof val === "function" ? val.bind(inst) : val;
   }
 
@@ -87,8 +130,8 @@ export function schedule(inst: Instance) {
 export function flush() {
   scheduled = false;
   flushing = true;
-  let failed = false;
-  let failure: unknown;
+  const errors: unknown[] = [];
+  beginCommit();
   try {
     const list = [...queue];
     queue.clear();
@@ -97,18 +140,22 @@ export function flush() {
       try {
         updateInstance(inst);
       } catch (error) {
-        if (!failed) failure = error;
-        failed = true;
+        errors.push(error);
       }
     }
   } finally {
     flushing = false;
+    try {
+      endCommit();
+    } catch (error) {
+      errors.push(error);
+    }
     if (queue.size && !scheduled) {
       scheduled = true;
       queueMicrotask(flush);
     }
   }
-  if (failed) throw failure;
+  raise(errors);
 }
 
 export function flushSync(fn?: () => void) {
@@ -170,7 +217,7 @@ function moveVNode(parent: Node, vnode: VNode, next: Node | null) {
 function renderInstance(inst: Instance): VNode | null {
   inst._rendering = true;
   try {
-    return normalizeRender(inst.render());
+    return adopt(normalizeRender(inst.render()));
   } finally {
     inst._rendering = false;
   }
@@ -226,8 +273,14 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   vnode._dom = el;
   patchProps(el, {}, vnode.props);
   if (import.meta.env.DEV) warnKeys(vnode.children);
-  for (const child of vnode.children) mount(child, el, null, childSvg);
-  if (tag === "select" && vnode.props.value != null) (el as HTMLSelectElement).value = String(vnode.props.value);
+  if (vnode.props.dangerouslySetInnerHTML) {
+    if (import.meta.env.DEV && vnode.children.length) {
+      console.warn("SvenJS: dangerouslySetInnerHTML ignored children");
+    }
+  } else {
+    for (const child of vnode.children) mount(child, el, null, childSvg);
+  }
+  applyFormProps(el, tag, vnode.props);
   parent.insertBefore(el, anchor);
   applyRef(vnode.props, el);
 }
@@ -250,47 +303,42 @@ function mountComponent(vnode: VNode, parent: Node, anchor: Node | null, svg = f
   inst._mounted = true;
   vnode._dom = rendered?._dom ?? inst._placeholder;
   vnode._end = rendered?._end ?? null;
-  callHook(inst, "onMount", "_didMount");
+  queueMount(inst);
 }
 
-function unmount(vnode: VNode | null | undefined, removeDom = true) {
+function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unknown[]) {
   if (!vnode) return;
-
+  const owned = !errors;
+  const bag = errors ?? [];
   if (isSpec(vnode.type)) {
     const inst = vnode._instance;
     if (inst) {
       inst._destroyed = true;
       inst._mounted = false;
       if (inst._unsubs) {
-        for (const off of inst._unsubs) off();
+        for (const off of inst._unsubs) runUser(off, bag);
         inst._unsubs = null;
       }
-      callHook(inst, "onDestroy", "_willUnmount");
-      unmount(inst._vnode, removeDom);
+      runUser(() => callHook(inst, "onDestroy", "_willUnmount"), bag);
+      unmount(inst._vnode, removeDom, bag);
       if (removeDom) inst._placeholder?.parentNode?.removeChild(inst._placeholder);
       inst._vnode = null;
       inst._placeholder = null;
     }
-    return;
-  }
-
-  if (vnode.type === TEXT) {
+  } else if (vnode.type === TEXT) {
     if (removeDom) vnode._dom?.parentNode?.removeChild(vnode._dom);
-    return;
-  }
-
-  if (vnode.type === FRAGMENT) {
-    for (const c of vnode.children) unmount(c, removeDom);
+  } else if (vnode.type === FRAGMENT) {
+    for (const c of vnode.children) unmount(c, removeDom, bag);
     if (removeDom) {
       vnode._dom?.parentNode?.removeChild(vnode._dom);
       vnode._end?.parentNode?.removeChild(vnode._end);
     }
-    return;
+  } else {
+    runUser(() => applyRef(vnode.props, null), bag);
+    for (const c of vnode.children) unmount(c, false, bag);
+    if (removeDom) vnode._dom?.parentNode?.removeChild(vnode._dom);
   }
-
-  applyRef(vnode.props, null);
-  for (const c of vnode.children) unmount(c, false);
-  if (removeDom) vnode._dom?.parentNode?.removeChild(vnode._dom);
+  if (owned) raise(bag);
 }
 
 function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null | undefined, svg = false) {
@@ -303,7 +351,7 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
     mount(newV, parent, null, svg);
     return;
   }
-  if (oldV.type !== newV.type) {
+  if (oldV.type !== newV.type || oldV.key !== newV.key) {
     const anchor = liveEnd(oldV)?.nextSibling ?? null;
     unmount(oldV);
     mount(newV, parent, anchor, svg);
@@ -334,11 +382,23 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
   newV._dom = el;
   const elementSvg = svg || newV.type === "svg";
   const childSvg = elementSvg && newV.type !== "foreignObject";
+  const oldHtml = oldV.props.dangerouslySetInnerHTML;
+  const newHtml = newV.props.dangerouslySetInnerHTML;
   patchProps(el, oldV.props, newV.props);
-  patchChildren(el, oldV.children, newV.children, childSvg);
-  if (newV.type === "select" && newV.props.value != null) {
-    (el as HTMLSelectElement).value = String(newV.props.value);
+  if (newHtml) {
+    if (!oldHtml) {
+      for (const c of oldV.children) unmount(c, false);
+    }
+    if (import.meta.env.DEV && newV.children.length) {
+      console.warn("SvenJS: dangerouslySetInnerHTML ignored children");
+    }
+  } else if (oldHtml) {
+    el.innerHTML = "";
+    for (const child of newV.children) mount(child, el, null, childSvg);
+  } else {
+    patchChildren(el, oldV.children, newV.children, childSvg);
   }
+  applyFormProps(el, newV.type as string, newV.props);
   if (oldV.props.ref !== newV.props.ref) {
     applyRef(oldV.props, null);
     applyRef(newV.props, el);
@@ -503,7 +563,7 @@ function hydrateVNode(vnode: VNode, parent: Node, node: Node | null, svg = false
     inst._mounted = true;
     vnode._dom = rendered?._dom ?? inst._placeholder;
     vnode._end = rendered?._end ?? null;
-    callHook(inst, "onMount", "_didMount");
+    queueMount(inst);
     return cursor;
   }
 
@@ -530,55 +590,87 @@ function hydrateVNode(vnode: VNode, parent: Node, node: Node | null, svg = false
       el.removeChild(cursor);
       cursor = next;
     }
+  } else if (import.meta.env.DEV && vnode.children.length) {
+    console.warn("SvenJS: dangerouslySetInnerHTML ignored children");
   }
-  if (tag === "select" && vnode.props.value != null) (el as HTMLSelectElement).value = String(vnode.props.value);
+  applyFormProps(el, tag, vnode.props);
   applyRef(vnode.props, el);
   return el.nextSibling;
 }
 
+function commitRoot(container: Element, next: VNode, prev: VNode | undefined, write: () => void) {
+  beginCommit();
+  try {
+    write();
+    ROOTS.set(container, next);
+  } catch (error) {
+    abortCommit();
+    if (!prev) {
+      try {
+        unmount(next);
+      } catch {
+        /* rollback */
+      }
+      ROOTS.delete(container);
+    }
+    throw error;
+  }
+  endCommit();
+}
+
 export function render(spec: ComponentSpec | VNode, container: Element | null): string | void {
   if (!container) return "Error: No node to attach";
-
-  const next = asRootVNode(spec);
-
+  const next = adopt(asRootVNode(spec))!;
   const prev = ROOTS.get(container);
-  if (prev) patch(container, prev, next);
-  else mount(next, container, null);
-  ROOTS.set(container, next);
+  commitRoot(container, next, prev, () => {
+    if (prev) patch(container, prev, next);
+    else mount(next, container, null);
+  });
 }
 
 export function hydrate(spec: ComponentSpec | VNode, container: Element | null): string | void {
   if (!container) return "Error: No node to attach";
   if (ROOTS.has(container)) return render(spec, container);
-
-  const next = asRootVNode(spec);
-  let cursor = hydrateVNode(next, container, container.firstChild);
-  while (cursor) {
-    const following = cursor.nextSibling;
-    container.removeChild(cursor);
-    cursor = following;
-  }
-  ROOTS.set(container, next);
+  const next = adopt(asRootVNode(spec))!;
+  commitRoot(container, next, undefined, () => {
+    let cursor = hydrateVNode(next, container, container.firstChild);
+    while (cursor) {
+      const following = cursor.nextSibling;
+      container.removeChild(cursor);
+      cursor = following;
+    }
+  });
 }
 
 export function unmountRoot(container: Element) {
   const prev = ROOTS.get(container);
-  if (prev) {
-    unmount(prev);
-    ROOTS.delete(container);
+  if (!prev) return;
+  ROOTS.delete(container);
+  unmount(prev);
+}
+
+function applyFormProps(el: Element, tag: string, props: Record<string, any>) {
+  if (tag === "textarea" && "value" in props) {
+    const next = props.value == null ? "" : String(props.value);
+    if ((el as HTMLTextAreaElement).value !== next) (el as HTMLTextAreaElement).value = next;
+  } else if (tag === "select" && props.value != null) {
+    (el as HTMLSelectElement).value = String(props.value);
   }
 }
+
+let selectedValue: unknown;
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"]/g, (ch) => (ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : "&quot;"));
 }
 
-function attrsToString(props: Record<string, any>): string {
+function attrsToString(props: Record<string, any>, tag?: string): string {
   let out = "";
   for (const name in props) {
     if (!validAttributeName(name)) continue;
     if (name === "key" || name === "children" || name === "ref" || name === "dangerouslySetInnerHTML") continue;
-    if (name[0] === "o" && name[1] === "n") continue;
+    if (eventName(name)) continue;
+    if ((tag === "textarea" || tag === "select") && name === "value") continue;
     if (name === "className" || name === "class") {
       if (name === "class" && props.className) continue;
       const c = props.className ?? props.class;
@@ -627,12 +719,35 @@ function stringify(vnode: VNode | null): string {
   const tag = vnode.type as string;
   if (!validAttributeName(tag)) throw new TypeError("SvenJS: bad tag");
   const inner = vnode.props.dangerouslySetInnerHTML?.__html;
-  const open = `<${tag}${attrsToString(vnode.props)}>`;
+  let extra = "";
+  if (tag === "option" && selectedValue != null) {
+    const value = vnode.props.value != null ? String(vnode.props.value) : textOf(vnode);
+    if (value === String(selectedValue)) extra = " selected";
+  }
+  const open = `<${tag}${attrsToString(vnode.props, tag)}${extra}>`;
   if (VOID.has(tag)) return open;
   if (inner != null) return `${open}${String(inner)}</${tag}>`;
+  if (tag === "textarea" && "value" in vnode.props) {
+    return `${open}${escapeHtml(String(vnode.props.value ?? ""))}</${tag}>`;
+  }
+  if (tag === "select") {
+    const prev = selectedValue;
+    selectedValue = vnode.props.value;
+    let body = "";
+    for (const c of vnode.children) body += stringify(c);
+    selectedValue = prev;
+    return `${open}${body}</${tag}>`;
+  }
   let body = "";
   for (const c of vnode.children) body += stringify(c);
   return `${open}${body}</${tag}>`;
+}
+
+function textOf(vnode: VNode): string {
+  if (vnode.type === TEXT) return String(vnode.props.nodeValue ?? "");
+  let out = "";
+  for (const c of vnode.children) out += textOf(c);
+  return out;
 }
 
 export function renderToString(spec: ComponentSpec | VNode): string {

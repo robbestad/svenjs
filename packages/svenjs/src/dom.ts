@@ -18,9 +18,12 @@ export function validAttributeName(name: string): boolean {
   return Boolean(name) && !INVALID_ATTRIBUTE.test(name);
 }
 
-function eventName(prop: string): string | null {
-  if (prop.length < 3 || prop[0] !== "o" || prop[1] !== "n") return null;
-  return prop.toLowerCase().slice(2);
+export function eventName(prop: string): string | null {
+  if (prop.length < 3) return null;
+  const lower = prop.toLowerCase();
+  if (lower[0] !== "o" || lower[1] !== "n") return null;
+  const rest = lower.slice(2);
+  return rest === "doubleclick" ? "dblclick" : rest;
 }
 
 function listeners(el: Element): ListenerMap {

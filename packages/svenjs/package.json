@@ -30,15 +30,18 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "development": "./dist/svenjs.dev.js",
       "import": "./dist/svenjs.js",
       "default": "./dist/svenjs.js"
     },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
+      "development": "./dist/jsx-runtime.dev.js",
       "import": "./dist/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
       "types": "./dist/jsx-dev-runtime.d.ts",
+      "development": "./dist/jsx-dev-runtime.dev.js",
       "import": "./dist/jsx-dev-runtime.js"
     }
   },
@@ -48,13 +51,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json && node ./scripts/jsx-entries.mjs",
+    "build": "vite build && SVEN_DEV=1 vite build && tsc -p tsconfig.build.json && node ./scripts/jsx-entries.mjs",
     "prepublishOnly": "pnpm test && pnpm typecheck && pnpm build && pnpm check:dist && pnpm size && pnpm check:pack",
     "check:pack": "node ./scripts/check-pack.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "check:dist": "tsc -p tests/fixtures/nodenext/tsconfig.json",
+    "check:dist": "tsc -p tests/fixtures/nodenext/tsconfig.json && tsc -p tests/fixtures/types/tsconfig.json",
     "size": "node ../../scripts/size.mjs"
   },
   "devDependencies": {
