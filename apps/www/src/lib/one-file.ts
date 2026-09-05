@@ -1,7 +1,7 @@
 import { version } from "svenjs";
 import previewCss from "../../public/preview.css?raw";
 
-export const CDN = "https://unpkg.com/svenjs@3.2.1";
+export const CDN = "https://unpkg.com/svenjs@3.3.0";
 
 export const HELLO_JS = `const { create, render, html } = Svenjs;
 

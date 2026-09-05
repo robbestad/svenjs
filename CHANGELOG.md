@@ -6,7 +6,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
-Correctness work toward 3.3.0. Package version is still 3.2.1 until the release PR.
+## [3.3.0] – 2026-09-05
 
 ### Fixed
 

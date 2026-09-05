@@ -24,4 +24,4 @@ In `tsconfig.json` (or Vite's esbuild JSX settings):
 
 There is no separate `svenjsx` package. `svenjs/jsx-runtime` ships with the runtime.
 
-A CDN / script-tag build is emitted as `svenjs.iife.js` for the original “drop it in a page” goal. Pin the version you install (`svenjs@3.2.1`). Development diagnostics are a separate file: `svenjs.iife.dev.js` or the `development` export condition on `"svenjs"`. Production imports stay on `svenjs.js`.
+A CDN / script-tag build is emitted as `svenjs.iife.js` for the original “drop it in a page” goal. Pin the version you install (`svenjs@3.3.0`). Development diagnostics are a separate file: `svenjs.iife.dev.js` or the `development` export condition on `"svenjs"`. Production imports stay on `svenjs.js`.

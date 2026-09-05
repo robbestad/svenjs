@@ -6,7 +6,7 @@ import { createStore } from "./store";
 import { FRAGMENT } from "./types";
 import { jsx, jsxDEV, jsxs } from "./jsx-runtime";
 
-export const version = "3.2.1";
+export const version = "3.3.0";
 
 export { create, createStore, flushSync, FRAGMENT as Fragment, h, html, hydrate, jsx, jsxDEV, jsxs, render, renderToString, unmountRoot };
 export type { Component, ComponentSpec, JSX, Key, Observable, Props, SvenComponent, VNode } from "./types";

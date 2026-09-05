@@ -12,7 +12,7 @@ You do not need npm. Save this as `hello.html`, open it in a browser, click the 
 <html lang="en">
 <body>
   <div id="app"></div>
-  <script src="https://unpkg.com/svenjs@3.2.1"></script>
+  <script src="https://unpkg.com/svenjs@3.3.0"></script>
   <script>
     const { create, render, html } = Svenjs;
 
