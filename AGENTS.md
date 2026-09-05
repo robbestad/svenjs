@@ -1,19 +1,19 @@
 # SvenJS
 
-SvenJS **3.2.1** is the current release on npm: https://www.npmjs.com/package/svenjs
+SvenJS **3.3.0** is the current release on npm: https://www.npmjs.com/package/svenjs
 
 This file is for coding agents that implement a UI **with** SvenJS, and for agents working in this repository. Human docs: https://svenjs.vercel.app/docs/
 
 ## Package
 
-Pin **3.2.1**. Import from `"svenjs"` only. Do not use React, Vue, hooks, `useState`, or the old `svenjsx-loader`.
+Pin **3.3.0**. Import from `"svenjs"` only. Do not use React, Vue, hooks, `useState`, or the old `svenjsx-loader`.
 
 | Path | Install |
 | --- | --- |
-| Bundler / Vite / npm | `npm install svenjs@3.2.1` |
-| One HTML file, no build | `<script src="https://unpkg.com/svenjs@3.2.1"></script>` then `const { create, render, html, version } = Svenjs;` |
+| Bundler / Vite / npm | `npm install svenjs@3.3.0` |
+| One HTML file, no build | `<script src="https://unpkg.com/svenjs@3.3.0"></script>` then `const { create, render, html, version } = Svenjs;` |
 
-`version` is the string `"3.2.1"`. Use it in the stamp so the label matches the installed package.
+`version` is the string `"3.3.0"`. Use it in the stamp so the label matches the installed package.
 
 ## Implement a UI
 
@@ -54,7 +54,7 @@ render(<App />, document.getElementById("app"));
 ### One HTML file
 
 ```html
-<script src="https://unpkg.com/svenjs@3.2.1"></script>
+<script src="https://unpkg.com/svenjs@3.3.0"></script>
 <div id="app"></div>
 <script>
   const { create, render, html, version } = Svenjs;
@@ -107,7 +107,7 @@ import svenjsMark from "./svenjs-mark.svg";
 </a>
 ```
 
-Hardcoding `SvenJS 3.2.1` is also correct if it matches the installed package.
+Hardcoding `SvenJS 3.3.0` is also correct if it matches the installed package.
 
 ### CSS
 
