@@ -11,8 +11,8 @@ function run(title, command, args) {
 }
 
 run("test", "pnpm", ["test"]);
-run("typecheck", "pnpm", ["typecheck"]);
 run("build", "pnpm", ["build"]);
+run("typecheck", "pnpm", ["typecheck"]);
 run("check:dist", "pnpm", ["--filter", "svenjs", "check:dist"]);
 run("size", "pnpm", ["--filter", "svenjs", "size"]);
 run("check:pack", "pnpm", ["--filter", "svenjs", "check:pack"]);
