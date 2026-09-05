@@ -89,8 +89,13 @@ test("home ships SoftwareApplication JSON-LD", async ({ request }) => {
   expect(html).toContain('"@type":"WebSite"');
 });
 
-test("playground runtime is a production IIFE", async ({ request }) => {
+test("playground preview is a development IIFE", async ({ request }) => {
   const js = await (await request.get("/playground-svenjs.js")).text();
+  expect(js).toContain("duplicate key");
+});
+
+test("playground export runtime is a production IIFE", async ({ request }) => {
+  const js = await (await request.get("/playground-svenjs.prod.js")).text();
   expect(js).not.toContain("duplicate key");
   expect(js.length).toBeLessThan(20_000);
 });

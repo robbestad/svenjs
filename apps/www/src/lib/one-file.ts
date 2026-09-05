@@ -1,4 +1,7 @@
-export const CDN = "https://unpkg.com/svenjs@3";
+import { version } from "svenjs";
+import previewCss from "../../public/preview.css?raw";
+
+export const CDN = "https://unpkg.com/svenjs@3.2.1";
 
 export const HELLO_JS = `const { create, render, html } = Svenjs;
 
@@ -145,16 +148,21 @@ const App = create({
 render(App, document.getElementById("app"));
 `;
 
-const PREVIEW_CSS = `body{font:16px/1.5 system-ui,sans-serif;margin:1.25rem;background:#141210;color:#f2ebe3}
-button{font:inherit;cursor:pointer;background:#e07a3d;color:#fff;border:0;border-radius:8px;padding:.55rem .95rem}
-input[type=text]{font:inherit;background:#1c1915;border:1px solid #3a342c;border-radius:8px;padding:.5rem .7rem;color:inherit}
-.demo-card,.todo-app{max-width:32rem}
-h1{font-size:1.6rem;margin:0 0 .8rem}
-.todo-list{list-style:none;margin:1rem 0;padding:0}
-.todo-list li{display:flex;gap:.6rem;align-items:center;padding:.5rem 0;border-bottom:1px solid #3a342c}
-.todo-list li.done label{opacity:.6;text-decoration:line-through}
-.destroy{margin-left:auto;background:transparent;color:#a3988c}
-.compose-grid{display:grid;gap:.75rem}`;
+const STAMP = `<a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener noreferrer">
+  <svg class="svenjs-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 326 326" width="36" height="36" aria-hidden="true">
+    <rect width="326" height="326" rx="72" fill="#312725"/>
+    <g fill="#e07a3d" transform="translate(0 4)">
+      <polygon points="127,73 258,73 204,130 78,129"/>
+      <polygon points="78,129 121,129 172,184 131,184"/>
+      <polygon points="154,139 198,139 249,195 205,195"/>
+      <polygon points="116,193 249,195 199,250 66,250"/>
+    </g>
+  </svg>
+  <span class="svenjs-credit-copy">
+    <span class="svenjs-credit-kicker">UI built with</span>
+    <span class="svenjs-credit-name">SvenJS ${version}</span>
+  </span>
+</a>`;
 
 export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?: string, title = "SvenJS") {
   const safe = script.replace(/<\/script/gi, "<\\/script");
@@ -167,7 +175,7 @@ export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?:
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${title}</title>
-  <style>${PREVIEW_CSS}</style>
+  <style>${previewCss}</style>
 </head>
 <body>
   <div id="app"></div>
@@ -175,6 +183,7 @@ export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?:
   <script>
 ${safe}
   </script>
+  ${STAMP}
 </body>
 </html>
 `;

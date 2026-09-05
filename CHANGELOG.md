@@ -6,6 +6,34 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+Correctness work toward 3.3.0. Package version is still 3.2.1 until the release PR.
+
+### Fixed
+
+- Cached `html` templates and reused `h()` trees no longer share `_dom` / `_instance`. Sibling and root mounts of the same static template update, hide, hydrate, and unmount independently.
+- `onMount` runs after the current DOM insertion. Nested fields can focus when the root container is connected.
+- `onDestroy`, ref teardown, and `observe` unsubscribes finish even if one of them throws. `unmountRoot` is idempotent.
+- `textarea value` is SSR text content; `select value` marks the matching option `selected`. Hydration writes form properties, not just attributes.
+- `onDoubleClick` listens for native `dblclick`. Event props are recognized case-insensitively and never become inline HTML handlers.
+- Typed arrays no longer throw while freezing development state. `Map` / `Set` / `Date` / typed arrays clone but are not mutation-proof.
+- Playground share / copy / download read the live editor text. Preview uses the development IIFE; export inlines production.
+
+### Changed
+
+- Changing a `key` remounts that node outside lists as well. Keyed list moves are unchanged.
+- Store listeners see queued nested `set` values in order. A throwing listener does not skip the rest. `get()` updates immediately on nested `set`.
+- `dangerouslySetInnerHTML` wins when both it and children are set.
+
+### Added
+
+- Published development builds: `svenjs.dev.js`, `svenjs.iife.dev.js`, and a `development` export condition. Production imports stay small.
+- JSX `onClick` / `onDoubleClick` / `onInput` / `onKeyDown` (and similar) take the matching DOM event type. Extra component methods remain allowed; instance fields still live on `this`.
+
+### Size
+
+- Production IIFE gzip budget is **6,144 bytes** (was 5,632). The extra bytes pay for vnode `adopt()`, mount commit, robust unmount, form SSR, and store notification waves. Dev files are reported but not gated.
+- `pnpm verify`, PR CI, and a packed-tarball consumer check.
+
 ## [3.2.1] – 2026-09-03
 
 Throughput work in the 3.2 runtime. Public API and observable semantics are unchanged aside from the mixed-key correction noted below.

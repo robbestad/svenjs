@@ -70,8 +70,10 @@ function playgroundRuntime(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
-        if (url !== "/playground-svenjs.js") return next();
-        const code = await bundle(false);
+        const dev = url === "/playground-svenjs.js";
+        const prod = url === "/playground-svenjs.prod.js";
+        if (!dev && !prod) return next();
+        const code = await bundle(!dev);
         res.setHeader("Content-Type", "application/javascript; charset=utf-8");
         res.setHeader("Cache-Control", "no-cache");
         res.end(code);
@@ -81,6 +83,11 @@ function playgroundRuntime(): Plugin {
       this.emitFile({
         type: "asset",
         fileName: "playground-svenjs.js",
+        source: await bundle(false),
+      });
+      this.emitFile({
+        type: "asset",
+        fileName: "playground-svenjs.prod.js",
         source: await bundle(true),
       });
     },

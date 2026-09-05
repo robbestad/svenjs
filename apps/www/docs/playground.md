@@ -7,7 +7,9 @@ order: 5
 
 The [playground](/play/) runs your script against a local IIFE build in a sandboxed iframe.
 
-Mission Control is the default example. Start its synthetic stream, sort or filter 100 keyed units while the SVG telemetry moves, then export the exact demo.
+The playground opens the small **Click** example. Mission Control is in the example list when you want the larger demo. The editor edits **application source** inside an HTML wrapper — it is not a full HTML/CSS IDE.
+
+Preview uses the development runtime (key warnings and freeze checks). **Copy HTML** / **Download .html** embed the production runtime, current editor text, shared preview CSS, and the SvenJS credit chip. Open that file from disk: no npm, build step, network, or API key. A CDN starter still needs the network; the exported file does not.
 
 **Copy HTML** and **Download .html** embed the current SvenJS runtime, application source, and styles directly in one file. Open that file from disk: no npm, build step, network, or API key.
 
