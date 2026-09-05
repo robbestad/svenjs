@@ -21,11 +21,7 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org/
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter svenjs test
-      - run: pnpm --filter svenjs typecheck
-      - run: pnpm --filter svenjs build
-      - run: pnpm --filter svenjs check:dist
-      - run: pnpm --filter svenjs size
-      - run: pnpm --filter svenjs publish --access public --no-git-checks
+      - run: pnpm verify
+      - run: pnpm --filter svenjs publish --access public --no-git-checks --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

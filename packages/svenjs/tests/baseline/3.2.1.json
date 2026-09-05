@@ -1,0 +1,20 @@
+{
+  "version": "3.2.1",
+  "commit": "1180ff4",
+  "environment": "happy-dom via Vitest, Node 20, macos/linux CI",
+  "size": {
+    "svenjs.js": { "raw": 19070, "gzip": 5826 },
+    "svenjs.iife.js": { "raw": 14144, "gzip": 5267 }
+  },
+  "iifeGzipBudget": 5632,
+  "laterIifeGzipBudget": 6144,
+  "domOps": {
+    "insertBefore": 9,
+    "removeChild": 2,
+    "createElement": 8,
+    "createTextNode": 3,
+    "setAttribute": 0,
+    "removeAttribute": 0
+  },
+  "notes": "DOM op counts are filled by tests/baseline.test.ts against runBaselineScenario. Wall-clock is not a CI gate."
+}
