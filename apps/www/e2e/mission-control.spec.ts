@@ -43,7 +43,9 @@ test("streams, graphs, sorts, filters, and cleans up coherently", async ({ page 
   const tracked = page.locator('[data-unit-id="SV-024"]');
   await tracked.evaluate((node) => ((window as any).__trackedMissionRow = node));
 
-  await page.getByRole("button", { name: "Acknowledge" }).first().click();
+  const acknowledge = page.getByRole("button", { name: "Acknowledge" }).first();
+  await acknowledge.focus();
+  await acknowledge.press("Enter");
   await expect(page.locator('.mission-alert button[aria-disabled="true"]').first()).toBeFocused();
   await expect(detailChart).toHaveAttribute("points", initialDetailPoints!);
   await page.getByRole("button", { name: "Close details" }).click();

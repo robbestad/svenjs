@@ -25,5 +25,6 @@ jobs:
           version: 10.34.5
       - run: npm install -g npm@11
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter www exec playwright install --with-deps chromium firefox webkit
       - run: pnpm verify
       - run: pnpm --filter svenjs publish --access public --no-git-checks --ignore-scripts

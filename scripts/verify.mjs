@@ -10,9 +10,12 @@ function run(title, command, args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+run("versions", "node", ["scripts/check-versions.mjs"]);
 run("test", "pnpm", ["test"]);
 run("build", "pnpm", ["build"]);
 run("typecheck", "pnpm", ["typecheck"]);
 run("check:dist", "pnpm", ["--filter", "svenjs", "check:dist"]);
 run("size", "pnpm", ["--filter", "svenjs", "size"]);
 run("check:pack", "pnpm", ["--filter", "svenjs", "check:pack"]);
+
+run("e2e", "pnpm", ["test:e2e"]);

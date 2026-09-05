@@ -52,7 +52,7 @@
   ],
   "scripts": {
     "build": "vite build && SVEN_DEV=1 vite build && tsc -p tsconfig.build.json && node ./scripts/jsx-entries.mjs",
-    "prepublishOnly": "pnpm test && pnpm typecheck && pnpm build && pnpm check:dist && pnpm size && pnpm check:pack",
+    "prepublishOnly": "pnpm --dir ../.. verify",
     "check:pack": "node ./scripts/check-pack.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

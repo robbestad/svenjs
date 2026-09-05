@@ -26,7 +26,8 @@ export type ComponentSpec<P = any, S = any> = {
   _beforeMount?(): void;
   _didMount?(): void;
   _didUpdate?(): void;
-};
+  [key: string]: any;
+} & ThisType<Component<P, S> & Record<string, any>>;
 
 export const FRAGMENT = Symbol.for("svenjs.fragment");
 export const SPEC = Symbol.for("svenjs.spec");

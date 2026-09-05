@@ -28,21 +28,23 @@ function raise(errors: unknown[]) {
 }
 
 const mountQueue: Instance[] = [];
-let commitDepth = 0;
+const commits: Array<{ start: number; errors: unknown[] }> = [];
 
 function beginCommit() {
-  commitDepth++;
+  commits.push({ start: mountQueue.length, errors: [] });
 }
 
 function abortCommit() {
-  mountQueue.length = 0;
-  commitDepth = 0;
+  mountQueue.length = commits.pop()!.start;
 }
 
 function endCommit() {
-  if (--commitDepth !== 0) return;
+  const { errors } = commits.pop()!;
+  if (commits.length) {
+    commits[commits.length - 1].errors.push(...errors);
+    return;
+  }
   const mounts = mountQueue.splice(0);
-  const errors: unknown[] = [];
   for (let i = 0; i < mounts.length; i++) {
     const inst = mounts[i];
     if (inst._destroyed || !inst._mounted) continue;
@@ -52,7 +54,7 @@ function endCommit() {
 }
 
 function queueMount(inst: Instance) {
-  if (commitDepth) mountQueue.push(inst);
+  if (commits.length) mountQueue.push(inst);
   else callHook(inst, "onMount", "_didMount");
 }
 
@@ -308,8 +310,9 @@ function mountComponent(vnode: VNode, parent: Node, anchor: Node | null, svg = f
 
 function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unknown[]) {
   if (!vnode) return;
-  const owned = !errors;
-  const bag = errors ?? [];
+  const pending = errors ?? commits[commits.length - 1]?.errors;
+  const owned = !pending;
+  const bag = pending ?? [];
   if (isSpec(vnode.type)) {
     const inst = vnode._instance;
     if (inst) {
@@ -334,8 +337,10 @@ function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unk
       vnode._end?.parentNode?.removeChild(vnode._end);
     }
   } else {
-    runUser(() => applyRef(vnode.props, null), bag);
-    for (const c of vnode.children) unmount(c, false, bag);
+    if (vnode._dom) runUser(() => applyRef(vnode.props, null), bag);
+    if (!vnode.props.dangerouslySetInnerHTML) {
+      for (const c of vnode.children) unmount(c, false, bag);
+    }
     if (removeDom) vnode._dom?.parentNode?.removeChild(vnode._dom);
   }
   if (owned) raise(bag);
@@ -650,15 +655,14 @@ export function unmountRoot(container: Element) {
 }
 
 function applyFormProps(el: Element, tag: string, props: Record<string, any>) {
-  if (tag === "textarea" && "value" in props) {
+  if ((tag === "textarea" || tag === "input") && "value" in props) {
     const next = props.value == null ? "" : String(props.value);
     if ((el as HTMLTextAreaElement).value !== next) (el as HTMLTextAreaElement).value = next;
   } else if (tag === "select" && props.value != null) {
     (el as HTMLSelectElement).value = String(props.value);
   }
+  if (tag === "input" && "checked" in props) (el as HTMLInputElement).checked = Boolean(props.checked);
 }
-
-let selectedValue: unknown;
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"]/g, (ch) => (ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : "&quot;"));
@@ -703,59 +707,40 @@ function attrsToString(props: Record<string, any>, tag?: string): string {
   return out;
 }
 
-function stringify(vnode: VNode | null): string {
+function stringify(vnode: VNode | null, selectedValue?: unknown, text?: string[]): string {
   if (!vnode) return "";
-  if (vnode.type === TEXT) return escapeHtml(String(vnode.props.nodeValue ?? ""));
+  if (vnode.type === TEXT) {
+    const value = String(vnode.props.nodeValue ?? "");
+    text?.push(value);
+    return escapeHtml(value);
+  }
   if (vnode.type === FRAGMENT) {
-    let out = "";
-    for (const c of vnode.children) out += stringify(c);
-    return out;
+    return vnode.children.map((c) => stringify(c, selectedValue, text)).join("");
   }
   if (isSpec(vnode.type)) {
     const inst = makeInstance(vnode.type, vnode.props);
     callHook(inst, "onBeforeMount", "_beforeMount");
-    return stringify(renderInstance(inst));
+    return stringify(renderInstance(inst), selectedValue, text);
   }
   const tag = vnode.type as string;
   if (!validAttributeName(tag)) throw new TypeError("SvenJS: bad tag");
   const inner = vnode.props.dangerouslySetInnerHTML?.__html;
+  const optionText: string[] | undefined = tag === "option" ? [] : text;
+  let body = "";
+  if (!VOID.has(tag)) {
+    if (inner != null) body = String(inner);
+    else if (tag === "textarea" && "value" in vnode.props) body = escapeHtml(String(vnode.props.value ?? ""));
+    else for (const c of vnode.children) body += stringify(c, tag === "select" ? vnode.props.value : selectedValue, optionText);
+  }
   let extra = "";
   if (tag === "option" && selectedValue != null) {
-    const value = vnode.props.value != null ? String(vnode.props.value) : textOf(vnode);
+    const value = vnode.props.value != null ? String(vnode.props.value) : optionText!.join("").replace(/[\t\n\f\r ]+/g, " ").trim();
     if (value === String(selectedValue)) extra = " selected";
   }
   const open = `<${tag}${attrsToString(vnode.props, tag)}${extra}>`;
-  if (VOID.has(tag)) return open;
-  if (inner != null) return `${open}${String(inner)}</${tag}>`;
-  if (tag === "textarea" && "value" in vnode.props) {
-    return `${open}${escapeHtml(String(vnode.props.value ?? ""))}</${tag}>`;
-  }
-  if (tag === "select") {
-    const prev = selectedValue;
-    selectedValue = vnode.props.value;
-    let body = "";
-    for (const c of vnode.children) body += stringify(c);
-    selectedValue = prev;
-    return `${open}${body}</${tag}>`;
-  }
-  let body = "";
-  for (const c of vnode.children) body += stringify(c);
-  return `${open}${body}</${tag}>`;
-}
-
-function textOf(vnode: VNode): string {
-  if (vnode.type === TEXT) return String(vnode.props.nodeValue ?? "");
-  let out = "";
-  for (const c of vnode.children) out += textOf(c);
-  return out;
+  return VOID.has(tag) ? open : `${open}${body}</${tag}>`;
 }
 
 export function renderToString(spec: ComponentSpec | VNode): string {
-  if (isSpec(spec)) {
-    const inst = makeInstance(spec, {});
-    callHook(inst, "onBeforeMount", "_beforeMount");
-    const rendered = renderInstance(inst);
-    return stringify(rendered);
-  }
-  return stringify(spec);
+  return stringify(asRootVNode(spec));
 }

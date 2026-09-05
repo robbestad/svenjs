@@ -12,3 +12,17 @@ const Counter = create({
 });
 
 void Counter;
+
+import type { ComponentSpec } from "svenjs";
+const Annotated: ComponentSpec<{}, { count: number }> = {
+  initialState: { count: 0 },
+  increment() { this.setState({ count: this.state.count + 1 }); },
+  render() {
+    const count: number = this.state.count;
+    // @ts-expect-error state remains typed for annotated specs
+    const invalid: string = this.state.count;
+    this.increment();
+    return <p>{count}</p>;
+  },
+};
+create(Annotated);

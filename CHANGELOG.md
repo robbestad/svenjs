@@ -6,6 +6,20 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+### Fixed
+
+- List updates finish all teardown and commit the resulting tree before reporting cleanup errors. Failed nested renders roll back only their own pending mount hooks.
+- Explicit `ComponentSpec<Props, State>` annotations retain typed state and support extra instance methods.
+- Hydration restores controlled input values and checked state even when server attributes already match.
+- Playground clipboard/export status is separate from code errors; delayed sharing cannot restore an older example, and missing clipboard support is handled.
+- SSR select context is local to each render, including failed and reentrant renders. Component-generated option text is matched without rendering twice.
+- Ignored raw-HTML children receive no ref teardown. State documentation now correctly allows cyclic structures.
+
+### Verification
+
+- Packed consumers exercise production/development ESM and JSX entries, strict NodeNext/Bundler types with both automatic JSX modes, and the actual production/development IIFEs in Chromium, Firefox, and WebKit.
+- CI and release run the same full verification including e2e and release-tag/package/runtime/starter version checks. Local publishing uses the same verification.
+
 ## [3.3.0] – 2026-09-05
 
 ### Fixed
