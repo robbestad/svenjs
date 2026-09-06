@@ -6,6 +6,11 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+### Added
+
+- `create({...})` infers declared instance method arguments and return types. Explicit `create<Props, State>` remains compatible; an optional third method type is supported by `create` and `ComponentSpec` when strict explicit signatures are needed.
+- `pnpm bench` builds the production library and measures 68 list, batching, store and SSR cases with 100/1,000 items. Reports include environment, artifact hash, raw samples and percentiles, without CI timing thresholds.
+
 ### Fixed
 
 - List updates finish all teardown and commit the resulting tree before reporting cleanup errors. Failed nested renders roll back only their own pending mount hooks.
@@ -17,6 +22,8 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ### Verification
 
+- All five playground examples have offline file export tests in Chromium, Firefox and WebKit, including interactions, inlined runtime/CSS and the visible versioned credit chip.
+- Full verification reuses its completed site build for e2e; standalone `pnpm test:e2e` still builds first.
 - Packed consumers exercise production/development ESM and JSX entries, strict NodeNext/Bundler types with both automatic JSX modes, and the actual production/development IIFEs in Chromium, Firefox, and WebKit.
 - CI and release run the same full verification including e2e and release-tag/package/runtime/starter version checks. Local publishing uses the same verification.
 
