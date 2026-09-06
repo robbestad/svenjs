@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
+import { checkOfflineExport } from "./offline-export";
 
 test("ships a crawlable deterministic Mission Control page", async ({ page, request }) => {
   const response = await request.get("/demo/mission-control/");
@@ -116,30 +115,15 @@ test("downloads a genuinely offline one-file Mission Control", async ({ page }, 
   await expect(page.getByLabel("Example")).toHaveValue("mission");
   await expect(preview.locator("[data-mission-control]")).toBeVisible({ timeout: 20_000 });
 
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download .html" }).click();
-  const download = await downloadPromise;
-  const destination = testInfo.outputPath("svenjs-mission-control.html");
-  await download.saveAs(destination);
-  const artifact = await readFile(destination, "utf8");
-
-  expect(artifact).toContain("<title>SvenJS Mission Control</title>");
-  expect(artifact).toContain("function createMissionControl");
-  expect(artifact).toContain(".mission-console");
-  expect(artifact).toContain("globalThis.Svenjs");
-  expect(artifact).not.toMatch(/<script[^>]+src=/i);
-  expect(artifact).not.toMatch(/<link[^>]+stylesheet/i);
-
-  const offline = await page.context().newPage();
-  const remoteRequests: string[] = [];
-  offline.on("request", (request) => {
-    if (/^https?:/.test(request.url())) remoteRequests.push(request.url());
+  await checkOfflineExport(page, testInfo, async (offline, artifact) => {
+    expect(artifact).toContain("<title>SvenJS Mission Control</title>");
+    expect(artifact).toContain("function createMissionControl");
+    expect(artifact).toContain(".mission-console");
+    await expect(offline.locator("[data-mission-control]")).toBeVisible();
+    await expect(offline.locator("[data-unit-id]")).toHaveCount(100);
+    await offline.getByRole("button", { name: "Start stream" }).click();
+    await expect.poll(async () => Number(await offline.locator("[data-mission-tick]").getAttribute("data-mission-tick"))).toBeGreaterThan(1);
   });
-  await offline.goto(pathToFileURL(destination).href);
-  await expect(offline.locator("[data-mission-control]")).toBeVisible();
-  await offline.getByRole("button", { name: "Start stream" }).click();
-  await expect.poll(async () => Number(await offline.locator("[data-mission-tick]").getAttribute("data-mission-tick"))).toBeGreaterThan(1);
-  expect(remoteRequests).toEqual([]);
 });
 
 test("round-trips an edited built-in example through the share hash", async ({ page }) => {

@@ -15,7 +15,7 @@ export type Component<P = any, S = any> = {
 
 export type Host<P = any, S = any, M extends object = {}> = Component<P, S> & M;
 
-export type ComponentSpec<P = any, S = any> = {
+export type ComponentOptions<P = any, S = any> = {
   displayName?: string;
   initialState?: S | ((props: P) => S);
   render(): unknown;
@@ -26,8 +26,10 @@ export type ComponentSpec<P = any, S = any> = {
   _beforeMount?(): void;
   _didMount?(): void;
   _didUpdate?(): void;
-  [key: string]: any;
-} & ThisType<Component<P, S> & Record<string, any>>;
+};
+
+export type ComponentSpec<P = any, S = any, M extends object = Record<string, any>> =
+  ComponentOptions<P, S> & M & Record<string, any> & ThisType<Component<P, S> & M & Record<string, any>>;
 
 export const FRAGMENT = Symbol.for("svenjs.fragment");
 export const SPEC = Symbol.for("svenjs.spec");
@@ -59,7 +61,7 @@ export type Instance = Component & {
 };
 
 /** Callable so TypeScript accepts `<App />` on a spec object. */
-export type SvenComponent<P = any, S = any> = ComponentSpec<P, S> & {
+export type SvenComponent<P = any, S = any, M extends object = Record<string, any>> = ComponentSpec<P, S, M> & {
   (props?: P): VNode;
 };
 

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm --filter www dev",
     "build": "pnpm --filter svenjs build && pnpm --filter www build",
+    "bench": "pnpm --filter svenjs build && node packages/svenjs/scripts/benchmark.mjs",
     "test": "pnpm --filter svenjs test",
     "test:e2e": "pnpm --filter www test:e2e",
     "typecheck": "pnpm -r typecheck",

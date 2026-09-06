@@ -146,11 +146,19 @@ pnpm dev
 | --- | --- |
 | `pnpm dev` | Runs the docs and playground at http://localhost:5173 |
 | `pnpm test` | Runs the runtime test suite with Vitest |
-| `pnpm test:e2e` | Runs Playwright smoke tests for the site |
+| `pnpm test:e2e` | Builds the site and runs Playwright tests in Chromium, Firefox, and WebKit |
 | `pnpm build` | Builds the library and site |
+| `pnpm verify` | Runs version checks, tests, builds, types, package consumers, size checks, and e2e |
+| `pnpm bench` | Builds the production library and measures list updates, batching, stores, and SSR with 100/1,000 items |
 | `pnpm --filter svenjs size` | Reports raw and gzip sizes for the ESM and script-tag builds |
 
 The repository contains the `svenjs` runtime in `packages/svenjs` and the documentation, demos, and playground in `apps/www`.
+
+Before running browser or full verification checks, install the test browsers with
+`pnpm --filter www exec playwright install chromium firefox webkit` (add `--with-deps` on Linux).
+`pnpm verify` builds the site once and passes `SVENJS_E2E_PREBUILT=1` to its e2e step to reuse that build.
+Running `pnpm test:e2e` on its own still builds the site first.
+See the [benchmark guide](packages/svenjs/benchmarks/README.md) for sampling options, JSON reports, and measurement limits.
 
 ## Migration from 2.x
 
