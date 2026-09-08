@@ -13,7 +13,9 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ### Fixed
 
-- List updates finish all teardown and commit the resulting tree before reporting cleanup errors. Failed nested renders roll back only their own pending mount hooks.
+- Failed root renders and hydration clear partial trees and release their refs, subscriptions and instances. Failed component patches retain the owner and an empty placeholder for a later state update; successful independent nested roots keep their mount hooks.
+- Ref cleanup tracks the callback actually attached to each element, and shared instances are destroyed only once when recovering overlapping old and new trees.
+- List updates finish all teardown and commit the resulting tree before reporting cleanup errors.
 - Explicit `ComponentSpec<Props, State>` annotations retain typed state and support extra instance methods.
 - Hydration restores controlled input values and checked state even when server attributes already match.
 - Playground clipboard/export status is separate from code errors; delayed sharing cannot restore an older example, and missing clipboard support is handled.

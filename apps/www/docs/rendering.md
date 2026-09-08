@@ -45,3 +45,24 @@ Each `html` evaluation that is mounted gets its own DOM and instance, even when 
 The 2.x renderer assigned `node.innerHTML = ""` on every update. That is gone on purpose.
 
 `flushSync(fn)` runs `fn` and flushes immediately. The site router uses it so view transitions see the new DOM.
+
+## Recovering from errors
+
+A failed patch can have already changed the DOM. SvenJS cleans up both the previous
+tree and the partially rendered tree, including refs and subscriptions, before
+reporting the error. It does not roll back DOM changes or component state.
+
+- If `render()` or `hydrate()` fails while writing a root, that root is cleared.
+  Call `render()` again to mount a fresh tree. Failed hydration also clears any
+  remaining server HTML.
+- If a scheduled component update fails while patching its output, that output is
+  replaced with an empty placeholder. The owning component and its state remain,
+  so a later `setState()` can render again in the same position. Other components
+  queued for updates still run.
+- If the component's own `render()` throws before patching starts, its previous
+  output remains during a scheduled update.
+
+Partially mounted components receive cleanup but no pending `onMount` call.
+Successful renders into independent roots keep their mount hooks. Cleanup errors
+are reported without replacing the original render error. An exception from
+`onMount` happens after commit and does not undo the completed DOM update.

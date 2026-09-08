@@ -165,9 +165,17 @@ export function patchProps(el: Element, oldP: Props, newP: Props) {
   }
 }
 
-export function applyRef(props: Props, el: Element | null) {
-  const ref = props?.ref;
-  if (typeof ref === "function") ref(el);
+const refs = new WeakMap<Element, (el: Element | null) => void>();
+
+export function applyRef(el: Element, ref?: unknown) {
+  const previous = refs.get(el);
+  if (previous === ref) return;
+  refs.delete(el);
+  previous?.(null);
+  if (typeof ref === "function") {
+    refs.set(el, ref as (el: Element | null) => void);
+    ref(el);
+  }
 }
 
 export const VOID = new Set([
