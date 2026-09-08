@@ -28,14 +28,10 @@ function raise(errors: unknown[]) {
 }
 
 const mountQueue: Instance[] = [];
-const commits: Array<{ start: number; errors: unknown[] }> = [];
+const commits: Array<{ errors: unknown[] }> = [];
 
 function beginCommit() {
-  commits.push({ start: mountQueue.length, errors: [] });
-}
-
-function abortCommit() {
-  mountQueue.length = commits.pop()!.start;
+  commits.push({ errors: [] });
 }
 
 function endCommit() {
@@ -284,7 +280,7 @@ function mount(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
   }
   applyFormProps(el, tag, vnode.props);
   parent.insertBefore(el, anchor);
-  applyRef(vnode.props, el);
+  applyRef(el, vnode.props.ref);
 }
 
 function mountComponent(vnode: VNode, parent: Node, anchor: Node | null, svg = false) {
@@ -315,7 +311,7 @@ function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unk
   const bag = pending ?? [];
   if (isSpec(vnode.type)) {
     const inst = vnode._instance;
-    if (inst) {
+    if (inst && !inst._destroyed) {
       inst._destroyed = true;
       inst._mounted = false;
       if (inst._unsubs) {
@@ -337,7 +333,7 @@ function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unk
       vnode._end?.parentNode?.removeChild(vnode._end);
     }
   } else {
-    if (vnode._dom) runUser(() => applyRef(vnode.props, null), bag);
+    if (vnode._dom) runUser(() => applyRef(vnode._dom as Element), bag);
     if (!vnode.props.dangerouslySetInnerHTML) {
       for (const c of vnode.children) unmount(c, false, bag);
     }
@@ -405,27 +401,37 @@ function patch(parent: Node, oldV: VNode | null | undefined, newV: VNode | null 
   }
   applyFormProps(el, newV.type as string, newV.props);
   if (oldV.props.ref !== newV.props.ref) {
-    applyRef(oldV.props, null);
-    applyRef(newV.props, el);
+    applyRef(el, newV.props.ref);
   }
 }
 
 function patchRendered(inst: Instance, rendered: VNode | null, svg: boolean) {
   const old = inst._vnode;
   const parent = inst._parent!;
-  if (!old && rendered) {
-    mount(rendered, parent, inst._placeholder, svg);
-    inst._placeholder?.parentNode?.removeChild(inst._placeholder);
-    inst._placeholder = null;
-  } else if (old && !rendered) {
-    const anchor = liveEnd(old)?.nextSibling ?? null;
-    unmount(old);
-    inst._placeholder = document.createComment("");
+  const anchor = (old ? liveEnd(old) : inst._placeholder)?.nextSibling ?? null;
+  try {
+    if (!old && rendered) {
+      mount(rendered, parent, inst._placeholder, svg);
+      inst._placeholder?.parentNode?.removeChild(inst._placeholder);
+      inst._placeholder = null;
+    } else if (old && !rendered) {
+      unmount(old);
+      inst._placeholder = document.createComment("");
+      parent.insertBefore(inst._placeholder, anchor);
+    } else if (old && rendered) {
+      patch(parent, old, rendered, svg);
+    }
+    inst._vnode = rendered;
+  } catch (error) {
+    // Both trees can own work when a child throws partway through a patch.
+    const errors: unknown[] = [error];
+    unmount(rendered, true, errors);
+    unmount(old, true, errors);
+    inst._vnode = null;
+    inst._placeholder ??= document.createComment("");
     parent.insertBefore(inst._placeholder, anchor);
-  } else if (old && rendered) {
-    patch(parent, old, rendered, svg);
+    raise(errors);
   }
-  inst._vnode = rendered;
 }
 
 function assignBoundary(vnode: VNode, inst: Instance) {
@@ -599,28 +605,27 @@ function hydrateVNode(vnode: VNode, parent: Node, node: Node | null, svg = false
     console.warn("SvenJS: dangerouslySetInnerHTML ignored children");
   }
   applyFormProps(el, tag, vnode.props);
-  applyRef(vnode.props, el);
+  applyRef(el, vnode.props.ref);
   return el.nextSibling;
 }
 
 function commitRoot(container: Element, next: VNode, prev: VNode | undefined, write: () => void) {
+  const errors: unknown[] = [];
   beginCommit();
   try {
     write();
     ROOTS.set(container, next);
   } catch (error) {
-    abortCommit();
-    if (!prev) {
-      try {
-        unmount(next);
-      } catch {
-        /* rollback */
-      }
-      ROOTS.delete(container);
-    }
-    throw error;
+    errors.push(error);
+    errors.push(...commits[commits.length - 1].errors.splice(0));
+    ROOTS.delete(container);
+    unmount(next, true, errors);
+    unmount(prev, true, errors);
+    container.replaceChildren();
   }
-  endCommit();
+  // Successful nested roots keep their mount hooks; failed instances are skipped.
+  runUser(endCommit, errors);
+  raise(errors);
 }
 
 export function render(spec: ComponentSpec | VNode, container: Element | null): string | void {
