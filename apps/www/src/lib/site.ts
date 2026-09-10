@@ -1,5 +1,5 @@
 import type { Route } from "./router";
-import { matchRoute } from "./router";
+import { matchRoute, safeDecode } from "./router";
 import { docs, getDoc } from "./docs";
 import { DocsPage } from "../pages/docs";
 import { HeritagePage } from "../pages/heritage";
@@ -118,7 +118,7 @@ export function metadataForPath(pathname: string): PageMetadata {
   const path = normalizePath(pathname);
 
   if (path.startsWith("/docs/")) {
-    const slug = decodeURIComponent(path.slice("/docs/".length));
+    const slug = safeDecode(path.slice("/docs/".length));
     const doc = getDoc(slug);
     if (doc) {
       return {
