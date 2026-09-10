@@ -161,6 +161,31 @@ describe("keyed lists", () => {
     void nodeC;
   });
 
+  it("patches unkeyed same-type children in place", () => {
+    const App = create({
+      initialState: { ids: ["a", "b", "c"] },
+      render() {
+        return (
+          <div>
+            <ul>
+              {this.state.ids.map((id: string) => (
+                <li>{id}</li>
+              ))}
+            </ul>
+            <button onClick={() => this.setState({ ids: ["c", "b", "a"] })}>reverse</button>
+          </div>
+        );
+      },
+    });
+    const root = mount(App);
+    const before = [...root.querySelectorAll("li")];
+    (root.querySelector("button") as HTMLButtonElement).click();
+    flushSync();
+    const after = [...root.querySelectorAll("li")];
+    expect(after.map((n) => n.textContent)).toEqual(["c", "b", "a"]);
+    expect(after).toEqual(before);
+  });
+
   it("adds and removes keyed items", () => {
     const App = create({
       initialState: { ids: ["a", "b"] },

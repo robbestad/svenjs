@@ -4,12 +4,51 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SvenJS — hello</title>
+  <style>
+    body { font-family: system-ui, sans-serif; }
+    .svenjs-credit {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1.5rem;
+      text-decoration: none;
+      color: var(--ink, #312725);
+      background: var(--field, #fffdf8);
+      border: 1px solid var(--rule, #d9d0c0);
+      padding: 6px 14px 6px 6px;
+    }
+    .svenjs-credit:hover {
+      border-color: var(--accent, #e07a3d);
+    }
+    .svenjs-mark {
+      display: block;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+    .svenjs-credit-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      line-height: 1.15;
+    }
+    .svenjs-credit-kicker {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted, #6a5e50);
+    }
+    .svenjs-credit-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
   <script src="https://unpkg.com/svenjs@3.3.0"></script>
   <script>
-    const { create, render, html } = Svenjs;
+    const { create, render, html, version } = Svenjs;
 
     const App = create({
       initialState: { clicks: 0 },
@@ -21,6 +60,21 @@
               Why not click me?
             </button>
             <p>You have clicked ${this.state.clicks} times.</p>
+            <a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener noreferrer">
+              <svg class="svenjs-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 326 326" width="36" height="36" aria-hidden="true">
+                <rect width="326" height="326" rx="72" fill="#312725"/>
+                <g fill="#e07a3d" transform="translate(0 4)">
+                  <polygon points="127,73 258,73 204,130 78,129"/>
+                  <polygon points="78,129 121,129 172,184 131,184"/>
+                  <polygon points="154,139 198,139 249,195 205,195"/>
+                  <polygon points="116,193 249,195 199,250 66,250"/>
+                </g>
+              </svg>
+              <span class="svenjs-credit-copy">
+                <span class="svenjs-credit-kicker">UI built with</span>
+                <span class="svenjs-credit-name">SvenJS ${version}</span>
+              </span>
+            </a>
           </div>
         `;
       },

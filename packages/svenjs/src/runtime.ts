@@ -75,7 +75,7 @@ export function makeInstance(spec: ComponentSpec, props: Record<string, any>): I
   } as Instance;
 
   for (const key of Object.keys(spec)) {
-    if (key === "initialState" || key === "props") continue;
+    if (key === "initialState" || Object.hasOwn(inst, key)) continue;
     const val = (spec as Record<string, unknown>)[key];
     (inst as any)[key] = typeof val === "function" ? val.bind(inst) : val;
   }
@@ -131,14 +131,20 @@ export function flush() {
   const errors: unknown[] = [];
   beginCommit();
   try {
-    const list = [...queue];
-    queue.clear();
-    for (const inst of list) {
-      if (inst._destroyed || !inst._mounted) continue;
-      try {
-        updateInstance(inst);
-      } catch (error) {
-        errors.push(error);
+    for (let pass = 0; queue.size; pass++) {
+      if (pass === 50) {
+        if (import.meta.env.DEV) console.warn("SvenJS: update flush exceeded 50 passes; deferring the rest");
+        break;
+      }
+      const list = [...queue];
+      queue.clear();
+      for (const inst of list) {
+        if (inst._destroyed || !inst._mounted) continue;
+        try {
+          updateInstance(inst);
+        } catch (error) {
+          errors.push(error);
+        }
       }
     }
   } finally {
@@ -323,6 +329,7 @@ function unmount(vnode: VNode | null | undefined, removeDom = true, errors?: unk
       if (removeDom) inst._placeholder?.parentNode?.removeChild(inst._placeholder);
       inst._vnode = null;
       inst._placeholder = null;
+      inst._parent = null;
     }
   } else if (vnode.type === TEXT) {
     if (removeDom) vnode._dom?.parentNode?.removeChild(vnode._dom);
@@ -484,11 +491,18 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
   }
 
   const oldByKey = new Map<string | number, VNode>();
+  const oldUnkeyed = new Map<VNode["type"], VNode[]>();
   for (const o of oldCh) {
     if (o.key != null) oldByKey.set(o.key, o);
+    else {
+      const bucket = oldUnkeyed.get(o.type);
+      if (bucket) bucket.push(o);
+      else oldUnkeyed.set(o.type, [o]);
+    }
   }
 
   const used = new Set<VNode>();
+  const unkeyedAt = new Map<VNode["type"], number>();
 
   for (const n of newCh) {
     let match: VNode | undefined;
@@ -496,7 +510,13 @@ function patchChildren(parent: Node, oldCh: VNode[], newCh: VNode[], svg = false
       const keyed = oldByKey.get(n.key);
       if (keyed && keyed.type === n.type) match = keyed;
     } else {
-      match = oldCh.find((o) => !used.has(o) && o.key == null && o.type === n.type);
+      const bucket = oldUnkeyed.get(n.type);
+      const at = unkeyedAt.get(n.type) ?? 0;
+      const candidate = bucket?.[at];
+      if (candidate) {
+        match = candidate;
+        unkeyedAt.set(n.type, at + 1);
+      }
     }
     if (match) {
       used.add(match);
