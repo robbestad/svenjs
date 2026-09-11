@@ -11,6 +11,14 @@ export type Match = {
   params: Record<string, string>;
 };
 
+export function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export function matchRoute(pathname: string, routes: Route[]): Match | null {
   const path = pathname === "/" ? "/" : pathname.replace(/\/+$/, "") || "/";
   for (const route of routes) {
@@ -26,7 +34,7 @@ export function matchRoute(pathname: string, routes: Route[]): Match | null {
     if (!m) continue;
     const params: Record<string, string> = {};
     keys.forEach((key, i) => {
-      params[key] = decodeURIComponent(m[i + 1]);
+      params[key] = safeDecode(m[i + 1]);
     });
     return { route, params };
   }
@@ -45,6 +53,7 @@ export function navigate(to: string, replace = false) {
 }
 
 export function isInternalLink(a: HTMLAnchorElement, event: MouseEvent) {
+  if (!a.href) return false;
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return false;
   if (a.target && a.target !== "_self") return false;
   if (a.hasAttribute("download")) return false;
