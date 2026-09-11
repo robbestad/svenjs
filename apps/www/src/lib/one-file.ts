@@ -148,7 +148,11 @@ const App = create({
 render(App, document.getElementById("app"));
 `;
 
-export const CJS_SHIM = `var require=function(id){if(id==="svenjs"||id.indexOf("svenjs/")===0)return globalThis.Svenjs;throw new Error("Cannot require "+id);};var exports={};var module={exports:exports};`;
+export const CJS_SHIM = `var __svenRequire=function(id){if(id==="svenjs"||id.indexOf("svenjs/")===0)return globalThis.Svenjs;throw new Error("Cannot require "+id);};var __svenExports={};`;
+
+export function appScript(code: string) {
+  return `void function(require,exports,module){"use strict";{\n${code}\n}}.call(globalThis,__svenRequire,__svenExports,{exports:__svenExports});`;
+}
 
 const STAMP = `<a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener noreferrer">
   <svg class="svenjs-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 326 326" width="36" height="36" aria-hidden="true">
@@ -184,7 +188,7 @@ export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?:
   ${runtimeTag}
   <script>
 ${CJS_SHIM}
-${safe}
+${appScript(safe)}
   </script>
   ${STAMP}
 </body>
