@@ -12,6 +12,7 @@ import {
   COMPOSE_JS,
   HELLO_JS,
   TODO_JS,
+  appScript,
   wrapHtmlFile,
 } from "../lib/one-file";
 
@@ -70,7 +71,7 @@ function previewDoc(source: string, error: string) {
     });
   </script>
   <script src="${location.origin}/playground-svenjs.js"></script>
-  <script>${CJS_SHIM}\n${safe}</script>
+  <script>${CJS_SHIM}\n${appScript(safe)}</script>
 </body>
 </html>`;
   previewCache = { source, error, doc };
