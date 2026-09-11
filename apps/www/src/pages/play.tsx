@@ -8,6 +8,7 @@ import missionControlSource from "../demos/mission-control/mission-control.js?ra
 import {
   BLANK_JS,
   CDN,
+  CJS_SHIM,
   COMPOSE_JS,
   HELLO_JS,
   TODO_JS,
@@ -27,38 +28,14 @@ const EXAMPLES: Record<string, string> = {
   blank: BLANK_JS,
 };
 
-function rewriteImports(code: string) {
-  return code
-    .replace(
-      /import\s+([\s\S]*?)\s+from\s+["']svenjs(?:\/jsx(?:-dev)?-runtime)?["']\s*;?/g,
-      (_, spec) => {
-        const trimmed = String(spec).trim();
-        const ns = /^\*\s+as\s+([A-Za-z_$][\w$]*)$/.exec(trimmed);
-        if (ns) return `const ${ns[1]} = globalThis.Svenjs;`;
-        const named = /\{([\s\S]*)\}/.exec(trimmed);
-        const fallback = (named ? trimmed.slice(0, named.index) : trimmed).replace(/,\s*$/, "").trim();
-        const decls: string[] = [];
-        if (fallback) decls.push(`const ${fallback} = globalThis.Svenjs;`);
-        if (named) decls.push(`const {${named[1].replace(/\bas\b/g, ":")}} = globalThis.Svenjs;`);
-        return decls.join(" ");
-      },
-    )
-    .replace(/import\s*["']svenjs(?:\/[^"']*)?["']\s*;?/g, "")
-    .replace(/import\(\s*["']svenjs(?:\/[^"']*)?["']\s*\)/g, "Promise.resolve(globalThis.Svenjs)")
-    .replace(/^\s*export\s+(\*(\s+as\s+[A-Za-z_$][\w$]*)?|\{[^}]*\})\s*from\s*["'][^"']*["']\s*;?/gm, "")
-    .replace(/\bexport\s+default\s+/g, "")
-    .replace(/^\s*export\s*\{[^}]*\}\s*;?/gm, "")
-    .replace(/^\s*export\s+/gm, "");
-}
-
 function toIframeScript(source: string) {
   const { code } = transform(source, {
-    transforms: ["jsx", "typescript"],
+    transforms: ["jsx", "typescript", "imports"],
     jsxRuntime: "automatic",
     jsxImportSource: "svenjs",
     production: true,
   });
-  return rewriteImports(code);
+  return code;
 }
 
 let previewCache = { source: "", error: "", doc: "" };
@@ -93,7 +70,7 @@ function previewDoc(source: string, error: string) {
     });
   </script>
   <script src="${location.origin}/playground-svenjs.js"></script>
-  <script>${safe}</script>
+  <script>${CJS_SHIM}\n${safe}</script>
 </body>
 </html>`;
   previewCache = { source, error, doc };

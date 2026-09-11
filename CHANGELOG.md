@@ -24,7 +24,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 - Playground clipboard/export status is separate from code errors; delayed sharing cannot restore an older example, and missing clipboard support is handled.
 - SSR select context is local to each render, including failed and reentrant renders. Component-generated option text is matched without rendering twice.
 - Ignored raw-HTML children receive no ref teardown. State documentation now correctly allows cyclic structures.
-- The playground rewrites `import * as ns`, default, mixed, side-effect and dynamic `svenjs` imports, and strips `export` statements, instead of producing broken scripts. A shared link whose code fails to compile shows an error in the preview instead of crashing the app shell.
+- Playground sources compile through Sucrase's `imports` transform into CommonJS resolved by a `require` shim for `svenjs`, so namespace, mixed, side-effect and dynamic imports plus `export`/`export default` work instead of producing broken scripts. A shared link whose code fails to compile shows an error in the preview instead of crashing the app shell.
 - Router and docs metadata tolerate malformed percent-encoded paths instead of throwing. Anchors without `href` bypass SPA navigation. The hello examples carry the SvenJS credit chip.
 
 ### Verification
