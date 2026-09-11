@@ -34,18 +34,22 @@ function beginCommit() {
   commits.push({ errors: [] });
 }
 
-function endCommit() {
-  const { errors } = commits.pop()!;
-  if (commits.length) {
-    commits[commits.length - 1].errors.push(...errors);
-    return;
-  }
+function runMounts(errors: unknown[]) {
   const mounts = mountQueue.splice(0);
   for (let i = 0; i < mounts.length; i++) {
     const inst = mounts[i];
     if (inst._destroyed || !inst._mounted) continue;
     runUser(() => callHook(inst, "onMount", "_didMount"), errors);
   }
+}
+
+function endCommit() {
+  const { errors } = commits.pop()!;
+  if (commits.length) {
+    commits[commits.length - 1].errors.push(...errors);
+    return;
+  }
+  runMounts(errors);
   raise(errors);
 }
 
@@ -146,6 +150,7 @@ export function flush() {
           errors.push(error);
         }
       }
+      runMounts(errors);
     }
   } finally {
     flushing = false;
