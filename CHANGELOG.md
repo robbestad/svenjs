@@ -13,7 +13,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ### Fixed
 
-- `flushSync` now drains updates scheduled during the same flush — e.g. `setState` from `onUpdate` or a store notification is applied before `flushSync` returns, instead of deferring to a microtask. Flushes cap at 50 passes and defer the remainder.
+- `flushSync` now drains updates scheduled during the same flush — e.g. `setState` from `onUpdate` or a store notification is applied before `flushSync` returns, instead of deferring to a microtask. Flushes cap at 50 passes and defer the remainder; components mounted mid-flush run `onMount` before a later pass can fire their `onUpdate`.
 - Unkeyed list matching no longer scans the old child list per new child; matching is linear in list length with identical pairing semantics.
 - A spec can no longer overwrite internal instance fields (`_dirty`, `_mounted`, `_vnode`, …) or `type`/`state`/`props` during `create`. Destroyed instances release their parent node reference.
 - Failed root renders and hydration clear partial trees and release their refs, subscriptions and instances. Failed component patches retain the owner and an empty placeholder for a later state update; successful independent nested roots keep their mount hooks.
