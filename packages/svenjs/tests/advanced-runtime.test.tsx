@@ -388,6 +388,59 @@ describe("scheduler recovery", () => {
     expect(goodRoot.textContent).toBe("2");
   });
 
+  it("drains updates scheduled during the flush inside flushSync", () => {
+    let instance: any;
+    const App = create({
+      initialState: { n: 0 },
+      onMount() {
+        instance = this;
+      },
+      onUpdate() {
+        if (this.state.n === 1) this.setState({ n: 2 });
+      },
+      render() {
+        return <b>{this.state.n}</b>;
+      },
+    });
+    const host = root();
+    render(App, host);
+    flushSync(() => instance.setState({ n: 1 }));
+    expect(host.textContent).toBe("2");
+  });
+
+  it("runs a newly mounted child's onMount before its onUpdate during a cascading flush", () => {
+    const log: string[] = [];
+    let instance: any;
+    const Child = create<{ tag: string }>({
+      onMount() {
+        log.push("mount");
+      },
+      onUpdate() {
+        log.push("update");
+      },
+      render() {
+        return <b>{this.props.tag}</b>;
+      },
+    });
+    const App = create({
+      initialState: { n: 0 },
+      onMount() {
+        instance = this;
+      },
+      onUpdate() {
+        if (this.state.n === 1) this.setState({ n: 2 });
+      },
+      render() {
+        return <div>{this.state.n > 0 ? <Child tag={String(this.state.n)} /> : null}</div>;
+      },
+    });
+    const host = root();
+    render(App, host);
+    flushSync(() => instance.setState({ n: 1 }));
+    expect(log).toEqual(["mount", "update"]);
+    expect(host.textContent).toBe("2");
+  });
+
   it("flushes queued state even when the flushSync callback throws", () => {
     const App = create({
       initialState: { count: 0 },

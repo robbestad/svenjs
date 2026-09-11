@@ -5,8 +5,10 @@ import { HELLO_HTML } from "../lib/one-file";
 const CopyRecipe = create({
   initialState: { copied: false },
   copy() {
-    navigator.clipboard?.writeText(HELLO_HTML);
-    this.setState({ copied: true });
+    navigator.clipboard?.writeText(HELLO_HTML).then(
+      () => this.setState({ copied: true }),
+      () => {},
+    );
   },
   render() {
     return (

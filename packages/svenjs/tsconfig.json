@@ -15,7 +15,7 @@
     "paths": {
       "svenjs": ["./src/index.ts"],
       "svenjs/jsx-runtime": ["./src/jsx-runtime.ts"],
-      "svenjs/jsx-dev-runtime": ["./src/jsx-runtime.ts"]
+      "svenjs/jsx-dev-runtime": ["./src/jsx-dev-runtime.ts"]
     }
   },
   "include": ["src", "tests"]

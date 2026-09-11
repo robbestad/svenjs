@@ -8,9 +8,11 @@ import missionControlSource from "../demos/mission-control/mission-control.js?ra
 import {
   BLANK_JS,
   CDN,
+  CJS_SHIM,
   COMPOSE_JS,
   HELLO_JS,
   TODO_JS,
+  appScript,
   wrapHtmlFile,
 } from "../lib/one-file";
 
@@ -27,38 +29,32 @@ const EXAMPLES: Record<string, string> = {
   blank: BLANK_JS,
 };
 
-function rewriteImports(code: string) {
-  return code.replace(
-    /import\s+([\s\S]*?)\s+from\s+["']svenjs(?:\/jsx(?:-dev)?-runtime)?["']\s*;?/g,
-    (_, spec) => {
-      const trimmed = String(spec).trim();
-      if (trimmed.startsWith("{")) {
-        const inner = trimmed.slice(1, -1).replace(/\bas\b/g, ":");
-        return `const {${inner}} = Svenjs;`;
-      }
-      return `const ${trimmed} = Svenjs;`;
-    },
-  );
-}
-
 function toIframeScript(source: string) {
-  if (!/from\s+["']svenjs/.test(source)) return source;
   const { code } = transform(source, {
-    transforms: ["jsx", "typescript"],
+    transforms: ["jsx", "typescript", "imports"],
     jsxRuntime: "automatic",
     jsxImportSource: "svenjs",
     production: true,
   });
-  return rewriteImports(code);
+  return code;
 }
 
+let previewCache = { source: "", error: "", doc: "" };
+
 function previewDoc(source: string, error: string) {
-  if (error) {
-    return `<!DOCTYPE html><html><body style="font:14px/1.4 ui-monospace,monospace;color:#ff8a80;padding:1rem;white-space:pre-wrap">${escapeHtml(error)}</body></html>`;
+  if (previewCache.source === source && previewCache.error === error) return previewCache.doc;
+  let compileError = error;
+  let safe = "";
+  if (!compileError) {
+    try {
+      safe = toIframeScript(source).replace(/<\/script/gi, "<\\/script");
+    } catch (err) {
+      compileError = err instanceof Error ? err.message : String(err);
+    }
   }
-  const runtime = `${location.origin}/playground-svenjs.js`;
-  const safe = toIframeScript(source).replace(/<\/script/gi, "<\\/script");
-  return `<!DOCTYPE html>
+  const doc = compileError
+    ? `<!DOCTYPE html><html><body style="font:14px/1.4 ui-monospace,monospace;color:#ff8a80;padding:1rem;white-space:pre-wrap">${escapeHtml(compileError)}</body></html>`
+    : `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -74,10 +70,12 @@ function previewDoc(source: string, error: string) {
       parent.postMessage({ type: "sven-preview-error", message: String(event.reason) }, "*");
     });
   </script>
-  <script src="${runtime}"></script>
-  <script>${safe}</script>
+  <script src="${location.origin}/playground-svenjs.js"></script>
+  <script>${CJS_SHIM}\n${appScript(safe)}</script>
 </body>
 </html>`;
+  previewCache = { source, error, doc };
+  return doc;
 }
 
 function escapeHtml(s: string) {
@@ -107,10 +105,17 @@ export const PlayPage = create({
     const shared = readHash();
     const requested = new URLSearchParams(location.search).get("example") ?? "click";
     const example = EXAMPLES[requested] ? requested : "click";
+    const source = shared?.source || EXAMPLES[example];
+    let error = "";
+    try {
+      toIframeScript(source);
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    }
     return {
-      source: shared?.source || EXAMPLES[example],
+      source,
       example: shared?.example ?? example,
-      error: "",
+      error,
       actionError: "", copied: "",
     };
   },

@@ -12,7 +12,7 @@
   <div id="app"></div>
   <script src="/playground-svenjs.js"></script>
   <script>
-    const { create, render, html } = Svenjs;
+    const { create, render, html, version } = Svenjs;
 
     const App = create({
       initialState: { clicks: 0 },
@@ -24,6 +24,21 @@
               Why not click me?
             </button>
             <p>You have clicked ${this.state.clicks} times.</p>
+            <a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener noreferrer">
+              <svg class="svenjs-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 326 326" width="36" height="36" aria-hidden="true">
+                <rect width="326" height="326" rx="72" fill="#312725"/>
+                <g fill="#e07a3d" transform="translate(0 4)">
+                  <polygon points="127,73 258,73 204,130 78,129"/>
+                  <polygon points="78,129 121,129 172,184 131,184"/>
+                  <polygon points="154,139 198,139 249,195 205,195"/>
+                  <polygon points="116,193 249,195 199,250 66,250"/>
+                </g>
+              </svg>
+              <span class="svenjs-credit-copy">
+                <span class="svenjs-credit-kicker">UI built with</span>
+                <span class="svenjs-credit-name">SvenJS ${version}</span>
+              </span>
+            </a>
           </div>
         `;
       },

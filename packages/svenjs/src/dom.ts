@@ -67,9 +67,6 @@ function applyStyle(el: Element, oldVal: unknown, newVal: unknown) {
     return;
   }
   if (!newVal) {
-    if (typeof oldVal === "object" && oldVal) {
-      for (const k of Object.keys(oldVal as object)) style.removeProperty(k);
-    }
     el.removeAttribute("style");
     return;
   }
