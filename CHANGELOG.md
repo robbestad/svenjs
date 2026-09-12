@@ -6,6 +6,8 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 
 ## [Unreleased]
 
+## [3.4.0] – 2026-09-12
+
 ### Added
 
 - `create({...})` infers declared instance method arguments and return types. Explicit `create<Props, State>` remains compatible; an optional third method type is supported by `create` and `ComponentSpec` when strict explicit signatures are needed.
