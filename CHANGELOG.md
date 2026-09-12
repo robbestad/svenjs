@@ -14,6 +14,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 ### Fixed
 
 - `flushSync` now drains updates scheduled during the same flush — e.g. `setState` from `onUpdate` or a store notification is applied before `flushSync` returns, instead of deferring to a microtask. Flushes cap at 50 passes and defer the remainder; components mounted mid-flush run `onMount` before a later pass can fire their `onUpdate`.
+- Each flush pass finishes its DOM commit before the next pass. Nested flushes preserve pending outer mount hooks, and roots created by `onMount` initialize before their queued updates run.
 - Unkeyed list matching no longer scans the old child list per new child; matching is linear in list length with identical pairing semantics.
 - A spec can no longer overwrite internal instance fields (`_dirty`, `_mounted`, `_vnode`, …) or `type`/`state`/`props` during `create`. Destroyed instances release their parent node reference.
 - Failed root renders and hydration clear partial trees and release their refs, subscriptions and instances. Failed component patches retain the owner and an empty placeholder for a later state update; successful independent nested roots keep their mount hooks.
@@ -24,7 +25,7 @@ This document broadly follows [Keep a Changelog](https://keepachangelog.com/). D
 - Playground clipboard/export status is separate from code errors; delayed sharing cannot restore an older example, and missing clipboard support is handled.
 - SSR select context is local to each render, including failed and reentrant renders. Component-generated option text is matched without rendering twice.
 - Ignored raw-HTML children receive no ref teardown. State documentation now correctly allows cyclic structures.
-- Playground sources compile through Sucrase's `imports` transform into CommonJS resolved by a `require` shim for `svenjs`, so namespace, mixed, side-effect and dynamic imports plus `export`/`export default` work instead of producing broken scripts. A shared link whose code fails to compile shows an error in the preview instead of crashing the app shell.
+- Playground sources compile JSX and TypeScript with Sucrase and run as native ES modules. An inline import map resolves SvenJS to the bundled runtime, including offline exports; namespace, mixed, side-effect and dynamic imports plus `export`/`export default` work without colliding with local `require`, `exports` or `module` declarations. A shared link whose code fails to compile shows an error in the preview instead of crashing the app shell.
 - Router and docs metadata tolerate malformed percent-encoded paths instead of throwing. Anchors without `href` bypass SPA navigation. The hello examples carry the SvenJS credit chip.
 
 ### Verification

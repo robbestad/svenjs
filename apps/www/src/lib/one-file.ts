@@ -1,4 +1,5 @@
 import { version } from "svenjs";
+import * as runtimeExports from "svenjs";
 import previewCss from "../../public/preview.css?raw";
 
 export const CDN = `https://unpkg.com/svenjs@${version}`;
@@ -148,10 +149,19 @@ const App = create({
 render(App, document.getElementById("app"));
 `;
 
-export const CJS_SHIM = `var __svenRequire=function(id){if(id==="svenjs"||id.indexOf("svenjs/")===0)return globalThis.Svenjs;throw new Error("Cannot require "+id);};var __svenExports={};`;
+// A data module exposes the already-loaded IIFE without a network request,
+// including in sandboxed previews and HTML files opened from disk.
+const runtimeModule = `export const { ${Object.keys(runtimeExports).filter(name => name !== "default").join(", ")} } = globalThis.Svenjs; export default globalThis.Svenjs.default ?? globalThis.Svenjs;`;
+const runtimeModuleUrl = `data:text/javascript,${encodeURIComponent(runtimeModule)}`;
+const importMap = JSON.stringify({ imports: {
+  svenjs: runtimeModuleUrl,
+  "svenjs/jsx-runtime": runtimeModuleUrl,
+  "svenjs/jsx-dev-runtime": runtimeModuleUrl,
+} });
 
 export function appScript(code: string) {
-  return `void function(require,exports,module){"use strict";{\n${code}\n}}.call(globalThis,__svenRequire,__svenExports,{exports:__svenExports});`;
+  const safe = code.replace(/<\/script/gi, "<\\/script");
+  return `<script type="importmap">${importMap}</script>\n<script type="module">\n${safe}\n</script>`;
 }
 
 const STAMP = `<a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener noreferrer">
@@ -171,7 +181,6 @@ const STAMP = `<a class="svenjs-credit" href="https://svenjs.xyz/" rel="noopener
 </a>`;
 
 export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?: string, title = "SvenJS") {
-  const safe = script.replace(/<\/script/gi, "<\\/script");
   const runtimeTag = inlineRuntime
     ? `<script>\n${inlineRuntime.replace(/<\/script/gi, "<\\/script")}\n</script>`
     : `<script src="${runtimeSrc}"></script>`;
@@ -186,10 +195,7 @@ export function wrapHtmlFile(script: string, runtimeSrc: string, inlineRuntime?:
 <body>
   <div id="app"></div>
   ${runtimeTag}
-  <script>
-${CJS_SHIM}
-${appScript(safe)}
-  </script>
+  ${appScript(script)}
   ${STAMP}
 </body>
 </html>
