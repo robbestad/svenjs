@@ -131,9 +131,9 @@ export function schedule(inst: Instance) {
 
 export function flush() {
   scheduled = false;
+  const wasFlushing = flushing;
   flushing = true;
   const errors: unknown[] = [];
-  beginCommit();
   try {
     for (let pass = 0; queue.size; pass++) {
       if (pass === 50) {
@@ -142,23 +142,20 @@ export function flush() {
       }
       const list = [...queue];
       queue.clear();
-      for (const inst of list) {
-        if (inst._destroyed || !inst._mounted) continue;
-        try {
-          updateInstance(inst);
-        } catch (error) {
-          errors.push(error);
+      beginCommit();
+      try {
+        for (const inst of list) {
+          if (inst._destroyed || !inst._mounted) continue;
+          runUser(() => updateInstance(inst), errors);
         }
+      } finally {
+        // Finish this pass before draining cascading updates. A nested flush
+        // still belongs to its outer DOM commit and must defer its mount hooks.
+        runUser(endCommit, errors);
       }
-      runMounts(errors);
     }
   } finally {
-    flushing = false;
-    try {
-      endCommit();
-    } catch (error) {
-      errors.push(error);
-    }
+    flushing = wasFlushing;
     if (queue.size && !scheduled) {
       scheduled = true;
       queueMicrotask(flush);
