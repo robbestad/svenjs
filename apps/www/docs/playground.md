@@ -7,6 +7,8 @@ order: 5
 
 The [playground](/play/) runs your script against a local IIFE build in a sandboxed iframe.
 
+Application source runs as an ES module, with JSX and TypeScript compiled by Sucrase. Imports from `svenjs` resolve to the embedded runtime through an import map, including in downloaded files. Named, default, namespace and dynamic imports are supported, as are exports. Use a browser with ES module and import map support.
+
 The playground opens the small **Click** example. Mission Control is in the example list when you want the larger demo. The editor edits **application source** inside an HTML wrapper — it is not a full HTML/CSS IDE.
 
 Preview uses the development runtime (key warnings and freeze checks). **Copy HTML** / **Download .html** embed the production runtime, current editor text, shared preview CSS, and the SvenJS credit chip. Open that file from disk: no npm, build step, network, or API key. A CDN starter still needs the network; the exported file does not.

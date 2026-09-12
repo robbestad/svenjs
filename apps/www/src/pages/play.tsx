@@ -8,7 +8,6 @@ import missionControlSource from "../demos/mission-control/mission-control.js?ra
 import {
   BLANK_JS,
   CDN,
-  CJS_SHIM,
   COMPOSE_JS,
   HELLO_JS,
   TODO_JS,
@@ -31,7 +30,7 @@ const EXAMPLES: Record<string, string> = {
 
 function toIframeScript(source: string) {
   const { code } = transform(source, {
-    transforms: ["jsx", "typescript", "imports"],
+    transforms: ["jsx", "typescript"],
     jsxRuntime: "automatic",
     jsxImportSource: "svenjs",
     production: true,
@@ -44,10 +43,10 @@ let previewCache = { source: "", error: "", doc: "" };
 function previewDoc(source: string, error: string) {
   if (previewCache.source === source && previewCache.error === error) return previewCache.doc;
   let compileError = error;
-  let safe = "";
+  let script = "";
   if (!compileError) {
     try {
-      safe = toIframeScript(source).replace(/<\/script/gi, "<\\/script");
+      script = toIframeScript(source);
     } catch (err) {
       compileError = err instanceof Error ? err.message : String(err);
     }
@@ -71,7 +70,7 @@ function previewDoc(source: string, error: string) {
     });
   </script>
   <script src="${location.origin}/playground-svenjs.js"></script>
-  <script>${CJS_SHIM}\n${appScript(safe)}</script>
+  ${appScript(script)}
 </body>
 </html>`;
   previewCache = { source, error, doc };
